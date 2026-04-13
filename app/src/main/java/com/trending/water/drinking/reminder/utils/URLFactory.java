@@ -2,7 +2,6 @@ package com.trending.water.drinking.reminder.utils;
 
 import android.media.Ringtone;
 
-
 import java.text.DecimalFormat;
 
 public class URLFactory {

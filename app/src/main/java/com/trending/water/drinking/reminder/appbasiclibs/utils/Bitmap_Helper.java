@@ -21,7 +21,6 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import com.trending.water.drinking.reminder.R;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;

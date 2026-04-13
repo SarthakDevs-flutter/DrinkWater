@@ -3,11 +3,6 @@ package com.trending.water.drinking.reminder.appbasiclibs.utils;
 import android.app.Activity;
 import android.content.Context;
 
-import com.bumptech.glide.load.Key;
-
-
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;

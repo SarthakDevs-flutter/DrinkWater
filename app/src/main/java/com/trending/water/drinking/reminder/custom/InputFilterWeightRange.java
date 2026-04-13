@@ -16,11 +16,11 @@ public class InputFilterWeightRange implements InputFilter {
         try {
             String replacement = source.subSequence(start, end).toString();
             String newVal = dest.subSequence(0, dstart).toString() + replacement + dest.subSequence(dend, dest.length()).toString();
-            
+
             if (newVal.equals("") || newVal.equals(".")) {
                 return null;
             }
-            
+
             double input = Double.parseDouble(newVal);
             if (isInRange(this.min, this.max, input, newVal)) {
                 return null;

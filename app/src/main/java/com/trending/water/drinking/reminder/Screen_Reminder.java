@@ -39,7 +39,6 @@ import com.trending.water.drinking.reminder.model.IntervalModel;
 import com.trending.water.drinking.reminder.model.SoundModel;
 import com.trending.water.drinking.reminder.receiver.MyAlarmManager;
 import com.trending.water.drinking.reminder.utils.URLFactory;
-import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
@@ -1053,7 +1052,7 @@ public class Screen_Reminder extends MasterBaseActivity {
         });
         soundRecyclerView.setLayoutManager(new LinearLayoutManager(this.act, RecyclerView.VERTICAL, false));
         soundRecyclerView.setAdapter(this.soundAdapter);
-         view.findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Screen_Reminder.this.bottomSheetDialogSound.dismiss();
             }

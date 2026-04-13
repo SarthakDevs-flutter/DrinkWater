@@ -31,7 +31,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import android.text.BoringLayout;
 import android.text.Layout;
 import android.text.TextPaint;
@@ -75,67 +74,46 @@ public class HorizontalPicker extends View {
      * The the duration for adjusting the selector wheel.
      */
     private static final int SELECTOR_ADJUSTMENT_DURATION_MILLIS = 800;
-
+    private final int overscrollDistance;
+    private final PickerTouchHelper touchHelper;
     /**
      * Determines speed during touch scrolling.
      */
     private VelocityTracker mVelocityTracker;
-
     /**
      * @see android.view.ViewConfiguration#getScaledMinimumFlingVelocity()
      */
     private int mMinimumFlingVelocity;
-
     /**
      * @see android.view.ViewConfiguration#getScaledMaximumFlingVelocity()
      */
     private int maximumFlingVelocity;
-
-    private final int overscrollDistance;
-
     private int touchSlop;
-
     private CharSequence[] values;
     private BoringLayout[] layouts;
-
     private TextPaint textPaint;
     private BoringLayout.Metrics boringMetrics;
     private TextUtils.TruncateAt ellipsize;
-
     private int itemWidth;
     private RectF itemClipBounds;
     private RectF itemClipBoundsOffset;
-
     private float lastDownEventX;
-
     private OverScroller flingScrollerX;
     private OverScroller adjustScrollerX;
-
     private int previousScrollerX;
-
     private boolean scrollingX;
     private int pressedItem = -1;
-
     private ColorStateList textColor;
-
     private OnItemSelected onItemSelected;
     private OnItemClicked onItemClicked;
-
     private int selectedItem;
-
     private EdgeEffect leftEdgeEffect;
     private EdgeEffect rightEdgeEffect;
-
     private Marquee marquee;
     private int marqueeRepeatLimit = 3;
-
     private float dividerSize = 0;
-
     private int sideItems = 1;
-
     private TextDirectionHeuristicCompat textDir;
-
-    private final PickerTouchHelper touchHelper;
 
     public HorizontalPicker(Context context) {
         this(context, null);
@@ -176,7 +154,7 @@ public class HorizontalPicker extends View {
             sideItems = a.getInt(R.styleable.HorizontalPicker_sideItems, sideItems);
 
             float textSize = a.getDimension(R.styleable.HorizontalPicker_android_textSize, -1);
-            if(textSize > -1) {
+            if (textSize > -1) {
                 setTextSize(textSize);
             }
         } finally {
@@ -238,7 +216,7 @@ public class HorizontalPicker extends View {
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
         int height;
-        if(heightMode == MeasureSpec.EXACTLY) {
+        if (heightMode == MeasureSpec.EXACTLY) {
             height = heightSize;
         } else {
             Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
@@ -341,6 +319,7 @@ public class HorizontalPicker extends View {
 
     /**
      * TODO cache values
+     *
      * @param text
      * @return
      */
@@ -382,7 +361,7 @@ public class HorizontalPicker extends View {
 
     private void remakeLayout() {
 
-        if (layouts != null && layouts.length > 0 && getWidth() > 0)  {
+        if (layouts != null && layouts.length > 0 && getWidth() > 0) {
             for (int i = 0; i < layouts.length; i++) {
                 layouts[i].replaceOrMake(values[i], textPaint, itemWidth,
                         Layout.Alignment.ALIGN_CENTER, 1f, 1f, boringMetrics, false, ellipsize,
@@ -398,7 +377,7 @@ public class HorizontalPicker extends View {
             return;
         }
 
-        if(!edgeEffect.isFinished()) {
+        if (!edgeEffect.isFinished()) {
             final int restoreCount = canvas.getSaveCount();
             final int width = getWidth();
             final int height = getHeight();
@@ -412,7 +391,7 @@ public class HorizontalPicker extends View {
             }
 
             edgeEffect.setSize(height, width);
-            if(edgeEffect.draw(canvas)) {
+            if (edgeEffect.draw(canvas)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     postInvalidateOnAnimation();
                 } else {
@@ -442,8 +421,8 @@ public class HorizontalPicker extends View {
                 scrollX < itemWithPadding * (item + 1) - itemWithPadding / 2) {
             int position = scrollX - itemWithPadding / 2;
             color = getColor(position, item);
-        } else if(item == pressedItem) {
-            color = textColor.getColorForState(new int[] { android.R.attr.state_pressed }, color);
+        } else if (item == pressedItem) {
+            color = textColor.getColorForState(new int[]{android.R.attr.state_pressed}, color);
         }
 
         return color;
@@ -460,7 +439,7 @@ public class HorizontalPicker extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        if(!isEnabled()) {
+        if (!isEnabled()) {
             return false;
         }
 
@@ -477,10 +456,10 @@ public class HorizontalPicker extends View {
 
                 int deltaMoveX = (int) (lastDownEventX - currentMoveX);
 
-                if(scrollingX ||
+                if (scrollingX ||
                         (Math.abs(deltaMoveX) > touchSlop) && values != null && values.length > 0) {
 
-                    if(!scrollingX) {
+                    if (!scrollingX) {
                         deltaMoveX = 0;
                         pressedItem = -1;
                         scrollingX = true;
@@ -490,20 +469,20 @@ public class HorizontalPicker extends View {
 
                     final int range = getScrollRange();
 
-                    if(overScrollBy(deltaMoveX, 0, getScrollX(), 0, range, 0,
+                    if (overScrollBy(deltaMoveX, 0, getScrollX(), 0, range, 0,
                             overscrollDistance, 0, true)) {
                         mVelocityTracker.clear();
                     }
 
                     final float pulledToX = getScrollX() + deltaMoveX;
-                    if(pulledToX < 0) {
+                    if (pulledToX < 0) {
                         leftEdgeEffect.onPull((float) deltaMoveX / getWidth());
-                        if(!rightEdgeEffect.isFinished()) {
+                        if (!rightEdgeEffect.isFinished()) {
                             rightEdgeEffect.onRelease();
                         }
-                    } else if(pulledToX > range) {
+                    } else if (pulledToX > range) {
                         rightEdgeEffect.onPull((float) deltaMoveX / getWidth());
-                        if(!leftEdgeEffect.isFinished()) {
+                        if (!leftEdgeEffect.isFinished()) {
                             leftEdgeEffect.onRelease();
                         }
                     }
@@ -516,9 +495,9 @@ public class HorizontalPicker extends View {
                 break;
             case MotionEvent.ACTION_DOWN:
 
-                if(!adjustScrollerX.isFinished()) {
+                if (!adjustScrollerX.isFinished()) {
                     adjustScrollerX.forceFinished(true);
-                } else if(!flingScrollerX.isFinished()) {
+                } else if (!flingScrollerX.isFinished()) {
                     flingScrollerX.forceFinished(true);
                 } else {
                     scrollingX = false;
@@ -526,7 +505,7 @@ public class HorizontalPicker extends View {
 
                 lastDownEventX = event.getX();
 
-                if(!scrollingX) {
+                if (!scrollingX) {
                     pressedItem = getPositionFromTouch(event.getX());
                 }
                 invalidate();
@@ -538,11 +517,11 @@ public class HorizontalPicker extends View {
                 velocityTracker.computeCurrentVelocity(1000, maximumFlingVelocity);
                 int initialVelocityX = (int) velocityTracker.getXVelocity();
 
-                if(scrollingX && Math.abs(initialVelocityX) > mMinimumFlingVelocity) {
+                if (scrollingX && Math.abs(initialVelocityX) > mMinimumFlingVelocity) {
                     flingX(initialVelocityX);
                 } else if (values != null) {
                     float positionX = event.getX();
-                    if(!scrollingX) {
+                    if (!scrollingX) {
 
                         int itemPos = getPositionOnScreen(positionX);
                         int relativePos = itemPos - sideItems;
@@ -553,7 +532,7 @@ public class HorizontalPicker extends View {
                             smoothScrollBy(relativePos);
                         }
 
-                    } else if(scrollingX) {
+                    } else if (scrollingX) {
                         finishScrolling();
                     }
                 }
@@ -561,7 +540,7 @@ public class HorizontalPicker extends View {
                 mVelocityTracker.recycle();
                 mVelocityTracker = null;
 
-                if(leftEdgeEffect != null) {
+                if (leftEdgeEffect != null) {
                     leftEdgeEffect.onRelease();
                     rightEdgeEffect.onRelease();
                 }
@@ -570,7 +549,7 @@ public class HorizontalPicker extends View {
                 pressedItem = -1;
                 invalidate();
 
-                if(leftEdgeEffect != null) {
+                if (leftEdgeEffect != null) {
                     leftEdgeEffect.onRelease();
                     rightEdgeEffect.onRelease();
                 }
@@ -690,6 +669,7 @@ public class HorizontalPicker extends View {
 
     /**
      * Sets values to choose from
+     *
      * @param values New values to choose from
      */
     public void setValues(CharSequence[] values) {
@@ -747,7 +727,7 @@ public class HorizontalPicker extends View {
 
     @Override
     public void setOverScrollMode(int overScrollMode) {
-        if(overScrollMode != OVER_SCROLL_NEVER) {
+        if (overScrollMode != OVER_SCROLL_NEVER) {
             Context context = getContext();
             leftEdgeEffect = new EdgeEffect(context);
             rightEdgeEffect = new EdgeEffect(context);
@@ -776,7 +756,7 @@ public class HorizontalPicker extends View {
     protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
         super.scrollTo(scrollX, scrollY);
 
-        if(!flingScrollerX.isFinished() && clampedX) {
+        if (!flingScrollerX.isFinished() && clampedX) {
             flingScrollerX.springBack(scrollX, scrollY, 0, getScrollRange(), 0, 0);
         }
     }
@@ -792,24 +772,24 @@ public class HorizontalPicker extends View {
 
     private void computeScrollX() {
         OverScroller scroller = flingScrollerX;
-        if(scroller.isFinished()) {
+        if (scroller.isFinished()) {
             scroller = adjustScrollerX;
-            if(scroller.isFinished()) {
+            if (scroller.isFinished()) {
                 return;
             }
         }
 
-        if(scroller.computeScrollOffset()) {
+        if (scroller.computeScrollOffset()) {
 
             int currentScrollerX = scroller.getCurrX();
-            if(previousScrollerX == Integer.MIN_VALUE) {
+            if (previousScrollerX == Integer.MIN_VALUE) {
                 previousScrollerX = scroller.getStartX();
             }
 
             int range = getScrollRange();
-            if(previousScrollerX >= 0 && currentScrollerX < 0) {
+            if (previousScrollerX >= 0 && currentScrollerX < 0) {
                 leftEdgeEffect.onAbsorb((int) scroller.getCurrVelocity());
-            } else if(previousScrollerX <= range && currentScrollerX > range) {
+            } else if (previousScrollerX <= range && currentScrollerX > range) {
                 rightEdgeEffect.onAbsorb((int) scroller.getCurrVelocity());
             }
 
@@ -817,7 +797,7 @@ public class HorizontalPicker extends View {
                     getScrollRange(), 0, overscrollDistance, 0, false);
             previousScrollerX = currentScrollerX;
 
-            if(scroller.isFinished()) {
+            if (scroller.isFinished()) {
                 onScrollerFinishedX(scroller);
             }
 
@@ -840,9 +820,9 @@ public class HorizontalPicker extends View {
         int x = getScrollX();
         int item = Math.round(x / (itemWidth + dividerSize * 1f));
 
-        if(item < 0) {
+        if (item < 0) {
             item = 0;
-        } else if(item > values.length) {
+        } else if (item > values.length) {
             item = values.length;
         }
 
@@ -874,7 +854,7 @@ public class HorizontalPicker extends View {
     }
 
     private void onScrollerFinishedX(OverScroller scroller) {
-        if(scroller == flingScrollerX) {
+        if (scroller == flingScrollerX) {
             finishScrolling();
         }
     }
@@ -937,13 +917,14 @@ public class HorizontalPicker extends View {
 
     /**
      * Calculates color for specific position on time picker
+     *
      * @param scrollX
      * @return
      */
     private int getColor(int scrollX, int position) {
         int itemWithPadding = (int) (itemWidth + dividerSize);
         float proportion = Math.abs(((1f * scrollX % itemWithPadding) / 2) / (itemWithPadding / 2f));
-        if(proportion > .5) {
+        if (proportion > .5) {
             proportion = (proportion - .5f);
         } else {
             proportion = .5f - proportion;
@@ -953,22 +934,23 @@ public class HorizontalPicker extends View {
         int defaultColor;
         int selectedColor;
 
-        if(pressedItem == position) {
-            defaultColor = textColor.getColorForState(new int[] { android.R.attr.state_pressed }, textColor.getDefaultColor());
-            selectedColor = textColor.getColorForState(new int[] { android.R.attr.state_pressed, android.R.attr.state_selected }, defaultColor);
+        if (pressedItem == position) {
+            defaultColor = textColor.getColorForState(new int[]{android.R.attr.state_pressed}, textColor.getDefaultColor());
+            selectedColor = textColor.getColorForState(new int[]{android.R.attr.state_pressed, android.R.attr.state_selected}, defaultColor);
         } else {
             defaultColor = textColor.getDefaultColor();
-            selectedColor = textColor.getColorForState(new int[] { android.R.attr.state_selected }, defaultColor);
+            selectedColor = textColor.getColorForState(new int[]{android.R.attr.state_selected}, defaultColor);
         }
         return (Integer) new ArgbEvaluator().evaluate(proportion, selectedColor, defaultColor);
     }
 
     /**
      * Sets text size for items
+     *
      * @param size New item text size in px.
      */
     public void setTextSize(float size) {
-        if(size != textPaint.getTextSize()) {
+        if (size != textPaint.getTextSize()) {
             textPaint.setTextSize(size);
 
             requestLayout();
@@ -978,6 +960,7 @@ public class HorizontalPicker extends View {
 
     /**
      * Calculates item from x coordinate position.
+     *
      * @param x Scroll position to calculate.
      * @return Selected item from scrolling position in {param x}
      */
@@ -987,6 +970,7 @@ public class HorizontalPicker extends View {
 
     /**
      * Scrolls to specified item.
+     *
      * @param index Index of an item to scroll to
      */
     private void scrollToItem(int index) {
@@ -997,6 +981,7 @@ public class HorizontalPicker extends View {
     /**
      * Calculates relative horizontal scroll position to be within our scroll bounds.
      * {@link com.trending.water.drinking.reminder.lib.horizontalpicker.HorizontalPicker#getInBoundsX(int)}
+     *
      * @param x Relative scroll position to calculate
      * @return Current scroll position + {param x} if is within our scroll bounds, otherwise it
      * will return min/max scroll position.
@@ -1008,15 +993,16 @@ public class HorizontalPicker extends View {
 
     /**
      * Calculates x scroll position that is still in range of view scroller
+     *
      * @param x Scroll position to calculate.
      * @return {param x} if is within bounds of over scroller, otherwise it will return min/max
      * value of scoll position.
      */
     private int getInBoundsX(int x) {
 
-        if(x < 0) {
+        if (x < 0) {
             x = 0;
-        } else if(x > ((itemWidth + (int) dividerSize) * (values.length - 1))) {
+        } else if (x > ((itemWidth + (int) dividerSize) * (values.length - 1))) {
             x = ((itemWidth + (int) dividerSize) * (values.length - 1));
         }
         return x;
@@ -1024,7 +1010,7 @@ public class HorizontalPicker extends View {
 
     private int getScrollRange() {
         int scrollRange = 0;
-        if(values != null && values.length != 0) {
+        if (values != null && values.length != 0) {
             scrollRange = Math.max(0, ((itemWidth + (int) dividerSize) * (values.length - 1)));
         }
         return scrollRange;
@@ -1060,9 +1046,8 @@ public class HorizontalPicker extends View {
 
         private final WeakReference<HorizontalPicker> mView;
         private final WeakReference<Layout> mLayout;
-
-        private byte mStatus = MARQUEE_STOPPED;
         private final float mScrollUnit;
+        private byte mStatus = MARQUEE_STOPPED;
         private float mMaxScroll;
         private float mMaxFadeScroll;
         private float mGhostStart;
@@ -1207,6 +1192,17 @@ public class HorizontalPicker extends View {
 
     public static class SavedState extends BaseSavedState {
 
+        @SuppressWarnings("hiding")
+        public static final Parcelable.Creator<SavedState> CREATOR
+                = new Parcelable.Creator<SavedState>() {
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
         private int mSelItem;
 
         public SavedState(Parcelable superState) {
@@ -1227,23 +1223,11 @@ public class HorizontalPicker extends View {
 
         @Override
         public String toString() {
-            return  "HorizontalPicker.SavedState{"
+            return "HorizontalPicker.SavedState{"
                     + Integer.toHexString(System.identityHashCode(this))
                     + " selItem=" + mSelItem
                     + "}";
         }
-
-        @SuppressWarnings("hiding")
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
     }
 
     private static class PickerTouchHelper extends ExploreByTouchHelper {

@@ -6,7 +6,6 @@ import android.content.Context;
 
 import androidx.recyclerview.widget.ItemTouchHelper;
 
-import com.tbuonomo.viewpagerdotsindicator.SpringDotsIndicator;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.Database_Helper;
 
 import java.util.HashMap;

@@ -49,7 +49,6 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.BaseRequestOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.github.mikephil.charting.utils.Utils;
-
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;

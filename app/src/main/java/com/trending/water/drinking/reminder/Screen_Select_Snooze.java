@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.widget.AppCompatTextView;
-import androidx.core.app.NotificationCompat;
 
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
 import com.trending.water.drinking.reminder.receiver.AlarmReceiver;

@@ -19,9 +19,9 @@ import com.trending.water.drinking.reminder.base.MasterBaseFragment;
 import com.trending.water.drinking.reminder.custom.DigitsInputFilter;
 import com.trending.water.drinking.reminder.custom.InputFilterRange;
 import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
+import com.trending.water.drinking.reminder.lib.horizontalpicker.HorizontalPicker;
 import com.trending.water.drinking.reminder.utils.HeightWeightHelper;
 import com.trending.water.drinking.reminder.utils.URLFactory;
-import com.trending.water.drinking.reminder.lib.horizontalpicker.HorizontalPicker;
 
 import java.util.ArrayList;
 import java.util.List;

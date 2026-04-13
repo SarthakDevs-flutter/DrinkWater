@@ -1,10 +1,11 @@
 package com.trending.water.drinking.reminder.appbasiclibs;
 
 import android.app.Activity;
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.trending.water.drinking.reminder.appbasiclibs.utils.Alert_Helper;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.Bitmap_Helper;

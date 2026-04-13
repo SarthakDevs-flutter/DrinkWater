@@ -12,7 +12,6 @@ import androidx.appcompat.widget.AppCompatTextView;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
 import com.trending.water.drinking.reminder.utils.URLFactory;
-import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
