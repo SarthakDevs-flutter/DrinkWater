@@ -28,7 +28,7 @@
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
                 app:lottie_rawRes="@raw/ios_waves"
-                app:lottie_repeatMode="2" />
+                app:lottie_repeatMode="reverse" />
 
             <View
                 android:layout_width="match_parent"

@@ -63,7 +63,7 @@ dependencies {
 //    General Library
     implementation("com.google.code.gson:gson:2.13.2")
     implementation("jp.co.cyberagent.android:gpuimage:2.1.0")
-    implementation("com.intuit.sdp:sdp-android:1.1.1")
-    implementation("com.intuit.ssp:ssp-android:1.1.1")
+//    implementation("com.intuit.sdp:sdp-android:1.1.1")
+//    implementation("com.intuit.ssp:ssp-android:1.1.1")
     implementation("com.wdullaer:materialdatetimepicker:4.2.3")
 }
