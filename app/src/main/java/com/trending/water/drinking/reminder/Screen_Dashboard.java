@@ -49,16 +49,7 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.BaseRequestOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.github.mikephil.charting.utils.Utils;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-//import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.interstitial.InterstitialAd;
-//import com.google.android.gms.ads.reward.RewardItem;
-//import com.google.android.gms.ads.reward.RewardedVideoAd;
-//import com.google.android.gms.ads.reward.RewardedVideoAdListener;
-import com.google.android.gms.ads.rewarded.RewardedAd;
+
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
@@ -126,7 +117,6 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
     AppCompatTextView lbl_total_goal;
     AppCompatTextView lbl_user_name;
     List<SoundModel> lst_sounds = new ArrayList();
-    AdView mAdView;
     DrawerLayout mDrawerLayout;
     RecyclerView mDrawerList;
     int max_bottle_height = 870;
@@ -892,7 +882,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
         this.bottomSheetDialog = new BottomSheetDialog(this.act);
         this.bottomSheetDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             public void onShow(DialogInterface dialog) {
-                FrameLayout bottomSheet = (FrameLayout) ((BottomSheetDialog) dialog).findViewById(R.id.design_bottom_sheet);
+                FrameLayout bottomSheet = (FrameLayout) ((BottomSheetDialog) dialog).findViewById(com.google.android.material.R.id.design_bottom_sheet);
                 if (bottomSheet != null) {
                     BottomSheetBehavior from = BottomSheetBehavior.from(bottomSheet);
                     bottomSheet.setBackground((Drawable) null);
@@ -1157,7 +1147,6 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
     }
 
     public void showReminderDialog() {
-        SwitchCompat switch_vibrate;
         final Dialog dialog = new Dialog(this.act);
         dialog.requestWindowFeature(1);
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
@@ -1166,12 +1155,12 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
         View view = LayoutInflater.from(this.act).inflate(R.layout.dialog_reminder, (ViewGroup) null, false);
         ImageView img_cancel = (ImageView) view.findViewById(R.id.img_cancel);
         RelativeLayout btn_save = (RelativeLayout) view.findViewById(R.id.btn_save);
-        RelativeLayout off_block = (RelativeLayout) view.findViewById(R.id.off_block);
-        RelativeLayout silent_block = (RelativeLayout) view.findViewById(R.id.silent_block);
-        RelativeLayout auto_block = (RelativeLayout) view.findViewById(R.id.auto_block);
-        ImageView img_off = (ImageView) view.findViewById(R.id.img_off);
-        ImageView img_silent = (ImageView) view.findViewById(R.id.img_silent);
-        ImageView img_auto = (ImageView) view.findViewById(R.id.img_auto);
+        final RelativeLayout off_block = (RelativeLayout) view.findViewById(R.id.off_block);
+        final RelativeLayout silent_block = (RelativeLayout) view.findViewById(R.id.silent_block);
+        final RelativeLayout auto_block = (RelativeLayout) view.findViewById(R.id.auto_block);
+        final ImageView img_off = (ImageView) view.findViewById(R.id.img_off);
+        final ImageView img_silent = (ImageView) view.findViewById(R.id.img_silent);
+        final ImageView img_auto = (ImageView) view.findViewById(R.id.img_auto);
         AppCompatTextView advance_settings = (AppCompatTextView) view.findViewById(R.id.advance_settings);
         advance_settings.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -1199,72 +1188,52 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
             img_silent.setImageResource(R.drawable.ic_silent_normal);
             auto_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
             img_auto.setImageResource(R.drawable.ic_auto_normal);
-            switch_vibrate = switch_vibrate2;
+        } else if (this.ph.getInt(URLFactory.REMINDER_OPTION) == 2) {
+            off_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
+            img_off.setImageResource(R.drawable.ic_off_normal);
+            silent_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
+            img_silent.setImageResource(R.drawable.ic_silent_selected);
+            auto_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
+            img_auto.setImageResource(R.drawable.ic_auto_normal);
         } else {
-            switch_vibrate = switch_vibrate2;
-            if (this.ph.getInt(URLFactory.REMINDER_OPTION) == 2) {
-                off_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_off.setImageResource(R.drawable.ic_off_normal);
-                silent_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
-                img_silent.setImageResource(R.drawable.ic_silent_selected);
-                auto_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_auto.setImageResource(R.drawable.ic_auto_normal);
-            } else {
-                off_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_off.setImageResource(R.drawable.ic_off_normal);
-                silent_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_silent.setImageResource(R.drawable.ic_silent_normal);
-                auto_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
-                img_auto.setImageResource(R.drawable.ic_auto_selected);
-            }
+            off_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
+            img_off.setImageResource(R.drawable.ic_off_normal);
+            silent_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
+            img_silent.setImageResource(R.drawable.ic_silent_normal);
+            auto_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
+            img_auto.setImageResource(R.drawable.ic_auto_selected);
         }
-        View view2 = view;
-        SwitchCompat switchCompat = switch_vibrate;
-        AnonymousClass38 r10 = r0;
-        final RelativeLayout relativeLayout = off_block;
-        LinearLayout linearLayout = custom_sound_block;
-        final ImageView imageView = img_off;
-        AppCompatTextView appCompatTextView = advance_settings;
-        final RelativeLayout relativeLayout2 = silent_block;
-        ImageView img_auto2 = img_auto;
-        final ImageView img_auto3 = img_silent;
-        ImageView img_silent2 = img_silent;
-        final RelativeLayout relativeLayout3 = auto_block;
-        ImageView img_off2 = img_off;
-        final ImageView img_off3 = img_auto2;
-        AnonymousClass38 r0 = new View.OnClickListener() {
+
+        off_block.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                relativeLayout.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
-                imageView.setImageResource(R.drawable.ic_off_selected);
-                relativeLayout2.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_auto3.setImageResource(R.drawable.ic_silent_normal);
-                relativeLayout3.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_off3.setImageResource(R.drawable.ic_auto_normal);
+                off_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
+                img_off.setImageResource(R.drawable.ic_off_selected);
+                silent_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
+                img_silent.setImageResource(R.drawable.ic_silent_normal);
+                auto_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
+                img_auto.setImageResource(R.drawable.ic_auto_normal);
                 Screen_Dashboard.this.ph.savePreferences(URLFactory.REMINDER_OPTION, 1);
             }
-        };
-        off_block.setOnClickListener(r10);
-        final ImageView imageView2 = img_off2;
-        final ImageView imageView3 = img_silent2;
+        });
         silent_block.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                relativeLayout.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                imageView2.setImageResource(R.drawable.ic_off_normal);
-                relativeLayout2.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
-                imageView3.setImageResource(R.drawable.ic_silent_selected);
-                relativeLayout3.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_off3.setImageResource(R.drawable.ic_auto_normal);
+                off_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
+                img_off.setImageResource(R.drawable.ic_off_normal);
+                silent_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
+                img_silent.setImageResource(R.drawable.ic_silent_selected);
+                auto_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
+                img_auto.setImageResource(R.drawable.ic_auto_normal);
                 Screen_Dashboard.this.ph.savePreferences(URLFactory.REMINDER_OPTION, 2);
             }
         });
         auto_block.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                relativeLayout.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                imageView2.setImageResource(R.drawable.ic_off_normal);
-                relativeLayout2.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                imageView3.setImageResource(R.drawable.ic_silent_normal);
-                relativeLayout3.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
-                img_off3.setImageResource(R.drawable.ic_auto_selected);
+                off_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
+                img_off.setImageResource(R.drawable.ic_off_normal);
+                silent_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
+                img_silent.setImageResource(R.drawable.ic_silent_normal);
+                auto_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
+                img_auto.setImageResource(R.drawable.ic_auto_selected);
                 Screen_Dashboard.this.ph.savePreferences(URLFactory.REMINDER_OPTION, 0);
             }
         });
@@ -1278,7 +1247,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
                 dialog.dismiss();
             }
         });
-        dialog.setContentView(view2);
+        dialog.setContentView(view);
         dialog.show();
     }
 

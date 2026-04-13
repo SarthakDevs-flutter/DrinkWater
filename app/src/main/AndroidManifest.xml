@@ -34,6 +34,7 @@
 
         <activity
             android:name="com.trending.water.drinking.reminder.Screen_Splash"
+            android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeSplash">
             <intent-filter>
@@ -98,7 +99,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.trending.water.drinking.reminder.mywidgets.NewAppWidget">
+        <receiver android:name="com.trending.water.drinking.reminder.mywidgets.NewAppWidget"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

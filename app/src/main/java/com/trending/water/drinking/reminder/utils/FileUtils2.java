@@ -240,37 +240,53 @@ public class FileUtils2 {
     }
 
     public static Intent getViewIntent(Context context, File file) {
+
         Uri uri = FileProvider.getUriForFile(context, AUTHORITY, file);
-        Intent intent = new Intent("android.intent.action.VIEW");
-        String url = file.toString();
-        if (url.contains(".doc") || url.contains(".docx")) {
-            intent.setDataAndType(uri, "application/msword");
-        } else if (url.contains(".pdf")) {
-            intent.setDataAndType(uri, "application/pdf");
-        } else if (url.contains(".ppt") || url.contains(".pptx")) {
-            intent.setDataAndType(uri, "application/vnd.ms-powerpoint");
-        } else if (url.contains(".xls") || url.contains(".xlsx")) {
-            intent.setDataAndType(uri, "application/vnd.ms-excel");
-        } else if (url.contains(".zip") || url.contains(".rar")) {
-            intent.setDataAndType(uri, "application/x-wav");
-        } else if (url.contains(".rtf")) {
-            intent.setDataAndType(uri, "application/rtf");
-        } else if (url.contains(".wav") || url.contains(".mp3")) {
-            intent.setDataAndType(uri, "audio/x-wav");
-        } else if (url.contains(".gif")) {
-            intent.setDataAndType(uri, "image/gif");
-        } else if (url.contains(".jpg") || url.contains(".jpeg") || url.contains(".png")) {
-            intent.setDataAndType(uri, "image/jpeg");
-        } else if (url.contains(".txt")) {
-            intent.setDataAndType(uri, "text/plain");
-        } else if (url.contains(".3gp") || url.contains(".mpg") || url.contains(".mpeg") || url.contains(".mpe") || url.contains(".mp4") || url.contains(".avi")) {
-            intent.setDataAndType(uri, FileUtils.MIME_TYPE_VIDEO);
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+
+        String fileName = file.getName().toLowerCase();
+
+        String mimeType;
+
+        if (fileName.endsWith(".doc") || fileName.endsWith(".docx")) {
+            mimeType = "application/msword";
+        } else if (fileName.endsWith(".pdf")) {
+            mimeType = "application/pdf";
+        } else if (fileName.endsWith(".ppt") || fileName.endsWith(".pptx")) {
+            mimeType = "application/vnd.ms-powerpoint";
+        } else if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
+            mimeType = "application/vnd.ms-excel";
+        } else if (fileName.endsWith(".zip")) {
+            mimeType = "application/zip";
+        } else if (fileName.endsWith(".rar")) {
+            mimeType = "application/x-rar-compressed";
+        } else if (fileName.endsWith(".rtf")) {
+            mimeType = "application/rtf";
+        } else if (fileName.endsWith(".wav")) {
+            mimeType = "audio/wav";
+        } else if (fileName.endsWith(".mp3")) {
+            mimeType = "audio/mpeg";
+        } else if (fileName.endsWith(".gif")) {
+            mimeType = "image/gif";
+        } else if (fileName.endsWith(".png")) {
+            mimeType = "image/png";
+        } else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+            mimeType = "image/jpeg";
+        } else if (fileName.endsWith(".txt")) {
+            mimeType = "text/plain";
+        } else if (fileName.endsWith(".3gp") || fileName.endsWith(".mp4") ||
+                fileName.endsWith(".avi") || fileName.endsWith(".mpeg")) {
+            mimeType = "video/*";
         } else {
-            intent.setDataAndType(uri, "*/*");
+            mimeType = "*/*";
         }
-        intent.addFlags(268435456);
-        intent.addFlags(1);
-        intent.addFlags(2);
+
+        intent.setDataAndType(uri, mimeType);
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
         return intent;
     }
 
@@ -345,10 +361,18 @@ public class FileUtils2 {
         } catch (IOException e2) {
             e2.printStackTrace();
             if (is != null) {
-                is.close();
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             if (bos != null) {
-                bos.close();
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (Throwable th) {
             if (is != null) {
@@ -360,7 +384,11 @@ public class FileUtils2 {
                 }
             }
             if (bos != null) {
-                bos.close();
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             throw th;
         }
@@ -382,7 +410,11 @@ public class FileUtils2 {
         } catch (IOException e2) {
             e2.printStackTrace();
             if (fileInputStream != null) {
-                fileInputStream.close();
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (Throwable th) {
             if (fileInputStream != null) {

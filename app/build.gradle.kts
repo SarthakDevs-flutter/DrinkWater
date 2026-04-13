@@ -52,10 +52,10 @@ dependencies {
 //    api("com.theartofdev.edmodo:android-image-cropper:2.8.0")
 
 //    Ads Service LIB
-    implementation("com.google.android.gms:play-services-ads:25.1.0")
-    implementation(libs.play.services.ads.api)
 //    implementation("com.google.android.gms:play-services-ads:25.1.0")
-    implementation("com.google.android.ump:user-messaging-platform:4.0.0")
+//    implementation(libs.play.services.ads.api)
+//    implementation("com.google.android.gms:play-services-ads:25.1.0")
+//    implementation("com.google.android.ump:user-messaging-platform:4.0.0")
 
 //    Animation library
     implementation("com.airbnb.android:lottie:6.7.1")

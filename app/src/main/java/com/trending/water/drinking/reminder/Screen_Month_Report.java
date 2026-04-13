@@ -38,7 +38,6 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.Utils;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.gson.Gson;
 import com.trending.water.drinking.reminder.adapter.HistoryAdapter;
@@ -374,7 +373,7 @@ public class Screen_Month_Report extends MasterBaseFragment {
             ((BarData) this.chart.getData()).notifyDataChanged();
             this.chart.notifyDataSetChanged();
         }
-        this.chart.animateY(ConnectionResult.DRIVE_EXTERNAL_STORAGE_REQUIRED);
+        this.chart.animateY(1500);
         this.chart.setPinchZoom(false);
         this.chart.setScaleEnabled(false);
         this.chart.invalidate();
@@ -497,7 +496,7 @@ public class Screen_Month_Report extends MasterBaseFragment {
         yAxis.setAxisMaximum(getMaxGraphVal());
         yAxis.setAxisMinimum(-50.0f);
         setData(this.lst_date.size());
-        this.chartNew.animateY(ConnectionResult.DRIVE_EXTERNAL_STORAGE_REQUIRED);
+        this.chartNew.animateY(1500);
         this.chartNew.getLegend().setForm(Legend.LegendForm.LINE);
         this.chartNew.setHorizontalScrollBarEnabled(true);
     }

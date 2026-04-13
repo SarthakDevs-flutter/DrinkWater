@@ -513,8 +513,8 @@ public class Screen_Reminder extends MasterBaseActivity {
                     Screen_Reminder.this.alarmModelList.get(position).setIsOff(Integer.valueOf(isOn ^ true ? 1 : 0));
                 }
                 if (week_pos == 0) {
-                    initialValues.put("Sunday", Integer.valueOf(isOn));
-                    Screen_Reminder.this.alarmModelList.get(position).setSunday(Integer.valueOf(isOn));
+                    initialValues.put("Sunday", Integer.valueOf(isOn ? 1 : 0));
+                    Screen_Reminder.this.alarmModelList.get(position).setSunday(Integer.valueOf(isOn ? 1 : 0));
                     int _id = Integer.parseInt("" + time.getAlarmSundayId());
                     if (isOn) {
                         MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 1, tmp_from_hour, tmp_from_minute, _id);
@@ -522,8 +522,8 @@ public class Screen_Reminder extends MasterBaseActivity {
                         MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id);
                     }
                 } else if (week_pos == 1) {
-                    initialValues.put("Monday", Integer.valueOf(isOn));
-                    Screen_Reminder.this.alarmModelList.get(position).setMonday(Integer.valueOf(isOn));
+                    initialValues.put("Monday", Integer.valueOf(isOn ? 1 : 0));
+                    Screen_Reminder.this.alarmModelList.get(position).setMonday(Integer.valueOf(isOn ? 1 : 0));
                     int _id2 = Integer.parseInt("" + time.getAlarmMondayId());
                     if (isOn) {
                         MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 2, tmp_from_hour, tmp_from_minute, _id2);
@@ -531,8 +531,8 @@ public class Screen_Reminder extends MasterBaseActivity {
                         MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id2);
                     }
                 } else if (week_pos == 2) {
-                    initialValues.put("Tuesday", Integer.valueOf(isOn));
-                    Screen_Reminder.this.alarmModelList.get(position).setTuesday(Integer.valueOf(isOn));
+                    initialValues.put("Tuesday", Integer.valueOf(isOn ? 1 : 0));
+                    Screen_Reminder.this.alarmModelList.get(position).setTuesday(Integer.valueOf(isOn ? 1 : 0));
                     int _id3 = Integer.parseInt("" + time.getAlarmTuesdayId());
                     if (isOn) {
                         MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 3, tmp_from_hour, tmp_from_minute, _id3);
@@ -540,8 +540,8 @@ public class Screen_Reminder extends MasterBaseActivity {
                         MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id3);
                     }
                 } else if (week_pos == 3) {
-                    initialValues.put("Wednesday", Integer.valueOf(isOn));
-                    Screen_Reminder.this.alarmModelList.get(position).setWednesday(Integer.valueOf(isOn));
+                    initialValues.put("Wednesday", Integer.valueOf(isOn ? 1 : 0));
+                    Screen_Reminder.this.alarmModelList.get(position).setWednesday(Integer.valueOf(isOn ? 1 : 0));
                     int _id4 = Integer.parseInt("" + time.getAlarmWednesdayId());
                     if (isOn) {
                         MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 4, tmp_from_hour, tmp_from_minute, _id4);
@@ -549,8 +549,8 @@ public class Screen_Reminder extends MasterBaseActivity {
                         MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id4);
                     }
                 } else if (week_pos == 4) {
-                    initialValues.put("Thursday", Integer.valueOf(isOn));
-                    Screen_Reminder.this.alarmModelList.get(position).setThursday(Integer.valueOf(isOn));
+                    initialValues.put("Thursday", Integer.valueOf(isOn ? 1 : 0));
+                    Screen_Reminder.this.alarmModelList.get(position).setThursday(Integer.valueOf(isOn ? 1 : 0));
                     int _id5 = Integer.parseInt("" + time.getAlarmThursdayId());
                     if (isOn) {
                         MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 5, tmp_from_hour, tmp_from_minute, _id5);
@@ -558,8 +558,8 @@ public class Screen_Reminder extends MasterBaseActivity {
                         MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id5);
                     }
                 } else if (week_pos == 5) {
-                    initialValues.put("Friday", Integer.valueOf(isOn));
-                    Screen_Reminder.this.alarmModelList.get(position).setFriday(Integer.valueOf(isOn));
+                    initialValues.put("Friday", Integer.valueOf(isOn ? 1 : 0));
+                    Screen_Reminder.this.alarmModelList.get(position).setFriday(Integer.valueOf(isOn ? 1 : 0));
                     int _id6 = Integer.parseInt("" + time.getAlarmFridayId());
                     if (isOn) {
                         MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 6, tmp_from_hour, tmp_from_minute, _id6);
@@ -567,8 +567,8 @@ public class Screen_Reminder extends MasterBaseActivity {
                         MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id6);
                     }
                 } else if (week_pos == 6) {
-                    initialValues.put("Saturday", Integer.valueOf(isOn));
-                    Screen_Reminder.this.alarmModelList.get(position).setSaturday(Integer.valueOf(isOn));
+                    initialValues.put("Saturday", Integer.valueOf(isOn ? 1 : 0));
+                    Screen_Reminder.this.alarmModelList.get(position).setSaturday(Integer.valueOf(isOn ? 1 : 0));
                     int _id7 = Integer.parseInt("" + time.getAlarmSaturdayId());
                     if (isOn) {
                         MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 7, tmp_from_hour, tmp_from_minute, _id7);
@@ -588,7 +588,7 @@ public class Screen_Reminder extends MasterBaseActivity {
                 Screen_Reminder.this.alarmAdapter.notifyDataSetChanged();
             }
         });
-        this.alarmRecyclerView.setLayoutManager(new LinearLayoutManager(this.act, 1, false));
+        this.alarmRecyclerView.setLayoutManager(new LinearLayoutManager(this.act, RecyclerView.VERTICAL, false));
         this.alarmRecyclerView.setAdapter(this.alarmAdapter);
         if (this.ph.getInt(URLFactory.REMINDER_OPTION) == 1) {
             this.rdo_off.setChecked(true);
@@ -708,7 +708,7 @@ public class Screen_Reminder extends MasterBaseActivity {
                 Screen_Reminder.this.intervalAdapter.notifyDataSetChanged();
             }
         });
-        intervalRecyclerView.setLayoutManager(new LinearLayoutManager(this.act, 1, false));
+        intervalRecyclerView.setLayoutManager(new LinearLayoutManager(this.act, RecyclerView.VERTICAL, false));
         intervalRecyclerView.setAdapter(this.intervalAdapter);
         ((RelativeLayout) view.findViewById(R.id.btn_cancel)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -739,7 +739,7 @@ public class Screen_Reminder extends MasterBaseActivity {
     public void openAutoTimePicker2(final AppCompatTextView appCompatTextView, final boolean isFrom) {
         TimePickerDialog tpd;
         TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
-            public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute, int second) {
+            public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
                 SimpleDateFormat sdfs = new SimpleDateFormat("hh:mm a", Locale.US);
                 try {
@@ -752,7 +752,6 @@ public class Screen_Reminder extends MasterBaseActivity {
                     }
                     Log.d("openAutoTimePicker : ", "" + Screen_Reminder.this.from_hour + "  @@@@  " + Screen_Reminder.this.from_minute);
                     String formatedDate = sdfs.format(sdf.parse("" + hourOfDay + ":" + minute + ":00"));
-                    AppCompatTextView appCompatTextView = appCompatTextView;
                     StringBuilder sb = new StringBuilder();
                     sb.append("");
                     sb.append(formatedDate);
@@ -780,7 +779,7 @@ public class Screen_Reminder extends MasterBaseActivity {
             tpd.setMaxTime(23, 30, 0);
         }
         tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(this.mContext));
-        tpd.show(this.act.getFragmentManager(), "Datepickerdialog");
+        tpd.show(getSupportFragmentManager(), "Datepickerdialog");
         tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(this.mContext));
     }
 
@@ -897,9 +896,8 @@ public class Screen_Reminder extends MasterBaseActivity {
                         e = e;
                     }
                 } catch (Exception e2) {
-                    e = e2;
                     initialValues = initialValues2;
-                    e.printStackTrace();
+                    e2.printStackTrace();
                     startTime.add(12, minute_interval);
                     initialValues2 = initialValues;
                     i = 11;
@@ -934,7 +932,7 @@ public class Screen_Reminder extends MasterBaseActivity {
         sb2.append(Date_Helper.FormateDateFromString("hh:mm a", "mm", alarmtime.getDrinkTime().trim()));
         int tmp_from_minute = Integer.parseInt(sb2.toString());
         TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
-            public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute, int second) {
+            public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
                 int i = hourOfDay;
                 int i2 = minute;
                 String formatedDate = "";
@@ -964,14 +962,7 @@ public class Screen_Reminder extends MasterBaseActivity {
                             int _id_saturday = Integer.parseInt(sb.toString());
                             String formatedDate2 = formatedDate;
                             if (alarmtime.getSunday().intValue() == 1) {
-                                try {
-                                    MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 1, i, i2, _id_sunday);
-                                } catch (ParseException e) {
-                                    e = e;
-                                    formatedDate = formatedDate2;
-                                    e.printStackTrace();
-                                    String str = formatedDate;
-                                }
+                                MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 1, i, i2, _id_sunday);
                             }
                             if (alarmtime.getMonday().intValue() == 1) {
                                 MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 2, i, i2, _id_monday);
@@ -997,16 +988,11 @@ public class Screen_Reminder extends MasterBaseActivity {
                         }
                         String str2 = formatedDate;
                         Screen_Reminder.this.ah.customAlert(Screen_Reminder.this.sh.get_string(R.string.str_set_alarm_validation));
-                    } catch (ParseException e2) {
-                        e = e2;
-                        String str3 = formatedDate;
-                        e.printStackTrace();
-                        String str4 = formatedDate;
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
                     }
                 } catch (ParseException e3) {
-                    e = e3;
-                    e.printStackTrace();
-                    String str42 = formatedDate;
+                    e3.printStackTrace();
                 }
             }
         };
@@ -1022,7 +1008,7 @@ public class Screen_Reminder extends MasterBaseActivity {
             tpd.setSelectableTimes(generateTimepoints(23.5d, 15));
             tpd.setMaxTime(23, 30, 0);
         }
-        tpd.show(this.act.getFragmentManager(), "Datepickerdialog");
+        tpd.show(getSupportFragmentManager(), "Datepickerdialog");
         tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(this.mContext));
     }
 
@@ -1065,9 +1051,9 @@ public class Screen_Reminder extends MasterBaseActivity {
                 }
             }
         });
-        soundRecyclerView.setLayoutManager(new LinearLayoutManager(this.act, 1, false));
+        soundRecyclerView.setLayoutManager(new LinearLayoutManager(this.act, RecyclerView.VERTICAL, false));
         soundRecyclerView.setAdapter(this.soundAdapter);
-        ((AppCompatTextView) view.findViewById(R.id.btnCancel)).setOnClickListener(new View.OnClickListener() {
+         view.findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Screen_Reminder.this.bottomSheetDialogSound.dismiss();
             }
@@ -1137,7 +1123,7 @@ public class Screen_Reminder extends MasterBaseActivity {
     public void openTimePicker() {
         TimePickerDialog tpd;
         TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
-            public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute, int second) {
+            public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
                 int i = hourOfDay;
                 int i2 = minute;
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
@@ -1183,8 +1169,7 @@ public class Screen_Reminder extends MasterBaseActivity {
                             Screen_Reminder.this.load_alarm();
                             Screen_Reminder.this.alarmAdapter.notifyDataSetChanged();
                             Screen_Reminder.this.ah.customAlert(Screen_Reminder.this.sh.get_string(R.string.str_successfully_set_alarm));
-                        } catch (ParseException e) {
-                            e = e;
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     } else {
@@ -1193,10 +1178,9 @@ public class Screen_Reminder extends MasterBaseActivity {
                         Screen_Reminder.this.ah.customAlert(Screen_Reminder.this.sh.get_string(R.string.str_set_alarm_validation));
                     }
                 } catch (ParseException e2) {
-                    e = e2;
                     SimpleDateFormat simpleDateFormat5 = sdf;
                     SimpleDateFormat simpleDateFormat6 = sdfs;
-                    e.printStackTrace();
+                    e2.printStackTrace();
                 }
             }
         };
@@ -1210,7 +1194,7 @@ public class Screen_Reminder extends MasterBaseActivity {
             tpd.setSelectableTimes(generateTimepoints(23.5d, 15));
             tpd.setMaxTime(23, 30, 0);
         }
-        tpd.show(this.act.getFragmentManager(), "Datepickerdialog");
+        tpd.show(getSupportFragmentManager(), "Datepickerdialog");
         tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(this.mContext));
     }
 }

@@ -2,7 +2,6 @@ package com.trending.water.drinking.reminder.utils;
 
 import android.media.Ringtone;
 
-import com.google.android.gms.common.Scopes;
 
 import java.text.DecimalFormat;
 
@@ -10,7 +9,7 @@ public class URLFactory {
     public static double ACTIVE_FEMALE_WATER = 40.0d;
     public static double ACTIVE_MALE_WATER = 50.0d;
     public static String APP_DIRECTORY_NAME = "Water Diary";
-    public static String APP_PROFILE_DIRECTORY_NAME = Scopes.PROFILE;
+    public static String APP_PROFILE_DIRECTORY_NAME = "profile";
     public static String APP_SHARE_URL = "https://share.html";
     public static String AUTO_BACK_UP = "auto_backup";
     public static String AUTO_BACK_UP_ID = "auto_backup_id";

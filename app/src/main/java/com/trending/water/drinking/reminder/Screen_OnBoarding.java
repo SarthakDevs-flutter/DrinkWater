@@ -165,8 +165,8 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
         String getLastId;
         ContentValues initialValues;
         Calendar endTime;
-        int _id_monday;
-        int _id_tuesday;
+        int _id_monday = 0;
+        int _id_tuesday = 0;
         int minute_interval = this.ph.getInt(URLFactory.INTERVAL);
         if (!this.sh.check_blank_data(this.ph.getString(URLFactory.WAKE_UP_TIME)) && !this.sh.check_blank_data(this.ph.getString(URLFactory.BED_TIME))) {
             Calendar startTime = Calendar.getInstance();
@@ -238,10 +238,9 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
                                         _id_tuesday = (int) System.currentTimeMillis();
                                         getLastId = getLastId2;
                                     } catch (Exception e2) {
-                                        e = e2;
                                         getLastId = getLastId2;
                                         _id = _id4;
-                                        e.printStackTrace();
+                                        e2.printStackTrace();
                                         _id3 = _id;
                                         startTime.add(12, minute_interval);
                                         endTime2 = endTime;
@@ -276,12 +275,11 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
                                             initialValues3.put("AlarmInterval", "0");
                                             this.dh.INSERT("tbl_alarm_details", initialValues3);
                                         } catch (Exception e3) {
-                                            e = e3;
+                                            e3.printStackTrace();
                                         }
                                     } catch (Exception e4) {
-                                        e = e4;
                                         _id = _id4;
-                                        e.printStackTrace();
+                                        e4.printStackTrace();
                                         _id3 = _id;
                                         startTime.add(12, minute_interval);
                                         endTime2 = endTime;
@@ -306,12 +304,11 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
                             getLastId = getLastId2;
                             _id = _id4;
                         } catch (Exception e5) {
-                            e = e5;
                             endTime = endTime2;
                             initialValues = initialValues2;
                             getLastId = getLastId2;
                             _id = _id4;
-                            e.printStackTrace();
+                            e5.printStackTrace();
                             _id3 = _id;
                             startTime.add(12, minute_interval);
                             endTime2 = endTime;
@@ -322,12 +319,11 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
                             i3 = 13;
                         }
                     } catch (Exception e6) {
-                        e = e6;
                         endTime = endTime2;
                         initialValues = initialValues2;
                         getLastId = getLastId2;
                         _id = _id3;
-                        e.printStackTrace();
+                        e6.printStackTrace();
                         _id3 = _id;
                         startTime.add(12, minute_interval);
                         endTime2 = endTime;

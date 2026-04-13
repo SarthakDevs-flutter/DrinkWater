@@ -314,7 +314,6 @@ public class Database_Helper {
             try {
                 destination = new FileOutputStream(backupDB).getChannel();
             } catch (Exception e) {
-                e = e;
                 e.printStackTrace();
                 return false;
             }
@@ -322,17 +321,13 @@ public class Database_Helper {
                 destination.transferFrom(source, 0, source.size());
                 source.close();
                 destination.close();
-                FileChannel fileChannel = destination;
                 return true;
             } catch (Exception e2) {
-                e = e2;
-                FileChannel fileChannel2 = destination;
-                e.printStackTrace();
+                e2.printStackTrace();
                 return false;
             }
         } catch (Exception e3) {
-            e = e3;
-            e.printStackTrace();
+            e3.printStackTrace();
             return false;
         }
     }

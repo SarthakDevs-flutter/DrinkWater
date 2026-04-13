@@ -1,6 +1,7 @@
 package com.trending.water.drinking.reminder.appbasiclibs;
 
 import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,7 +17,7 @@ import com.trending.water.drinking.reminder.appbasiclibs.utils.String_Helper;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.Utility_Function;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.Zip_Helper;
 
-public class BaseActivity extends Activity {
+public class BaseActivity extends AppCompatActivity {
     public Activity act;
     public Alert_Helper ah;
     public Bitmap_Helper bh;
