@@ -23,7 +23,6 @@
     <string name="admob_interstitial_video_id">ca-app-pub-3940256099942544/8691691433</string>
     <string name="admob_native_id">ca-app-pub-3940256099942544/2247696110</string>
     <string name="admob_rewarded_video_id">ca-app-pub-3940256099942544/5224354917</string>
-    <string name="app_name">Water Diary</string>
     <string name="app_share_txt">I have been using Water Diary and I think you might like it. Check it out on your phone: #1</string>
     <string name="appbar_scrolling_view_behavior">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
     <string name="average_completion">Average Completion</string>
@@ -34,14 +33,6 @@
     <string name="character_counter_pattern">%1$d / %2$d</string>
     <string name="cloudy">Cloudy</string>
     <string name="common_google_play_services_unknown_issue">%1$s is having trouble with Google Play services. Please try again.</string>
-    <string name="crop_image_activity_no_permissions">Cancelling, required permissions are not granted</string>
-    <string name="crop_image_activity_title" />
-    <string name="crop_image_menu_crop">Crop</string>
-    <string name="crop_image_menu_flip">Flip</string>
-    <string name="crop_image_menu_flip_horizontally">Flip horizontally</string>
-    <string name="crop_image_menu_flip_vertically">Flip vertically</string>
-    <string name="crop_image_menu_rotate_left">Rotate counter clockwise</string>
-    <string name="crop_image_menu_rotate_right">Rotate</string>
     <string name="day">day</string>
     <string name="dialog_cancel_button">Cancel</string>
     <string name="dialog_ok_button">OK</string>
@@ -119,7 +110,6 @@
     <string name="path_password_eye_mask_strike_through">M2,4.27 L19.73,22 L22.27,19.46 L4.54,1.73 L4.54,1 L23,1 L23,23 L1,23 L1,4.27 Z</string>
     <string name="path_password_eye_mask_visible">M2,4.27 L2,4.27 L4.54,1.73 L4.54,1.73 L4.54,1 L23,1 L23,23 L1,23 L1,4.27 Z</string>
     <string name="path_password_strike_through">M3.27,4.27 L19.74,20.74</string>
-    <string name="pick_image_intent_chooser_title">Select source</string>
     <string name="pregnant">Pregnant</string>
     <string name="rainy">Rainy</string>
     <string name="s1">Save image</string>
