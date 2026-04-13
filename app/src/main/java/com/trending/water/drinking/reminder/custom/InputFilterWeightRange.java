@@ -3,8 +3,6 @@ package com.trending.water.drinking.reminder.custom;
 import android.text.InputFilter;
 import android.text.Spanned;
 
-import com.github.mikephil.charting.utils.Utils;
-
 public class InputFilterWeightRange implements InputFilter {
     private double max;
     private double min;
@@ -16,7 +14,15 @@ public class InputFilterWeightRange implements InputFilter {
 
     public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
         try {
-            if (isInRange(this.min, this.max, Double.parseDouble(dest.toString() + source.toString()), dest.toString() + source.toString())) {
+            String replacement = source.subSequence(start, end).toString();
+            String newVal = dest.subSequence(0, dstart).toString() + replacement + dest.subSequence(dend, dest.length()).toString();
+            
+            if (newVal.equals("") || newVal.equals(".")) {
+                return null;
+            }
+            
+            double input = Double.parseDouble(newVal);
+            if (isInRange(this.min, this.max, input, newVal)) {
                 return null;
             }
             return "";
@@ -26,7 +32,7 @@ public class InputFilterWeightRange implements InputFilter {
     }
 
     private boolean isInRange(double a, double b, double c, String cc) {
-        if (cc.length() <= 5 && c <= b && c >= a && c % 0.5d == Utils.DOUBLE_EPSILON) {
+        if (cc.length() <= 5 && c <= b && c >= a) {
             return true;
         }
         return false;

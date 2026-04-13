@@ -43,7 +43,7 @@
                 android:textSize="@dimen/dp_20" />
 
             <androidx.appcompat.widget.AppCompatEditText
-                android:id="@+id/txt_name"
+                android:id="@+id/txt_height"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"

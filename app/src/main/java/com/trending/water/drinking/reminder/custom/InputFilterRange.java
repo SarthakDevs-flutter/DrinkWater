@@ -17,9 +17,15 @@ public class InputFilterRange implements InputFilter {
 
     public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
         try {
-            String str = dest.toString() + source.toString();
-            Log.d("CharSequence", " -> " + str.length());
-            if (isInRange(this.min, this.elements, Double.parseDouble(dest.toString() + source.toString()), str)) {
+            String replacement = source.subSequence(start, end).toString();
+            String newVal = dest.subSequence(0, dstart).toString() + replacement + dest.subSequence(dend, dest.length()).toString();
+            
+            if (newVal.isEmpty() || newVal.equals(".")) {
+                return null;
+            }
+            
+            double input = Double.parseDouble(newVal);
+            if (isInRange(this.min, this.elements, input, newVal)) {
                 return null;
             }
             return "";

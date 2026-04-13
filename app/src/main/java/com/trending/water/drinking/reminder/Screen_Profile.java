@@ -844,17 +844,17 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         RelativeLayout btn_cancel = (RelativeLayout) view.findViewById(R.id.btn_cancel);
         RelativeLayout btn_add = (RelativeLayout) view.findViewById(R.id.btn_add);
         ImageView img_cancel = (ImageView) view.findViewById(R.id.img_cancel);
-        final AppCompatEditText txt_name = (AppCompatEditText) view.findViewById(R.id.txt_name);
+        final AppCompatEditText txt_dialog_height = (AppCompatEditText) view.findViewById(R.id.txt_height);
         this.rdo_cm = (RadioButton) view.findViewById(R.id.rdo_cm);
         this.rdo_feet = (RadioButton) view.findViewById(R.id.rdo_feet);
-        txt_name.requestFocus();
+        txt_dialog_height.requestFocus();
         this.rdo_cm.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (!Screen_Profile.this.sh.check_blank_data(txt_name.getText().toString())) {
+                if (!Screen_Profile.this.sh.check_blank_data(txt_dialog_height.getText().toString())) {
                     int final_height_cm = 61;
                     try {
-                        String tmp_height = Screen_Profile.this.getData(txt_name.getText().toString().trim());
-                        int d = (int) Float.parseFloat(txt_name.getText().toString().trim());
+                        String tmp_height = Screen_Profile.this.getData(txt_dialog_height.getText().toString().trim());
+                        int d = (int) Float.parseFloat(txt_dialog_height.getText().toString().trim());
                         Log.d("after_decimal", "" + tmp_height.indexOf("."));
                         if (tmp_height.indexOf(".") > 0) {
                             String after_decimal = tmp_height.substring(tmp_height.indexOf(".") + 1);
@@ -870,11 +870,11 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
                     }
                     Screen_Profile.this.rdo_feet.setClickable(true);
                     Screen_Profile.this.rdo_cm.setClickable(false);
-                    txt_name.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 240.0d)});
-                    AppCompatEditText appCompatEditText = txt_name;
+                    txt_dialog_height.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 240.0d)});
+                    AppCompatEditText appCompatEditText = txt_dialog_height;
                     Screen_Profile screen_Profile = Screen_Profile.this;
                     appCompatEditText.setText(screen_Profile.getData("" + final_height_cm));
-                    txt_name.setSelection(txt_name.length());
+                    txt_dialog_height.setSelection(txt_dialog_height.length());
                     return;
                 }
                 Screen_Profile.this.rdo_feet.setChecked(true);
@@ -883,18 +883,18 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         });
         this.rdo_feet.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (!Screen_Profile.this.sh.check_blank_data(txt_name.getText().toString())) {
+                if (!Screen_Profile.this.sh.check_blank_data(txt_dialog_height.getText().toString())) {
                     String final_height_feet = "5.0";
                     try {
-                        int tmp_height_inch = (int) Math.round(((double) ((int) Float.parseFloat(txt_name.getText().toString().trim()))) / 2.54d);
+                        int tmp_height_inch = (int) Math.round(((double) ((int) Float.parseFloat(txt_dialog_height.getText().toString().trim()))) / 2.54d);
                         final_height_feet = (tmp_height_inch / 12) + "." + (tmp_height_inch % 12);
                     } catch (Exception e) {
                     }
                     Screen_Profile.this.rdo_feet.setClickable(false);
                     Screen_Profile.this.rdo_cm.setClickable(true);
-                    txt_name.setFilters(new InputFilter[]{new InputFilterRange(Utils.DOUBLE_EPSILON, Screen_Profile.this.height_feet_elements)});
-                    txt_name.setText(Screen_Profile.this.getData(final_height_feet));
-                    txt_name.setSelection(txt_name.length());
+                    txt_dialog_height.setFilters(new InputFilter[]{new InputFilterRange(Utils.DOUBLE_EPSILON, Screen_Profile.this.height_feet_elements)});
+                    txt_dialog_height.setText(Screen_Profile.this.getData(final_height_feet));
+                    txt_dialog_height.setSelection(txt_dialog_height.length());
                     return;
                 }
                 Screen_Profile.this.rdo_feet.setChecked(false);
@@ -912,18 +912,18 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         }
         if (!this.sh.check_blank_data(this.ph.getString(URLFactory.PERSON_HEIGHT))) {
             if (this.rdo_cm.isChecked()) {
-                txt_name.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 240.0d)});
-                txt_name.setText(getData(this.ph.getString(URLFactory.PERSON_HEIGHT)));
+                txt_dialog_height.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 240.0d)});
+                txt_dialog_height.setText(getData(this.ph.getString(URLFactory.PERSON_HEIGHT)));
             } else {
-                txt_name.setFilters(new InputFilter[]{new InputFilterRange(Utils.DOUBLE_EPSILON, this.height_feet_elements)});
-                txt_name.setText(getData(this.ph.getString(URLFactory.PERSON_HEIGHT)));
+                txt_dialog_height.setFilters(new InputFilter[]{new InputFilterRange(Utils.DOUBLE_EPSILON, this.height_feet_elements)});
+                txt_dialog_height.setText(getData(this.ph.getString(URLFactory.PERSON_HEIGHT)));
             }
         } else if (this.rdo_cm.isChecked()) {
-            txt_name.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 240.0d)});
-            txt_name.setText("150");
+            txt_dialog_height.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 240.0d)});
+            txt_dialog_height.setText("150");
         } else {
-            txt_name.setFilters(new InputFilter[]{new InputFilterRange(Utils.DOUBLE_EPSILON, this.height_feet_elements)});
-            txt_name.setText("5.0");
+            txt_dialog_height.setFilters(new InputFilter[]{new InputFilterRange(Utils.DOUBLE_EPSILON, this.height_feet_elements)});
+            txt_dialog_height.setText("5.0");
         }
         btn_cancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -935,14 +935,14 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
                 dialog.cancel();
             }
         });
-        txt_name.setSelection(txt_name.getText().toString().length());
+        txt_dialog_height.setSelection(txt_dialog_height.getText().toString().length());
         btn_add.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                if (Screen_Profile.this.sh.check_blank_data(txt_name.getText().toString().trim())) {
+                if (Screen_Profile.this.sh.check_blank_data(txt_dialog_height.getText().toString().trim())) {
                     Screen_Profile.this.ah.customAlert(Screen_Profile.this.sh.get_string(R.string.str_height_validation));
                     return;
                 }
-                String str = txt_name.getText().toString().trim();
+                String str = txt_dialog_height.getText().toString().trim();
                 if (Screen_Profile.this.rdo_feet.isChecked() && !str.contains(".11") && !str.contains(".10")) {
                     str = URLFactory.decimalFormat2.format(Double.parseDouble(str));
                 }
@@ -951,7 +951,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
                 sb.append(" ");
                 sb.append(Screen_Profile.this.rdo_feet.isChecked() ? "feet" : "cm");
                 Screen_Profile.this.txt_height.setText(sb.toString());
-                Screen_Profile.this.saveData(txt_name);
+                Screen_Profile.this.saveData(txt_dialog_height);
                 dialog.dismiss();
             }
         });
@@ -969,20 +969,20 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         RelativeLayout btn_cancel = (RelativeLayout) view.findViewById(R.id.btn_cancel);
         RelativeLayout btn_add = (RelativeLayout) view.findViewById(R.id.btn_add);
         ImageView img_cancel = (ImageView) view.findViewById(R.id.img_cancel);
-        final AppCompatEditText txt_name = (AppCompatEditText) view.findViewById(R.id.txt_name);
+        final AppCompatEditText txt_dialog_weight = (AppCompatEditText) view.findViewById(R.id.txt_weight);
         this.rdo_kg = (RadioButton) view.findViewById(R.id.rdo_kg);
         this.rdo_lb = (RadioButton) view.findViewById(R.id.rdo_lb);
-        txt_name.requestFocus();
+        txt_dialog_weight.requestFocus();
         this.rdo_kg.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                if (!Screen_Profile.this.sh.check_blank_data(txt_name.getText().toString())) {
-                    double weight_in_lb = Double.parseDouble(txt_name.getText().toString());
+                if (!Screen_Profile.this.sh.check_blank_data(txt_dialog_weight.getText().toString())) {
+                    double weight_in_lb = Double.parseDouble(txt_dialog_weight.getText().toString());
                     double weight_in_kg = Utils.DOUBLE_EPSILON;
                     if (weight_in_lb > Utils.DOUBLE_EPSILON) {
                         weight_in_kg = (double) Math.round(HeightWeightHelper.lbToKgConverter(weight_in_lb));
                     }
-                    txt_name.setFilters(new InputFilter[]{new InputFilterWeightRange(Utils.DOUBLE_EPSILON, 130.0d)});
-                    AppCompatEditText appCompatEditText = txt_name;
+                    txt_dialog_weight.setFilters(new InputFilter[]{new InputFilterWeightRange(Utils.DOUBLE_EPSILON, 130.0d)});
+                    AppCompatEditText appCompatEditText = txt_dialog_weight;
                     Screen_Profile screen_Profile = Screen_Profile.this;
                     appCompatEditText.setText(screen_Profile.getData("" + URLFactory.decimalFormat2.format((long) ((int) weight_in_kg))));
                     Screen_Profile.this.rdo_kg.setClickable(false);
@@ -992,14 +992,14 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         });
         this.rdo_lb.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                if (!Screen_Profile.this.sh.check_blank_data(txt_name.getText().toString())) {
-                    double weight_in_kg = Double.parseDouble(txt_name.getText().toString());
+                if (!Screen_Profile.this.sh.check_blank_data(txt_dialog_weight.getText().toString())) {
+                    double weight_in_kg = Double.parseDouble(txt_dialog_weight.getText().toString());
                     double weight_in_lb = Utils.DOUBLE_EPSILON;
                     if (weight_in_kg > Utils.DOUBLE_EPSILON) {
                         weight_in_lb = (double) Math.round(HeightWeightHelper.kgToLbConverter(weight_in_kg));
                     }
-                    txt_name.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 287.0d)});
-                    AppCompatEditText appCompatEditText = txt_name;
+                    txt_dialog_weight.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 287.0d)});
+                    AppCompatEditText appCompatEditText = txt_dialog_weight;
                     Screen_Profile screen_Profile = Screen_Profile.this;
                     appCompatEditText.setText(screen_Profile.getData("" + ((int) weight_in_lb)));
                     Screen_Profile.this.rdo_kg.setClickable(true);
@@ -1018,18 +1018,18 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         }
         if (!this.sh.check_blank_data(this.ph.getString(URLFactory.PERSON_WEIGHT))) {
             if (this.rdo_kg.isChecked()) {
-                txt_name.setFilters(new InputFilter[]{new InputFilterWeightRange(Utils.DOUBLE_EPSILON, 130.0d)});
-                txt_name.setText(getData(this.ph.getString(URLFactory.PERSON_WEIGHT)));
+                txt_dialog_weight.setFilters(new InputFilter[]{new InputFilterWeightRange(Utils.DOUBLE_EPSILON, 130.0d)});
+                txt_dialog_weight.setText(getData(this.ph.getString(URLFactory.PERSON_WEIGHT)));
             } else {
-                txt_name.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 287.0d)});
-                txt_name.setText(getData(this.ph.getString(URLFactory.PERSON_WEIGHT)));
+                txt_dialog_weight.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 287.0d)});
+                txt_dialog_weight.setText(getData(this.ph.getString(URLFactory.PERSON_WEIGHT)));
             }
         } else if (this.rdo_kg.isChecked()) {
-            txt_name.setFilters(new InputFilter[]{new InputFilterWeightRange(Utils.DOUBLE_EPSILON, 130.0d)});
-            txt_name.setText("80.0");
+            txt_dialog_weight.setFilters(new InputFilter[]{new InputFilterWeightRange(Utils.DOUBLE_EPSILON, 130.0d)});
+            txt_dialog_weight.setText("80.0");
         } else {
-            txt_name.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 287.0d)});
-            txt_name.setText("176");
+            txt_dialog_weight.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 287.0d)});
+            txt_dialog_weight.setText("176");
         }
         btn_cancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -1041,14 +1041,14 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
                 dialog.cancel();
             }
         });
-        txt_name.setSelection(txt_name.getText().toString().length());
+        txt_dialog_weight.setSelection(txt_dialog_weight.getText().toString().length());
         btn_add.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                if (Screen_Profile.this.sh.check_blank_data(txt_name.getText().toString().trim())) {
+                if (Screen_Profile.this.sh.check_blank_data(txt_dialog_weight.getText().toString().trim())) {
                     Screen_Profile.this.ah.customAlert(Screen_Profile.this.sh.get_string(R.string.str_weight_validation));
                     return;
                 }
-                String str = txt_name.getText().toString().trim();
+                String str = txt_dialog_weight.getText().toString().trim();
                 if (Screen_Profile.this.rdo_kg.isChecked()) {
                     str = URLFactory.decimalFormat2.format(Double.parseDouble(str));
                 }
@@ -1057,7 +1057,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
                 sb.append(" ");
                 sb.append(Screen_Profile.this.rdo_kg.isChecked() ? "kg" : "lb");
                 Screen_Profile.this.txt_weight.setText(sb.toString());
-                Screen_Profile.this.saveWeightData(txt_name);
+                Screen_Profile.this.saveWeightData(txt_dialog_weight);
                 Screen_Profile.this.calculate_goal();
                 dialog.dismiss();
             }
