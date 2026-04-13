@@ -42,7 +42,7 @@
                     android:layout_marginStart="@dimen/dp_10"
                     android:layout_marginEnd="@dimen/dp_10"
                     android:src="@drawable/ic_dot"
-                    android:tint="@color/rdo_gender_select" />
+                    app:tint="@color/rdo_gender_select" />
             </RelativeLayout>
 
             <androidx.appcompat.widget.SwitchCompat

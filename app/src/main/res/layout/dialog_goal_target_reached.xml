@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/app_transparant"
     android:orientation="vertical">
 
@@ -18,7 +19,7 @@
             android:layout_height="@dimen/dp_15"
             android:layout_gravity="end"
             android:src="@drawable/ic_cancel"
-            android:tint="@color/cross"
+            app:tint="@color/cross"
             android:visibility="visible" />
 
         <LinearLayout

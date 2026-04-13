@@ -222,7 +222,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginBottom="4dp"
                         android:src="@drawable/ic_list_arrow"
-                        android:tint="@color/rdo_gender_select" />
+                        app:tint="@color/rdo_gender_select" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -284,7 +284,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginBottom="4dp"
                         android:src="@drawable/ic_list_arrow"
-                        android:tint="@color/rdo_gender_select" />
+                        app:tint="@color/rdo_gender_select" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -345,7 +345,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginBottom="4dp"
                         android:src="@drawable/ic_list_arrow"
-                        android:tint="@color/rdo_gender_select" />
+                        app:tint="@color/rdo_gender_select" />
                 </LinearLayout>
             </LinearLayout>
 

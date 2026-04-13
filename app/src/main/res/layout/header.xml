@@ -23,7 +23,7 @@
                 android:layout_width="@dimen/dp_20"
                 android:layout_height="@dimen/dp_20"
                 android:src="@drawable/ic_new_menu"
-                android:tint="@color/rdo_gender_select" />
+                app:tint="@color/rdo_gender_select" />
         </LinearLayout>
 
         <LinearLayout
@@ -73,7 +73,7 @@
                 android:layout_width="@dimen/dp_20"
                 android:layout_height="@dimen/dp_20"
                 android:src="@drawable/ic_notification"
-                android:tint="@color/rdo_gender_select" />
+                app:tint="@color/rdo_gender_select" />
         </LinearLayout>
     </RelativeLayout>
 </androidx.appcompat.widget.Toolbar>

@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <View
@@ -41,7 +42,7 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:src="@drawable/ic_launcher_background"
-                android:tint="@color/rdo_gender_select" />
+                app:tint="@color/rdo_gender_select" />
 
             <TextView
                 android:id="@+id/menu_name"

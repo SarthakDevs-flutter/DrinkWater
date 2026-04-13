@@ -20,7 +20,7 @@
             android:layout_gravity="end"
             android:padding="@dimen/dp_10"
             android:src="@drawable/ic_cancel"
-            android:tint="@color/cross"
+            app:tint="@color/cross"
             android:visibility="visible" />
 
         <RelativeLayout
