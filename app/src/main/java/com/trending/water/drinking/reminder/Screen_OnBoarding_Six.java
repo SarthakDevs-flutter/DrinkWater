@@ -122,7 +122,8 @@ public class Screen_OnBoarding_Six extends MasterBaseFragment {
     public void openAutoTimePicker(final AppCompatTextView appCompatTextView, final boolean isFrom) {
         TimePickerDialog tpd;
         TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
-            public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute, int second) {
+            @Override
+            public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
                 SimpleDateFormat sdfs = new SimpleDateFormat("hh:mm a", Locale.US);
                 try {
@@ -134,7 +135,6 @@ public class Screen_OnBoarding_Six extends MasterBaseFragment {
                         Screen_OnBoarding_Six.this.to_minute = minute;
                     }
                     String formatedDate = sdfs.format(sdf.parse("" + hourOfDay + ":" + minute + ":00"));
-                    AppCompatTextView appCompatTextView = appCompatTextView;
                     StringBuilder sb = new StringBuilder();
                     sb.append("");
                     sb.append(formatedDate);
@@ -163,7 +163,8 @@ public class Screen_OnBoarding_Six extends MasterBaseFragment {
             tpd.setMaxTime(23, 30, 0);
         }
         tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(this.mContext));
-        tpd.show(this.act.getFragmentManager(), "Datepickerdialog");
+//        tpd.show(this.act.getFragmentManager(), "Datepickerdialog");
+        tpd.show(getChildFragmentManager(), "Datepickerdialog");
         tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(this.mContext));
     }
 

@@ -967,7 +967,7 @@ public class HorizontalPicker extends View {
      * Sets text size for items
      * @param size New item text size in px.
      */
-    private void setTextSize(float size) {
+    public void setTextSize(float size) {
         if(size != textPaint.getTextSize()) {
             textPaint.setTextSize(size);
 
@@ -996,7 +996,7 @@ public class HorizontalPicker extends View {
 
     /**
      * Calculates relative horizontal scroll position to be within our scroll bounds.
-     * {@link com.wefika.horizontalpicker.HorizontalPicker#getInBoundsX(int)}
+     * {@link com.trending.water.drinking.reminder.lib.horizontalpicker.HorizontalPicker#getInBoundsX(int)}
      * @param x Relative scroll position to calculate
      * @return Current scroll position + {param x} if is within our scroll bounds, otherwise it
      * will return min/max scroll position.

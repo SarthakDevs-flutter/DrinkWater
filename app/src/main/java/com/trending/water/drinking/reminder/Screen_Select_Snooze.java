@@ -3,6 +3,7 @@ package com.trending.water.drinking.reminder;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -25,7 +26,7 @@ public class Screen_Select_Snooze extends MasterBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_select_snooze);
         getWindow().setLayout(-1, -1);
-        ((NotificationManager) this.act.getSystemService("notification")).cancel(0);
+        ((NotificationManager) this.act.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(0);
         FindViewById();
         Body();
     }
@@ -64,6 +65,6 @@ public class Screen_Select_Snooze extends MasterBaseActivity {
     }
 
     public void setSnooze(int minutes) {
-        ((AlarmManager) this.act.getSystemService(NotificationCompat.CATEGORY_ALARM)).setExact(0, Calendar.getInstance().getTimeInMillis() + ((long) (60000 * minutes)), PendingIntent.getBroadcast(this.act, 0, new Intent(this.act, AlarmReceiver.class), 0));
+        ((AlarmManager) this.act.getSystemService(Context.ALARM_SERVICE)).setExact(AlarmManager.RTC_WAKEUP, Calendar.getInstance().getTimeInMillis() + ((long) (60000 * minutes)), PendingIntent.getBroadcast(this.act, 0, new Intent(this.act, AlarmReceiver.class), PendingIntent.FLAG_IMMUTABLE));
     }
 }

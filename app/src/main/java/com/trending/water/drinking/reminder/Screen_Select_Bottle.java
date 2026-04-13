@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -29,7 +30,7 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_select_bottle);
         getWindow().setLayout(-1, -1);
-        ((NotificationManager) this.act.getSystemService("notification")).cancel(0);
+        ((NotificationManager) this.act.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(0);
         if (this.ph.getFloat(URLFactory.DAILY_WATER) == 0.0f) {
             URLFactory.DAILY_WATER_VALUE = 2500.0f;
         } else {

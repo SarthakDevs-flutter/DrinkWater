@@ -21,7 +21,7 @@ import com.trending.water.drinking.reminder.custom.InputFilterRange;
 import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
 import com.trending.water.drinking.reminder.utils.HeightWeightHelper;
 import com.trending.water.drinking.reminder.utils.URLFactory;
-import com.wefika.horizontalpicker.HorizontalPicker;
+import com.trending.water.drinking.reminder.lib.horizontalpicker.HorizontalPicker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +73,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         this.rdo_kg.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 int i = 8;
-                Screen_OnBoarding_Three.this.pickerKG.setVisibility(b ? 0 : 8);
+                Screen_OnBoarding_Three.this.pickerKG.setVisibility(b ? View.VISIBLE : android.view.View.GONE);
                 HorizontalPicker horizontalPicker = Screen_OnBoarding_Three.this.pickerLB;
                 if (!b) {
                     i = 0;
@@ -84,7 +84,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         this.rdo_feet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 int i = 8;
-                Screen_OnBoarding_Three.this.pickerFeet.setVisibility(b ? 0 : 8);
+                Screen_OnBoarding_Three.this.pickerFeet.setVisibility(b ? View.VISIBLE : android.view.View.GONE);
                 HorizontalPicker horizontalPicker = Screen_OnBoarding_Three.this.pickerCM;
                 if (!b) {
                     i = 0;

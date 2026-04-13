@@ -139,7 +139,7 @@ public class MaterialProgressBar extends View {
         DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
         this.barWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) this.barWidth, metrics);
         this.rimWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) this.rimWidth, metrics);
-        this.circleRadius = (int) TypedValue.applyDimension(1, (float) this.circleRadius, metrics);
+        this.circleRadius = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) this.circleRadius, metrics);
         this.circleRadius = (int) a.getDimension(R.styleable.MaterialProgressBar_matProg_circleRadius, (float) this.circleRadius);
         this.fillRadius = a.getBoolean(R.styleable.MaterialProgressBar_matProg_fillRadius, false);
         this.barWidth = (int) a.getDimension(R.styleable.MaterialProgressBar_matProg_barWidth, (float) this.barWidth);
