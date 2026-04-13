@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/include1"
+        layout="@layout/header_with_back" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/drawable_rounded_screen_background"
+        android:backgroundTint="@color/str_green_card"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_20" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="@dimen/dp_20"
+            android:layout_marginEnd="@dimen/dp_20"
+            android:layout_marginBottom="@dimen/dp_5"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rdo_week"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_10"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_weight="1"
+                android:background="@drawable/rdo_back_reminder"
+                android:button="@null"
+                android:checked="true"
+                android:fontFamily="@font/calibri_regular"
+                android:gravity="center"
+                android:text="@string/str_week"
+                android:textColor="@drawable/rdo_back_reminder"
+                android:textSize="@dimen/dp_12" />
+
+            <RadioButton
+                android:id="@+id/rdo_month"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_10"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_weight="1"
+                android:background="@drawable/rdo_back_reminder"
+                android:button="@null"
+                android:checked="false"
+                android:fontFamily="@font/calibri_regular"
+                android:gravity="center"
+                android:text="@string/str_month"
+                android:textColor="@drawable/rdo_back_reminder"
+                android:textSize="@dimen/dp_12" />
+
+            <RadioButton
+                android:id="@+id/rdo_year"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_10"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_weight="1"
+                android:background="@drawable/rdo_back_reminder"
+                android:button="@null"
+                android:checked="false"
+                android:fontFamily="@font/calibri_regular"
+                android:gravity="center"
+                android:text="@string/str_year"
+                android:textColor="@drawable/rdo_back_reminder"
+                android:textSize="@dimen/dp_12" />
+        </RadioGroup>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/colorPrimaryDark"
+            android:visibility="gone"
+            app:tabGravity="0"
+            app:tabIndicatorColor="@color/white"
+            app:tabMode="1"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/white" />
+
+        <com.trending.water.drinking.reminder.custom.NonSwipeableViewPager
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/dp_10"
+            android:background="@drawable/drawable_rounded_screen_background" />
+    </LinearLayout>
+</LinearLayout>

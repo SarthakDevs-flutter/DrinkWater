@@ -1,0 +1,51 @@
+package com.trending.water.drinking.reminder.model.backuprestore;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+public class AlarmSubDetails {
+    @SerializedName("AlarmId")
+    @Expose
+    private String alarmId;
+    @SerializedName("AlarmTime")
+    @Expose
+    private String alarmTime;
+    @SerializedName("id")
+    @Expose
+    private String id;
+    @SerializedName("SuperId")
+    @Expose
+    private String superId;
+
+    public String getAlarmTime() {
+        return this.alarmTime;
+    }
+
+    public void setAlarmTime(String alarmTime2) {
+        this.alarmTime = alarmTime2;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(String id2) {
+        this.id = id2;
+    }
+
+    public String getAlarmId() {
+        return this.alarmId;
+    }
+
+    public void setAlarmId(String alarmId2) {
+        this.alarmId = alarmId2;
+    }
+
+    public String getSuperId() {
+        return this.superId;
+    }
+
+    public void setSuperId(String superId2) {
+        this.superId = superId2;
+    }
+}

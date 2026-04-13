@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_transparant"
+    android:orientation="vertical">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_20"
+            android:layout_marginEnd="@dimen/dp_20"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="@dimen/dp_20"
+                android:fontFamily="@font/calibri_bold"
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:text="@string/str_height"
+                android:textColor="@color/rdo_gender_select"
+                android:textSize="@dimen/dp_20" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_20">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/txt_height"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:background="@color/transparent"
+                    android:fontFamily="@font/calibri_light"
+                    android:gravity="center"
+                    android:includeFontPadding="true"
+                    android:inputType="numberDecimal"
+                    android:maxLength="4"
+                    android:textColor="@color/rdo_gender_select"
+                    android:textSize="@dimen/dp_25" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginTop="@dimen/dp_20"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rdo_cm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rdo_back"
+                        android:button="@null"
+                        android:text="@string/str_cm"
+                        android:textColor="@drawable/rdo_back" />
+
+                    <RadioButton
+                        android:id="@+id/rdo_feet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rdo_back_2"
+                        android:button="@null"
+                        android:checked="true"
+                        android:text="@string/str_feet"
+                        android:textColor="@drawable/rdo_back_2" />
+                </RadioGroup>
+            </RelativeLayout>
+
+            <com.wefika.horizontalpicker.HorizontalPicker
+                android:id="@+id/pickerCM"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_centerInParent="true"
+                android:ellipsize="none"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:textColor="@color/app_32"
+                android:textSize="20dp"
+                android:visibility="visible" />
+
+            <com.wefika.horizontalpicker.HorizontalPicker
+                android:id="@+id/pickerFeet"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_centerInParent="true"
+                android:ellipsize="none"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:textColor="@color/app_32"
+                android:textSize="20dp"
+                android:visibility="visible" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="@dimen/dp_30"
+                android:fontFamily="@font/calibri_bold"
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:text="@string/str_weight"
+                android:textColor="@color/rdo_gender_select"
+                android:textSize="@dimen/dp_20" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_20">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/txt_weight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:background="@color/transparent"
+                    android:fontFamily="@font/calibri_light"
+                    android:gravity="center"
+                    android:includeFontPadding="true"
+                    android:inputType="numberDecimal"
+                    android:maxLength="5"
+                    android:textColor="@color/rdo_gender_select"
+                    android:textSize="@dimen/dp_25" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginTop="@dimen/dp_20"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rdo_lb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rdo_back"
+                        android:button="@null"
+                        android:text="@string/str_lb"
+                        android:textColor="@drawable/rdo_back" />
+
+                    <RadioButton
+                        android:id="@+id/rdo_kg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rdo_back_2"
+                        android:button="@null"
+                        android:checked="true"
+                        android:text="@string/str_kg"
+                        android:textColor="@drawable/rdo_back_2" />
+                </RadioGroup>
+            </RelativeLayout>
+
+            <com.wefika.horizontalpicker.HorizontalPicker
+                android:id="@+id/pickerLB"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_centerInParent="true"
+                android:ellipsize="none"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:textColor="@color/app_32"
+                android:textSize="20dp"
+                android:visibility="visible" />
+
+            <com.wefika.horizontalpicker.HorizontalPicker
+                android:id="@+id/pickerKG"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_centerInParent="true"
+                android:ellipsize="none"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:textColor="@color/app_32"
+                android:textSize="20dp"
+                android:visibility="visible" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</RelativeLayout>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.trending.water.drinking.reminder.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
+        <activity
+            android:name="com.trending.water.drinking.reminder.Screen_Splash"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeSplash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.trending.water.drinking.reminder.Screen_Dashboard"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.trending.water.drinking.reminder.Screen_OnBoarding"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name="com.trending.water.drinking.reminder.Screen_History"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.trending.water.drinking.reminder.Screen_Settings"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.trending.water.drinking.reminder.Screen_Report"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.trending.water.drinking.reminder.Screen_Reminder"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.trending.water.drinking.reminder.Screen_FAQ"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.trending.water.drinking.reminder.Screen_Backup_Restore"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.trending.water.drinking.reminder.Screen_Profile"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.trending.water.drinking.reminder.Screen_Select_Bottle"
+            android:theme="@style/Theme.Transparent" />
+        <activity
+            android:name="com.trending.water.drinking.reminder.Screen_Select_Snooze"
+            android:theme="@style/Theme.Transparent" />
+        <activity
+            android:name="com.trending.water.drinking.reminder.lib.cropper.CropImageActivity"
+            android:theme="@style/AppThemeCROP" />
+
+        <receiver
+            android:name="com.trending.water.drinking.reminder.receiver.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.test.intent.action.ALARM" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.trending.water.drinking.reminder.receiver.BackupReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.test.intent.action.ALARM" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.trending.water.drinking.reminder.mywidgets.NewAppWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/new_app_widget_info" />
+        </receiver>
+
+        <activity
+            android:name="com.trending.water.drinking.reminder.appbasiclibs.Screen_Error_Report"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.trending.water.drinking.reminder.appbasiclibs.AppClose"
+            android:autoRemoveFromRecents="true" />
+        <!--        android:theme="@style/Theme.NoDisplay"-->
+
+
+        <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
+
+    </application>
+</manifest>

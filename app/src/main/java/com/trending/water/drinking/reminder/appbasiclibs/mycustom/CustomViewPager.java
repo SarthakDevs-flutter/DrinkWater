@@ -1,0 +1,31 @@
+package com.trending.water.drinking.reminder.appbasiclibs.mycustom;
+
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+
+import androidx.viewpager.widget.ViewPager;
+
+public class CustomViewPager extends ViewPager {
+    private boolean enabled = true;
+
+    public CustomViewPager(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public boolean onTouchEvent(MotionEvent event) {
+        return this.enabled && super.onTouchEvent(event);
+    }
+
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+        return this.enabled && super.onInterceptTouchEvent(event);
+    }
+
+    public boolean isPagingEnabled() {
+        return this.enabled;
+    }
+
+    public void setPagingEnabled(boolean enabled2) {
+        this.enabled = enabled2;
+    }
+}
