@@ -211,7 +211,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
         lblToolbarTitle.setOnClickListener(v -> {
             filterCal.setTimeInMillis(todayCal.getTimeInMillis());
             lblToolbarTitle.setText(stringHelper.getString(R.string.str_today));
-            setDashboardDate(dateHelper.getDate(URLFactory.DATE_FORMAT));
+            setDashboardDate(dateHelper.getDate(filterCal.getTimeInMillis(), URLFactory.DATE_FORMAT));
         });
 
         btnRateUs.setOnClickListener(v -> rateApp());
@@ -326,7 +326,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
         updateUserInfo();
         lblToolbarTitle.setText(stringHelper.getString(R.string.str_today));
         loadAllContainers();
-        updateIntakeData(dateHelper.getDate(URLFactory.DATE_FORMAT), false);
+        updateIntakeData(dateHelper.getDate(filterCal.getTimeInMillis() ,URLFactory.DATE_FORMAT), false);
         startReminderPoller();
     }
 
@@ -430,7 +430,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
 
     private long getMilliFromAlarmTime(String timeStr) {
         try {
-            String today = dateHelper.getDate("yyyy-MM-dd");
+            String today = dateHelper.getDate(filterCal.getTimeInMillis() ,"yyyy-MM-dd");
             return new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US).parse(today + " " + timeStr).getTime();
         } catch (ParseException e) {
             Log.e(TAG, "Parsing alarm time failed", e);
@@ -713,7 +713,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
     }
 
     private int getNextContainerId() {
-        try (Cursor cursor = databaseHelper.rawQuery("SELECT MAX(ContainerID) FROM tbl_container_details", null)) {
+        try (Cursor cursor = Constant.database.rawQuery("SELECT MAX(ContainerID) FROM tbl_container_details", null)) {
             if (cursor != null && cursor.moveToFirst()) {
                 return cursor.getInt(0) + 1;
             }

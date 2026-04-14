@@ -62,6 +62,11 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
     private LinearLayout rightIconBlock;
     private final List<BackUpFileModel> backupFileList = new ArrayList<>();
     
+    private AppCompatTextView lblBackup;
+    private AppCompatTextView lblRestore;
+    private AppCompatTextView lblClear;
+    private AppCompatTextView lblAutoBackup;
+
     private RadioButton rdoDaily;
     private RadioButton rdoWeekly;
     private RadioButton rdoMonthly;
@@ -94,11 +99,25 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
         rdoDaily = findViewById(R.id.rdo_daily);
         rdoWeekly = findViewById(R.id.rdo_weekly);
         rdoMonthly = findViewById(R.id.rdo_monthly);
+
+        lblBackup = findViewById(R.id.lbl_backup);
+        lblRestore = findViewById(R.id.lbl_restore);
+        lblClear = findViewById(R.id.lbl_clear);
+        lblAutoBackup = findViewById(R.id.lbl_auto_backup);
     }
 
     private void initView() {
         lblToolbarTitle.setText(stringHelper.capitalizeAll(stringHelper.getString(R.string.str_backup_and_restore)));
         rightIconBlock.setVisibility(View.GONE);
+
+        lblBackup.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_backup)));
+        lblRestore.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_restore)));
+        lblClear.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_clear_all_data)));
+        lblAutoBackup.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_auto_backup)));
+
+        rdoDaily.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_daily)));
+        rdoWeekly.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_weekly)));
+        rdoMonthly.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_monthly)));
 
         boolean isAutoBackupOn = preferencesHelper.getBoolean(URLFactory.KEY_AUTO_BACKUP, false);
         switchAutoBackup.setChecked(isAutoBackupOn);

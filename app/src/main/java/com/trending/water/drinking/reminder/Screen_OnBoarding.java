@@ -25,6 +25,7 @@ import com.trending.water.drinking.reminder.utils.URLFactory;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
@@ -283,10 +284,10 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
     }
 
     private void deleteAutoAlarms(boolean deleteData) {
-        ArrayList<HashMap<String, String>> alarms = databaseHelper.getData("tbl_alarm_details");
+        List<HashMap<String, String>> alarms = databaseHelper.getData("tbl_alarm_details");
         for (HashMap<String, String> alarm : alarms) {
             MyAlarmManager.cancelRecurringAlarm(this, Integer.parseInt(alarm.get("AlarmId")));
-            ArrayList<HashMap<String, String>> subAlarms = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + alarm.get("id"));
+            List<HashMap<String, String>> subAlarms = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + alarm.get("id"));
             for (HashMap<String, String> subAlarm : subAlarms) {
                 MyAlarmManager.cancelRecurringAlarm(this, Integer.parseInt(subAlarm.get("AlarmId")));
             }

@@ -120,6 +120,14 @@ public class MaterialProgressBar extends View {
         invalidate();
     }
 
+    public void setBarColor(int barColor) {
+        this.barColor = barColor;
+        setupPaints();
+        if (!this.isSpinning) {
+            invalidate();
+        }
+    }
+
     private void setupPaints() {
         barPaint.setColor(barColor);
         barPaint.setAntiAlias(true);
@@ -131,6 +139,8 @@ public class MaterialProgressBar extends View {
         rimPaint.setStyle(Paint.Style.STROKE);
         rimPaint.setStrokeWidth(rimWidth);
     }
+
+
 
     private void setupBounds(int width, int height) {
         int paddingTop = getPaddingTop();
