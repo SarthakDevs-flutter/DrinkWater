@@ -291,16 +291,16 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         String unit = isKg ? "ml" : "fl oz";
 
         // Pregnant
-        int pVal = isKg ? (int) URLFactory.PREGNANT_WATER : (int) Math.round(HeightWeightHelper.mlToOzConverter(URLFactory.PREGNANT_WATER));
+        int pVal = isKg ? (int) URLFactory.PREGNANT_WATER : (int) Math.round(HeightWeightHelper.convertMlToOz(URLFactory.PREGNANT_WATER));
         lblPregnant.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.pregnant).toUpperCase(), pVal, unit));
 
         // Breastfeeding
-        int bVal = isKg ? (int) URLFactory.BREASTFEEDING_WATER : (int) Math.round(HeightWeightHelper.mlToOzConverter(URLFactory.BREASTFEEDING_WATER));
+        int bVal = isKg ? (int) URLFactory.BREASTFEEDING_WATER : (int) Math.round(HeightWeightHelper.convertMlToOz(URLFactory.BREASTFEEDING_WATER));
         lblBreastfeeding.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.breastfeeding).toUpperCase(), bVal, unit));
 
         // Active
         double weight = Double.parseDouble(preferencesHelper.getString(URLFactory.KEY_USER_WEIGHT, "70"));
-        double weightKg = isKg ? weight : HeightWeightHelper.lbToKgConverter(weight);
+        double weightKg = isKg ? weight : HeightWeightHelper.convertLbToKg(weight);
         boolean isFemale = preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false);
         
         double baseDiff = (isFemale ? URLFactory.DEACTIVE_FEMALE_WATER : URLFactory.DEACTIVE_MALE_WATER) * weightKg;
@@ -311,7 +311,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         else if (weatherIdx == 3) weatherFactor = URLFactory.WEATHER_SNOW;
 
         int activeVal = (int) Math.round(baseDiff * weatherFactor);
-        if (!isKg) activeVal = (int) Math.round(HeightWeightHelper.mlToOzConverter(activeVal));
+        if (!isKg) activeVal = (int) Math.round(HeightWeightHelper.convertMlToOz(activeVal));
         
         lblActive.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.active).toUpperCase(), activeVal, unit));
     }
@@ -319,7 +319,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     private void calculateGoalBasedOnFactors() {
         double weight = Double.parseDouble(preferencesHelper.getString(URLFactory.KEY_USER_WEIGHT, "70"));
         boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_WEIGHT_UNIT_KG, true);
-        double weightKg = isKg ? weight : HeightWeightHelper.lbToKgConverter(weight);
+        double weightKg = isKg ? weight : HeightWeightHelper.convertLbToKg(weight);
         
         boolean isFemale = preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false);
         boolean isActive = preferencesHelper.getBoolean(URLFactory.KEY_IS_ACTIVE, false);
@@ -352,7 +352,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         if (drinkTotalMl < 900) drinkTotalMl = 900;
         if (drinkTotalMl > 8000) drinkTotalMl = 8000;
 
-        URLFactory.dailyWaterValue = (float) (isKg ? drinkTotalMl : HeightWeightHelper.mlToOzConverter(drinkTotalMl));
+        URLFactory.dailyWaterValue = (float) (isKg ? drinkTotalMl : HeightWeightHelper.convertMlToOz(drinkTotalMl));
         URLFactory.dailyWaterValue = (float) Math.round(URLFactory.dailyWaterValue);
 
         preferencesHelper.savePreferences(URLFactory.KEY_DAILY_WATER_GOAL, URLFactory.dailyWaterValue);
@@ -619,7 +619,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         rdoKg.setOnClickListener(v -> {
             if (!etWeight.getText().toString().isEmpty()) {
                 double lb = Double.parseDouble(etWeight.getText().toString());
-                double kg = HeightWeightHelper.lbToKgConverter(lb);
+                double kg = HeightWeightHelper.convertLbToKg(lb);
                 etWeight.setFilters(new InputFilter[]{new InputFilterWeightRange(0.0, 130.0)});
                 etWeight.setText(String.format(Locale.US, "%.1f", kg));
             }

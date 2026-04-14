@@ -260,7 +260,7 @@ public class Screen_Reminder extends MasterBaseActivity {
     }
 
     private void loadAutoSettingsFromDb() {
-        ArrayList<HashMap<String, String>> data = databaseHelper.getdata("tbl_alarm_details", "AlarmType='R'");
+        ArrayList<HashMap<String, String>> data = databaseHelper.getData("tbl_alarm_details", "AlarmType='R'");
         if (!data.isEmpty()) {
             String timeRange = data.get(0).get("AlarmTime");
             if (timeRange != null && timeRange.contains("-")) {
@@ -305,12 +305,12 @@ public class Screen_Reminder extends MasterBaseActivity {
     }
 
     private void cancelAllAutoAlarms() {
-        ArrayList<HashMap<String, String>> autoAlarms = databaseHelper.getdata("tbl_alarm_details", "AlarmType='R'");
+        ArrayList<HashMap<String, String>> autoAlarms = databaseHelper.getData("tbl_alarm_details", "AlarmType='R'");
         for (HashMap<String, String> row : autoAlarms) {
             String primaryId = row.get("id");
             MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("AlarmId")));
             
-            ArrayList<HashMap<String, String>> subAlarms = databaseHelper.getdata("tbl_alarm_sub_details", "SuperId=" + primaryId);
+            ArrayList<HashMap<String, String>> subAlarms = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + primaryId);
             for (HashMap<String, String> subRow : subAlarms) {
                 MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(subRow.get("AlarmId")));
             }
@@ -372,7 +372,7 @@ public class Screen_Reminder extends MasterBaseActivity {
             masterValues.put("AlarmId", String.valueOf(masterId));
             masterValues.put("AlarmType", "R");
             masterValues.put("AlarmInterval", String.valueOf(currentInterval));
-            databaseHelper.INSERT("tbl_alarm_details", masterValues);
+            databaseHelper.insert("tbl_alarm_details", masterValues);
             
             String lastInsertedId = databaseHelper.GET_LAST_ID("tbl_alarm_details");
 
@@ -390,7 +390,7 @@ public class Screen_Reminder extends MasterBaseActivity {
                     subValues.put("AlarmTime", timeStr);
                     subValues.put("AlarmId", String.valueOf(subId));
                     subValues.put("SuperId", lastInsertedId);
-                    databaseHelper.INSERT("tbl_alarm_sub_details", subValues);
+                    databaseHelper.insert("tbl_alarm_sub_details", subValues);
                 } catch (Exception e) {
                     Log.e(TAG, "Error scheduling auto alarm", e);
                 }
@@ -405,12 +405,12 @@ public class Screen_Reminder extends MasterBaseActivity {
     }
 
     private void clearAutoAlarmsFromDisk() {
-        ArrayList<HashMap<String, String>> autoRows = databaseHelper.getdata("tbl_alarm_details", "AlarmType='R'");
+        ArrayList<HashMap<String, String>> autoRows = databaseHelper.getData("tbl_alarm_details", "AlarmType='R'");
         for (HashMap<String, String> row : autoRows) {
             String id = row.get("id");
             MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("AlarmId")));
             
-            ArrayList<HashMap<String, String>> subs = databaseHelper.getdata("tbl_alarm_sub_details", "SuperId=" + id);
+            ArrayList<HashMap<String, String>> subs = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + id);
             for (HashMap<String, String> sub : subs) {
                 MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(sub.get("AlarmId")));
             }
@@ -580,7 +580,7 @@ public class Screen_Reminder extends MasterBaseActivity {
 
     private void loadManualAlarmsFromDb() {
         alarmList.clear();
-        ArrayList<HashMap<String, String>> data = databaseHelper.getdata("tbl_alarm_details", "AlarmType='M'");
+        ArrayList<HashMap<String, String>> data = databaseHelper.getData("tbl_alarm_details", "AlarmType='M'");
         for (HashMap<String, String> row : data) {
             AlarmModel model = new AlarmModel();
             model.setId(row.get("id"));
@@ -725,7 +725,7 @@ public class Screen_Reminder extends MasterBaseActivity {
         cv.put("Sunday", 1); cv.put("Monday", 1); cv.put("Tuesday", 1); cv.put("Wednesday", 1);
         cv.put("Thursday", 1); cv.put("Friday", 1); cv.put("Saturday", 1);
         
-        databaseHelper.INSERT("tbl_alarm_details", cv);
+        databaseHelper.insert("tbl_alarm_details", cv);
         loadManualAlarmsFromDb();
         alarmAdapter.notifyDataSetChanged();
         alertHelper.customAlert(stringHelper.getString(R.string.str_successfully_set_alarm));

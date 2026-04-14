@@ -394,13 +394,13 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
 
     private void updateNextReminderLabel() {
         List<NextReminderModel> nextReminders = new ArrayList<>();
-        ArrayList<HashMap<String, String>> alarms = databaseHelper.getdata("tbl_alarm_details");
+        ArrayList<HashMap<String, String>> alarms = databaseHelper.getData("tbl_alarm_details");
 
         for (HashMap<String, String> alarm : alarms) {
             String type = alarm.get("AlarmType");
             if ("R".equalsIgnoreCase(type)) {
                 if (!preferencesHelper.getBoolean(URLFactory.KEY_IS_MANUAL_REMINDER, false)) {
-                    ArrayList<HashMap<String, String>> subAlarms = databaseHelper.getdata("tbl_alarm_sub_details", "SuperId='" + alarm.get("id") + "'");
+                    ArrayList<HashMap<String, String>> subAlarms = databaseHelper.getData("tbl_alarm_sub_details", "SuperId='" + alarm.get("id") + "'");
                     for (HashMap<String, String> sub : subAlarms) {
                         nextReminders.add(new NextReminderModel(getMilliFromAlarmTime(sub.get("AlarmTime")), sub.get("AlarmTime")));
                     }
@@ -439,7 +439,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
     }
 
     private void updateIntakeData(String date, boolean isRegularAnimation) {
-        ArrayList<HashMap<String, String>> intakeRecords = databaseHelper.getdata("tbl_drink_details", "DrinkDate ='" + date + "'");
+        ArrayList<HashMap<String, String>> intakeRecords = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + date + "'");
         
         consumedWater = 0.0f;
         boolean isMl = URLFactory.waterUnitValue.equalsIgnoreCase("ML");
@@ -546,13 +546,13 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
         
         if (URLFactory.waterUnitValue.equalsIgnoreCase("ML")) {
             values.put("TodayGoal", String.valueOf(URLFactory.dailyWaterValue));
-            values.put("TodayGoalOZ", String.valueOf(HeightWeightHelper.mlToOzConverter(URLFactory.dailyWaterValue)));
+            values.put("TodayGoalOZ", String.valueOf(HeightWeightHelper.convertMlToOz(URLFactory.dailyWaterValue)));
         } else {
-            values.put("TodayGoal", String.valueOf(HeightWeightHelper.ozToMlConverter(URLFactory.dailyWaterValue)));
+            values.put("TodayGoal", String.valueOf(HeightWeightHelper.convertOzToMl(URLFactory.dailyWaterValue)));
             values.put("TodayGoalOZ", String.valueOf(URLFactory.dailyWaterValue));
         }
 
-        databaseHelper.INSERT("tbl_drink_details", values);
+        databaseHelper.insert("tbl_drink_details", values);
         
         updateIntakeData(dateHelper.getDate(filterCal.getTimeInMillis(), URLFactory.DATE_FORMAT), true);
         updateWidgets();
@@ -560,7 +560,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
 
     private void loadAllContainers() {
         containerList.clear();
-        ArrayList<HashMap<String, String>> data = databaseHelper.getdata("tbl_container_details", "IsCustom", 1);
+        ArrayList<HashMap<String, String>> data = databaseHelper.getData("tbl_container_details", "IsCustom", 1);
         int savedId = preferencesHelper.getInt(URLFactory.KEY_SELECTED_CONTAINER, 1);
 
         for (int i = 0; i < data.size(); i++) {
@@ -687,10 +687,10 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
             double ml, oz;
             if (isMl) {
                 ml = Double.parseDouble(input);
-                oz = HeightWeightHelper.mlToOzConverter(ml);
+                oz = HeightWeightHelper.convertMlToOz(ml);
             } else {
                 oz = Double.parseDouble(input);
-                ml = HeightWeightHelper.ozToMlConverter(oz);
+                ml = HeightWeightHelper.convertOzToMl(oz);
             }
 
             int nextId = getNextContainerId();
@@ -701,7 +701,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
             values.put("IsOpen", "1");
             values.put("IsCustom", "1");
             
-            databaseHelper.INSERT("tbl_container_details", values);
+            databaseHelper.insert("tbl_container_details", values);
             preferencesHelper.savePreferences(URLFactory.KEY_SELECTED_CONTAINER, nextId);
             
             loadAllContainers();
@@ -937,14 +937,14 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
 
     private void shareApp() {
         String msg = stringHelper.getString(R.string.app_share_txt).replace("#1", URLFactory.APP_SHARE_URL);
-        intentHelper.ShareText(getApplicationName(mContext), msg);
+        intentHelper.shareText(getApplicationName(mContext), msg);
     }
 
     private void shareAchievement() {
         String msg = stringHelper.getString(R.string.str_share_text)
                 .replace("$1", formatWaterValue(consumedWater))
                 .replace("$2", "@ " + URLFactory.APP_SHARE_URL);
-        intentHelper.ShareText(getApplicationName(mContext), msg);
+        intentHelper.shareText(getApplicationName(mContext), msg);
     }
 
     public static String getApplicationName(Context context) {

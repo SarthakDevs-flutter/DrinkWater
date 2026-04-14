@@ -311,7 +311,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
 
     private List<ContainerDetails> fetchContainerData() {
         List<ContainerDetails> list = new ArrayList<>();
-        ArrayList<HashMap<String, String>> rows = databaseHelper.getdata("tbl_container_details");
+        ArrayList<HashMap<String, String>> rows = databaseHelper.getData("tbl_container_details");
         for (HashMap<String, String> row : rows) {
             ContainerDetails d = new ContainerDetails();
             d.setContainerID(row.get("ContainerID"));
@@ -328,7 +328,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
 
     private List<DrinkDetails> fetchDrinkData() {
         List<DrinkDetails> list = new ArrayList<>();
-        ArrayList<HashMap<String, String>> rows = databaseHelper.getdata("tbl_drink_details");
+        ArrayList<HashMap<String, String>> rows = databaseHelper.getData("tbl_drink_details");
         for (HashMap<String, String> row : rows) {
             DrinkDetails d = new DrinkDetails();
             d.setDrinkDateTime(row.get("DrinkDateTime"));
@@ -347,7 +347,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
 
     private List<AlarmDetails> fetchAlarmData() {
         List<AlarmDetails> list = new ArrayList<>();
-        ArrayList<HashMap<String, String>> rows = databaseHelper.getdata("tbl_alarm_details");
+        ArrayList<HashMap<String, String>> rows = databaseHelper.getData("tbl_alarm_details");
         for (HashMap<String, String> row : rows) {
             AlarmDetails d = new AlarmDetails();
             d.setAlarmId(row.get("AlarmId"));
@@ -372,7 +372,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
             d.setSaturday(Integer.parseInt(row.get("Saturday")));
 
             List<AlarmSubDetails> subList = new ArrayList<>();
-            ArrayList<HashMap<String, String>> subRows = databaseHelper.getdata("tbl_alarm_sub_details", "SuperId=" + row.get("id"));
+            ArrayList<HashMap<String, String>> subRows = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + row.get("id"));
             for (HashMap<String, String> subRow : subRows) {
                 AlarmSubDetails sd = new AlarmSubDetails();
                 sd.setAlarmId(subRow.get("AlarmId"));
@@ -431,7 +431,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
                     cv.put("ContainerMeasure", d.getContainerMeasure());
                     cv.put("IsOpen", d.getIsOpen());
                     cv.put("IsCustom", d.getIsCustom());
-                    databaseHelper.INSERT("tbl_container_details", cv);
+                    databaseHelper.insert("tbl_container_details", cv);
                 }
 
                 databaseHelper.remove("tbl_drink_details");
@@ -445,7 +445,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
                     cv.put("DrinkDateTime", d.getDrinkDateTime());
                     cv.put("TodayGoal", d.getTodayGoal());
                     cv.put("TodayGoalOZ", d.getTodayGoalOZ());
-                    databaseHelper.INSERT("tbl_drink_details", cv);
+                    databaseHelper.insert("tbl_drink_details", cv);
                 }
 
                 databaseHelper.remove("tbl_alarm_details");
@@ -471,7 +471,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
                     cv.put("Thursday", d.getThursday());
                     cv.put("Friday", d.getFriday());
                     cv.put("Saturday", d.getSaturday());
-                    databaseHelper.INSERT("tbl_alarm_details", cv);
+                    databaseHelper.insert("tbl_alarm_details", cv);
                     String lastId = databaseHelper.GET_LAST_ID("tbl_alarm_details");
 
                     for (AlarmSubDetails sd : d.getAlarmSubDetails()) {
@@ -479,7 +479,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
                         scv.put("AlarmTime", sd.getAlarmTime());
                         scv.put("AlarmId", sd.getAlarmId());
                         scv.put("SuperId", lastId);
-                        databaseHelper.INSERT("tbl_alarm_sub_details", scv);
+                        databaseHelper.insert("tbl_alarm_sub_details", scv);
                     }
                 }
 
@@ -505,12 +505,12 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
     }
 
     private void cancelExistingAlarms() {
-        ArrayList<HashMap<String, String>> rows = databaseHelper.getdata("tbl_alarm_details");
+        ArrayList<HashMap<String, String>> rows = databaseHelper.getData("tbl_alarm_details");
         for (HashMap<String, String> row : rows) {
             if ("M".equalsIgnoreCase(row.get("AlarmType"))) {
                 cancelManual(row);
             } else {
-                ArrayList<HashMap<String, String>> subs = databaseHelper.getdata("tbl_alarm_sub_details", "SuperId=" + row.get("id"));
+                ArrayList<HashMap<String, String>> subs = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + row.get("id"));
                 for (HashMap<String, String> sub : subs) {
                     MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(sub.get("AlarmId")));
                 }

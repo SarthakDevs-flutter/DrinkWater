@@ -51,9 +51,9 @@ public class Screen_Report extends MasterBaseAppCompatActivity {
         leftIconBlock.setOnClickListener(v -> finish());
         rightIconBlock.setVisibility(View.GONE);
 
-        rdoWeek.setText(stringHelper.firstLetterCaps(stringHelper.getString(R.string.str_week)));
-        rdoMonth.setText(stringHelper.firstLetterCaps(stringHelper.getString(R.string.str_month)));
-        rdoYear.setText(stringHelper.firstLetterCaps(stringHelper.getString(R.string.str_year)));
+        rdoWeek.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_week)));
+        rdoMonth.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_month)));
+        rdoYear.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_year)));
 
         rdoWeek.setOnClickListener(v -> viewPager.setCurrentItem(0));
         rdoMonth.setOnClickListener(v -> viewPager.setCurrentItem(1));

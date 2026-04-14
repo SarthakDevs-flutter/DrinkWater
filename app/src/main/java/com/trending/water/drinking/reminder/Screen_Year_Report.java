@@ -80,8 +80,8 @@ public class Screen_Year_Report extends MasterBaseFragment {
     }
 
     private void initLabels() {
-        monthNames = stringHelper.get_arraylist(R.array.month_list2);
-        monthNamesShort = stringHelper.get_arraylist(R.array.month_list);
+        monthNames = stringHelper.getStringArray(R.array.month_list2);
+        monthNamesShort = stringHelper.getStringArray(R.array.month_list);
     }
 
     private void findViewByIds(View view) {

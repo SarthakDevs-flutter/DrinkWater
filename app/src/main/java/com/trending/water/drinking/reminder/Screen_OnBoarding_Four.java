@@ -88,7 +88,7 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
             if (preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true)) {
                 weightKg = Double.parseDouble(weightStr);
             } else {
-                weightKg = HeightWeightHelper.lbToKgConverter(Double.parseDouble(weightStr));
+                weightKg = HeightWeightHelper.convertLbToKg(Double.parseDouble(weightStr));
             }
         } catch (NumberFormatException e) {
             Log.e(TAG, "Error parsing weight: " + weightStr, e);
@@ -131,7 +131,7 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
             URLFactory.dailyWaterValue = (float) Math.round(calculatedGoalMl);
         } else {
             lblUnit.setText("FL OZ");
-            URLFactory.dailyWaterValue = (float) Math.round(HeightWeightHelper.mlToOzConverter(calculatedGoalMl));
+            URLFactory.dailyWaterValue = (float) Math.round(HeightWeightHelper.convertMlToOz(calculatedGoalMl));
         }
 
         lblGoal.setText(String.format(Locale.US, "%d", (int) URLFactory.dailyWaterValue));

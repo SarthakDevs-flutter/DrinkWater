@@ -62,7 +62,7 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
     private void performAction() {
         int selectedId = preferencesHelper.getInt(URLFactory.KEY_SELECTED_CONTAINER, 1);
         
-        ArrayList<HashMap<String, String>> containers = databaseHelper.getdata("tbl_container_details", "IsCustom", 1);
+        ArrayList<HashMap<String, String>> containers = databaseHelper.getData("tbl_container_details", "IsCustom", 1);
         for (int i = 0; i < containers.size(); i++) {
             HashMap<String, String> row = containers.get(i);
             Container container = new Container();
@@ -99,7 +99,7 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
         String validationMsg = stringHelper.getString(R.string.str_you_should_not_drink_more_then_target)
                 .replace("$1", String.format(Locale.getDefault(), "%.0f %s", limitValue, unit));
 
-        ArrayList<HashMap<String, String>> todayHistory = databaseHelper.getdata("tbl_drink_details", 
+        ArrayList<HashMap<String, String>> todayHistory = databaseHelper.getData("tbl_drink_details", 
                 "DrinkDate ='" + dateHelper.getCurrentDate(URLFactory.DATE_FORMAT) + "'");
         
         currentTotalDrank = 0.0f;
@@ -134,13 +134,13 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
             
             if (isMl) {
                 cv.put("TodayGoal", String.valueOf(URLFactory.dailyWaterValue));
-                cv.put("TodayGoalOZ", String.valueOf(HeightWeightHelper.mlToOzConverter(URLFactory.dailyWaterValue)));
+                cv.put("TodayGoalOZ", String.valueOf(HeightWeightHelper.convertMlToOz(URLFactory.dailyWaterValue)));
             } else {
-                cv.put("TodayGoal", String.valueOf(HeightWeightHelper.ozToMlConverter(URLFactory.dailyWaterValue)));
+                cv.put("TodayGoal", String.valueOf(HeightWeightHelper.convertOzToMl(URLFactory.dailyWaterValue)));
                 cv.put("TodayGoalOZ", String.valueOf(URLFactory.dailyWaterValue));
             }
             
-            databaseHelper.INSERT("tbl_drink_details", cv);
+            databaseHelper.insert("tbl_drink_details", cv);
         }
 
         updateWidget();

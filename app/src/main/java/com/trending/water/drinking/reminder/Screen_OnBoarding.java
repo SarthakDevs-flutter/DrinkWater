@@ -218,7 +218,7 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
                 mainAlarmValues.put("AlarmId", String.valueOf(mainAlarmId));
                 mainAlarmValues.put("AlarmType", "R"); // Recurring
                 mainAlarmValues.put("AlarmInterval", String.valueOf(minuteInterval));
-                databaseHelper.INSERT("tbl_alarm_details", mainAlarmValues);
+                databaseHelper.insert("tbl_alarm_details", mainAlarmValues);
                 
                 String superId = databaseHelper.GET_LAST_ID("tbl_alarm_details");
 
@@ -240,7 +240,7 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
                             subAlarmValues.put("AlarmTime", formattedTime);
                             subAlarmValues.put("AlarmId", String.valueOf(subAlarmId));
                             subAlarmValues.put("SuperId", superId);
-                            databaseHelper.INSERT("tbl_alarm_sub_details", subAlarmValues);
+                            databaseHelper.insert("tbl_alarm_sub_details", subAlarmValues);
 
                             // Create day-specific alarms
                             createSpecificDayAlarms(formattedTime);
@@ -276,17 +276,17 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
             dayValues.put("SaturdayAlarmId", String.valueOf((int) System.currentTimeMillis() + 6));
             dayValues.put("AlarmType", "M"); // Manual/Specific Day
             dayValues.put("AlarmInterval", "0");
-            databaseHelper.INSERT("tbl_alarm_details", dayValues);
+            databaseHelper.insert("tbl_alarm_details", dayValues);
         } catch (Exception e) {
             Log.e(TAG, "Error creating specific day alarms", e);
         }
     }
 
     private void deleteAutoAlarms(boolean deleteData) {
-        ArrayList<HashMap<String, String>> alarms = databaseHelper.getdata("tbl_alarm_details");
+        ArrayList<HashMap<String, String>> alarms = databaseHelper.getData("tbl_alarm_details");
         for (HashMap<String, String> alarm : alarms) {
             MyAlarmManager.cancelRecurringAlarm(this, Integer.parseInt(alarm.get("AlarmId")));
-            ArrayList<HashMap<String, String>> subAlarms = databaseHelper.getdata("tbl_alarm_sub_details", "SuperId=" + alarm.get("id"));
+            ArrayList<HashMap<String, String>> subAlarms = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + alarm.get("id"));
             for (HashMap<String, String> subAlarm : subAlarms) {
                 MyAlarmManager.cancelRecurringAlarm(this, Integer.parseInt(subAlarm.get("AlarmId")));
             }

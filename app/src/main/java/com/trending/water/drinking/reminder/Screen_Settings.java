@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.ContextCompat;
 
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
 import com.trending.water.drinking.reminder.utils.URLFactory;
@@ -64,14 +65,14 @@ public class Screen_Settings extends MasterBaseActivity {
             startActivity(new Intent(mActivity, Screen_Profile.class));
         });
 
-        switchNotification.setChecked(preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_NOTIFICATIONS, false));
+        switchNotification.setChecked(preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_NOTIFICATION, false));
         switchNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            preferencesHelper.savePreferences(URLFactory.KEY_DISABLE_NOTIFICATIONS, isChecked);
+            preferencesHelper.savePreferences(URLFactory.KEY_DISABLE_NOTIFICATION, isChecked);
         });
 
-        switchSound.setChecked(preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_SOUND, false));
+        switchSound.setChecked(preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_SOUND_ON_ADD, false));
         switchSound.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            preferencesHelper.savePreferences(URLFactory.KEY_DISABLE_SOUND, isChecked);
+            preferencesHelper.savePreferences(URLFactory.KEY_DISABLE_SOUND_ON_ADD, isChecked);
         });
     }
 }

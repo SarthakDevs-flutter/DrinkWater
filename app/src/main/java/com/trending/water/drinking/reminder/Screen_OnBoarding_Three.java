@@ -328,7 +328,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
             String current = txtWeight.getText().toString();
             if (!stringHelper.check_blank_data(current)) {
                 double lb = Double.parseDouble(current);
-                double kg = lb > 0 ? Math.round(HeightWeightHelper.lbToKgConverter(lb)) : 0;
+                double kg = lb > 0 ? Math.round(HeightWeightHelper.convertLbToKg(lb)) : 0;
                 int index = weightKgList.indexOf(String.valueOf((float) kg));
                 if (index != -1) pickerKg.setSelectedItem(index);
                 
