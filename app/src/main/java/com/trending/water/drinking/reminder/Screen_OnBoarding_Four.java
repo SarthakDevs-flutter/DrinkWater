@@ -124,7 +124,7 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
         }
 
         // Constraints
-        calculatedGoalMl = Math.max(900.0, Math.min(calculatingGoalMl, 8000.0));
+        calculatedGoalMl = Math.max(900.0, Math.min(calculatedGoalMl, 8000.0));
 
         if (preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true)) {
             lblUnit.setText("ML");

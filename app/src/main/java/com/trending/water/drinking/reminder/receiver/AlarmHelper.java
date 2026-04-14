@@ -22,11 +22,13 @@ class AlarmHelper {
     private final Context context;
     private final PreferenceHelper preferencesHelper;
     private final DatabaseHelper databaseHelper;
+    private final DateHelper dateHelper;
 
     AlarmHelper(Context context) {
         this.context = context;
         this.preferencesHelper = new PreferenceHelper(context);
         this.databaseHelper = new DatabaseHelper(context);
+        this.dateHelper = new DateHelper();
     }
 
     public void createAlarm() {

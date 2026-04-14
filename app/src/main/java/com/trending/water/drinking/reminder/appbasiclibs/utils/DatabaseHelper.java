@@ -30,8 +30,12 @@ public class DatabaseHelper {
     private final Activity activity;
     private final StringHelper stringHelper;
 
+    public DatabaseHelper(@NonNull Context context) {
+        this(context, null);
+    }
+
     @SuppressLint("WrongConstant")
-    public DatabaseHelper(@NonNull Context context, @NonNull Activity activity) {
+    public DatabaseHelper(@NonNull Context context, @Nullable Activity activity) {
         this.context = context;
         this.activity = activity;
         this.stringHelper = new StringHelper(context);
@@ -82,8 +86,8 @@ public class DatabaseHelper {
     }
 
     @NonNull
-    public List<HashMap<String, String>> getDataQuery(@NonNull String query) {
-        List<HashMap<String, String>> mapList = new ArrayList<>();
+    public ArrayList<HashMap<String, String>> getDataQuery(@NonNull String query) {
+        ArrayList<HashMap<String, String>> mapList = new ArrayList<>();
         Log.d(TAG, "SQL Select Query: " + query);
         
         if (Constant.database == null) return mapList;
@@ -105,12 +109,12 @@ public class DatabaseHelper {
     }
 
     @NonNull
-    public List<HashMap<String, String>> getData(@NonNull String tableName) {
+    public ArrayList<HashMap<String, String>> getData(@NonNull String tableName) {
         return getData(tableName, null);
     }
 
     @NonNull
-    public List<HashMap<String, String>> getData(@NonNull String tableName, @Nullable String whereClause) {
+    public ArrayList<HashMap<String, String>> getData(@NonNull String tableName, @Nullable String whereClause) {
         String query = "SELECT * FROM " + tableName;
         if (!stringHelper.check_blank_data(whereClause)) {
             query += " WHERE " + whereClause;
@@ -119,7 +123,7 @@ public class DatabaseHelper {
     }
 
     @NonNull
-    public List<HashMap<String, String>> getData(@NonNull String tableName, @Nullable String orderByField, int orderType) {
+    public ArrayList<HashMap<String, String>> getData(@NonNull String tableName, @Nullable String orderByField, int orderType) {
         String query = "SELECT * FROM " + tableName;
         if (!stringHelper.check_blank_data(orderByField)) {
             query += " ORDER BY " + orderByField + (orderType == 0 ? " ASC" : " DESC");
@@ -128,7 +132,7 @@ public class DatabaseHelper {
     }
 
     @NonNull
-    public List<HashMap<String, String>> getData(@NonNull String tableName, @Nullable String whereClause, @Nullable String orderByField, int orderType) {
+    public ArrayList<HashMap<String, String>> getData(@NonNull String tableName, @Nullable String whereClause, @Nullable String orderByField, int orderType) {
         String query = "SELECT * FROM " + tableName;
         if (!stringHelper.check_blank_data(whereClause)) {
             query += " WHERE " + whereClause;
@@ -140,7 +144,7 @@ public class DatabaseHelper {
     }
 
     @NonNull
-    public List<HashMap<String, String>> getData(@NonNull String fields, @NonNull String tableName, @Nullable String whereClause) {
+    public ArrayList<HashMap<String, String>> getData(@NonNull String fields, @NonNull String tableName, @Nullable String whereClause) {
         String query = "SELECT " + fields + " FROM " + tableName;
         if (!stringHelper.check_blank_data(whereClause)) {
             query += " WHERE " + whereClause;
@@ -149,7 +153,7 @@ public class DatabaseHelper {
     }
 
     @NonNull
-    public List<HashMap<String, String>> getData(@NonNull String fields, @NonNull String tableName, @Nullable String whereClause, @Nullable String orderByField, int orderType) {
+    public ArrayList<HashMap<String, String>> getData(@NonNull String fields, @NonNull String tableName, @Nullable String whereClause, @Nullable String orderByField, int orderType) {
         String query = "SELECT " + fields + " FROM " + tableName;
         if (!stringHelper.check_blank_data(whereClause)) {
             query += " WHERE " + whereClause;

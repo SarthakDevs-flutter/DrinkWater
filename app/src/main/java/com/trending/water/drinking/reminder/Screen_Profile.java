@@ -258,25 +258,25 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     }
 
     private void updateHeightDisplay() {
-        boolean isCm = preferencesHelper.getBoolean(URLFactory.KEY_HEIGHT_UNIT_CM, true);
-        String height = preferencesHelper.getString(URLFactory.KEY_USER_HEIGHT, "160");
+        boolean isCm = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_HEIGHT_UNIT, true);
+        String height = preferencesHelper.getString(URLFactory.KEY_PERSON_HEIGHT, "160");
         txtHeight.setText(String.format(Locale.getDefault(), "%s %s", height, isCm ? "cm" : "ft"));
     }
 
     private void updateWeightDisplay() {
-        boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_WEIGHT_UNIT_KG, true);
-        String weight = preferencesHelper.getString(URLFactory.KEY_USER_WEIGHT, "70");
+        boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
+        String weight = preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, "70");
         txtWeight.setText(String.format(Locale.getDefault(), "%s %s", weight, isKg ? "kg" : "lb"));
     }
 
     private void updateGoalDisplay() {
-        boolean isMl = preferencesHelper.getBoolean(URLFactory.KEY_WEIGHT_UNIT_KG, true);
+        boolean isMl = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
         int goal = (int) URLFactory.dailyWaterValue;
         txtGoal.setText(String.format(Locale.getDefault(), "%d %s", goal, isMl ? "ml" : "fl oz"));
     }
 
     private void updateWeatherDisplay() {
-        int idx = preferencesHelper.getInt(URLFactory.KEY_WEATHER_CONDITION, 0);
+        int idx = preferencesHelper.getInt(URLFactory.KEY_WEATHER_CONDITIONS, 0);
         String[] weatherArr = {
             stringHelper.getString(R.string.sunny),
             stringHelper.getString(R.string.cloudy),
@@ -287,24 +287,24 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     }
 
     private void calculateActiveFactors() {
-        boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_WEIGHT_UNIT_KG, true);
+        boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
         String unit = isKg ? "ml" : "fl oz";
 
         // Pregnant
-        int pVal = isKg ? (int) URLFactory.PREGNANT_WATER : (int) Math.round(HeightWeightHelper.convertMlToOz(URLFactory.PREGNANT_WATER));
+        int pVal = isKg ? (int) URLFactory.PREGNANT_WATER_ADDITIONAL : (int) Math.round(HeightWeightHelper.convertMlToOz(URLFactory.PREGNANT_WATER_ADDITIONAL));
         lblPregnant.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.pregnant).toUpperCase(), pVal, unit));
 
         // Breastfeeding
-        int bVal = isKg ? (int) URLFactory.BREASTFEEDING_WATER : (int) Math.round(HeightWeightHelper.convertMlToOz(URLFactory.BREASTFEEDING_WATER));
+        int bVal = isKg ? (int) URLFactory.BREASTFEEDING_WATER_ADDITIONAL : (int) Math.round(HeightWeightHelper.convertMlToOz(URLFactory.BREASTFEEDING_WATER_ADDITIONAL));
         lblBreastfeeding.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.breastfeeding).toUpperCase(), bVal, unit));
 
         // Active
-        double weight = Double.parseDouble(preferencesHelper.getString(URLFactory.KEY_USER_WEIGHT, "70"));
+        double weight = Double.parseDouble(preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, "70"));
         double weightKg = isKg ? weight : HeightWeightHelper.convertLbToKg(weight);
         boolean isFemale = preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false);
         
         double baseDiff = (isFemale ? URLFactory.DEACTIVE_FEMALE_WATER : URLFactory.DEACTIVE_MALE_WATER) * weightKg;
-        int weatherIdx = preferencesHelper.getInt(URLFactory.KEY_WEATHER_CONDITION, 0);
+        int weatherIdx = preferencesHelper.getInt(URLFactory.KEY_WEATHER_CONDITIONS, 0);
         double weatherFactor = URLFactory.WEATHER_SUNNY;
         if (weatherIdx == 1) weatherFactor = URLFactory.WEATHER_CLOUDY;
         else if (weatherIdx == 2) weatherFactor = URLFactory.WEATHER_RAINY;
@@ -317,15 +317,15 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     }
 
     private void calculateGoalBasedOnFactors() {
-        double weight = Double.parseDouble(preferencesHelper.getString(URLFactory.KEY_USER_WEIGHT, "70"));
-        boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_WEIGHT_UNIT_KG, true);
+        double weight = Double.parseDouble(preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, "70"));
+        boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
         double weightKg = isKg ? weight : HeightWeightHelper.convertLbToKg(weight);
         
         boolean isFemale = preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false);
         boolean isActive = preferencesHelper.getBoolean(URLFactory.KEY_IS_ACTIVE, false);
         boolean isPregnant = preferencesHelper.getBoolean(URLFactory.KEY_IS_PREGNANT, false);
         boolean isBreastfeeding = preferencesHelper.getBoolean(URLFactory.KEY_IS_BREASTFEEDING, false);
-        int weatherIdx = preferencesHelper.getInt(URLFactory.KEY_WEATHER_CONDITION, 0);
+        int weatherIdx = preferencesHelper.getInt(URLFactory.KEY_WEATHER_CONDITIONS, 0);
 
         double baseFactor;
         if (isFemale) {
@@ -344,8 +344,8 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         drinkTotalMl *= weatherFactor;
 
         if (isFemale) {
-            if (isPregnant) drinkTotalMl += URLFactory.PREGNANT_WATER;
-            if (isBreastfeeding) drinkTotalMl += URLFactory.BREASTFEEDING_WATER;
+            if (isPregnant) drinkTotalMl += URLFactory.PREGNANT_WATER_ADDITIONAL;
+            if (isBreastfeeding) drinkTotalMl += URLFactory.BREASTFEEDING_WATER_ADDITIONAL;
         }
 
         // Constraints
@@ -420,7 +420,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     }
 
     private void updateWeather(int idx) {
-        preferencesHelper.savePreferences(URLFactory.KEY_WEATHER_CONDITION, idx);
+        preferencesHelper.savePreferences(URLFactory.KEY_WEATHER_CONDITIONS, idx);
         updateWeatherDisplay();
         calculateGoalBasedOnFactors();
         if (popupMenu != null) popupMenu.dismiss();
@@ -467,7 +467,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         AppCompatTextView lblUnit = view.findViewById(R.id.lbl_unit);
         SeekBar seekBar = view.findViewById(R.id.seekbarGoal);
 
-        boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_WEIGHT_UNIT_KG, true);
+        boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
         lblUnit.setText(isKg ? "ml" : "fl oz");
 
         int min = isKg ? 900 : 30;
@@ -552,17 +552,17 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         rdoCm = view.findViewById(R.id.rdo_cm);
         rdoFeet = view.findViewById(R.id.rdo_feet);
 
-        boolean isCm = preferencesHelper.getBoolean(URLFactory.KEY_HEIGHT_UNIT_CM, true);
+        boolean isCm = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_HEIGHT_UNIT, true);
         rdoCm.setChecked(isCm);
         rdoFeet.setChecked(!isCm);
 
-        etHeight.setText(preferencesHelper.getString(URLFactory.KEY_USER_HEIGHT, "160"));
+        etHeight.setText(preferencesHelper.getString(URLFactory.KEY_PERSON_HEIGHT, "160"));
         etHeight.setFilters(new InputFilter[]{isCm ? new DigitsInputFilter(3, 0, 240.0) : new InputFilterRange(0.0, heightFeetElements)});
 
         rdoCm.setOnClickListener(v -> {
             if (!etHeight.getText().toString().isEmpty()) {
                 double h = Double.parseDouble(etHeight.getText().toString());
-                int cm = (int) Math.round(HeightWeightHelper.feetToCmConverter(h));
+                int cm = (int) Math.round(HeightWeightHelper.convertFeetToCm(h));
                 etHeight.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 240.0)});
                 etHeight.setText(String.valueOf(cm));
             }
@@ -573,7 +573,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         rdoFeet.setOnClickListener(v -> {
             if (!etHeight.getText().toString().isEmpty()) {
                 double cm = Double.parseDouble(etHeight.getText().toString());
-                double ft = HeightWeightHelper.cmToFeetConverter(cm);
+                double ft = HeightWeightHelper.convertCmToFeet(cm);
                 etHeight.setFilters(new InputFilter[]{new InputFilterRange(0.0, heightFeetElements)});
                 etHeight.setText(String.format(Locale.US, "%.1f", ft));
             }
@@ -588,8 +588,8 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
                 alertHelper.customAlert(stringHelper.getString(R.string.str_height_validation));
                 return;
             }
-            preferencesHelper.savePreferences(URLFactory.KEY_USER_HEIGHT, val);
-            preferencesHelper.savePreferences(URLFactory.KEY_HEIGHT_UNIT_CM, rdoCm.isChecked());
+            preferencesHelper.savePreferences(URLFactory.KEY_PERSON_HEIGHT, val);
+            preferencesHelper.savePreferences(URLFactory.KEY_PERSON_HEIGHT_UNIT, rdoCm.isChecked());
             updateHeightDisplay();
             dialog.dismiss();
         });
@@ -609,11 +609,11 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         rdoKg = view.findViewById(R.id.rdo_kg);
         rdoLb = view.findViewById(R.id.rdo_lb);
 
-        boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_WEIGHT_UNIT_KG, true);
+        boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
         rdoKg.setChecked(isKg);
         rdoLb.setChecked(!isKg);
 
-        etWeight.setText(preferencesHelper.getString(URLFactory.KEY_USER_WEIGHT, "70"));
+        etWeight.setText(preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, "70"));
         etWeight.setFilters(new InputFilter[]{isKg ? new InputFilterWeightRange(0.0, 130.0) : new DigitsInputFilter(3, 0, 287.0)});
 
         rdoKg.setOnClickListener(v -> {
@@ -630,7 +630,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         rdoLb.setOnClickListener(v -> {
             if (!etWeight.getText().toString().isEmpty()) {
                 double kg = Double.parseDouble(etWeight.getText().toString());
-                double lb = HeightWeightHelper.kgToLbConverter(kg);
+                double lb = HeightWeightHelper.convertKgToLb(kg);
                 etWeight.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 287.0)});
                 etWeight.setText(String.valueOf((int) Math.round(lb)));
             }
@@ -645,8 +645,8 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
                 alertHelper.customAlert(stringHelper.getString(R.string.str_weight_validation));
                 return;
             }
-            preferencesHelper.savePreferences(URLFactory.KEY_USER_WEIGHT, val);
-            preferencesHelper.savePreferences(URLFactory.KEY_WEIGHT_UNIT_KG, rdoKg.isChecked());
+            preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT, val);
+            preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT_UNIT, rdoKg.isChecked());
             preferencesHelper.savePreferences(URLFactory.KEY_WATER_UNIT, rdoKg.isChecked() ? "ml" : "fl oz");
             URLFactory.waterUnitValue = rdoKg.isChecked() ? "ml" : "fl oz";
             
@@ -703,8 +703,10 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
 
     private void setupCameraUri() {
         try {
-            File root = new File(getExternalFilesDir(null), URLFactory.APP_PROFILE_DIRECTORY_NAME);
-            if (!root.exists()) root.mkdirs();
+            File root = new File(Environment.getExternalStorageDirectory() + "/" + URLFactory.APP_DIRECTORY_NAME + "/" + URLFactory.PROFILE_DIR_NAME + "/");
+            if (!root.exists()) {
+                root.mkdirs();
+            }            if (!root.exists()) root.mkdirs();
             File file = new File(root, "profile_image.png");
             imageUri = FileProvider.getUriForFile(mActivity, getPackageName() + ".provider", file);
             selectedImagePath = file.getAbsolutePath();

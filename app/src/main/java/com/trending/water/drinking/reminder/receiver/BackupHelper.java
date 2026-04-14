@@ -155,7 +155,7 @@ class BackupHelper {
         backupRestore.setDisableSound(preferencesHelper.getBoolean(URLFactory.DISABLE_SOUND_WHEN_ADD_WATER));
         backupRestore.setAutoBackup(preferencesHelper.getBoolean(URLFactory.AUTO_BACK_UP));
         backupRestore.setAutoBackupType(preferencesHelper.getInt(URLFactory.AUTO_BACK_UP_TYPE));
-        backupRestore.setAutoBackupID(preferencesHelper.getInt(URLFactory.AUTO_BACK_UP_ID));
+        backupRestore.setAutoBackupId(preferencesHelper.getInt(URLFactory.AUTO_BACK_UP_ID));
 
         String json = new Gson().toJson(backupRestore);
         saveBackupToFile(json);

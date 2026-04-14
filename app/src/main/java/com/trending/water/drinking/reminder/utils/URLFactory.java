@@ -22,14 +22,22 @@ public class URLFactory {
 
     // Preference Keys
     public static final String KEY_USER_NAME = "user_name";
+    public static final String USER_NAME = KEY_USER_NAME;
     public static final String KEY_USER_GENDER = "user_gender";
+    public static final String USER_GENDER = KEY_USER_GENDER;
     public static final String KEY_USER_PHOTO = "user_photo";
     public static final String KEY_PERSON_WEIGHT = "person_weight";
+    public static final String PERSON_WEIGHT = KEY_PERSON_WEIGHT;
     public static final String KEY_PERSON_WEIGHT_UNIT = "person_weight_unit";
+    public static final String PERSON_WEIGHT_UNIT = KEY_PERSON_WEIGHT_UNIT;
     public static final String KEY_PERSON_HEIGHT = "person_height";
+    public static final String PERSON_HEIGHT = KEY_PERSON_HEIGHT;
     public static final String KEY_PERSON_HEIGHT_UNIT = "person_height_unit";
+    public static final String PERSON_HEIGHT_UNIT = KEY_PERSON_HEIGHT_UNIT;
     public static final String KEY_WATER_UNIT = "water_unit";
+    public static final String WATER_UNIT = KEY_WATER_UNIT;
     public static final String KEY_DAILY_WATER_GOAL = "daily_water";
+    public static final String DAILY_WATER = KEY_DAILY_WATER_GOAL;
     public static final String KEY_SET_MANUALLY_GOAL = "set_manually_goal";
     public static final String KEY_SET_MANUALLY_GOAL_VALUE = "set_manually_goal_value";
     
@@ -42,9 +50,13 @@ public class URLFactory {
     
     public static final String KEY_INTERVAL = "interval";
     public static final String KEY_REMINDER_OPTION = "reminder_option";
+    public static final String REMINDER_OPTION = KEY_REMINDER_OPTION;
     public static final String KEY_REMINDER_SOUND = "reminder_sound";
+    public static final String REMINDER_SOUND = KEY_REMINDER_SOUND;
     public static final String KEY_REMINDER_VIBRATE = "reminder_vibrate";
+    public static final String REMINDER_VIBRATE = KEY_REMINDER_VIBRATE;
     public static final String KEY_IS_MANUAL_REMINDER = "manual_reminder_active";
+    public static final String IS_MANUAL_REMINDER = KEY_IS_MANUAL_REMINDER;
     
     public static final String KEY_IS_ACTIVE = "is_active";
     public static final String KEY_IS_PREGNANT = "is_pregnant";
@@ -53,13 +65,18 @@ public class URLFactory {
     
     public static final String KEY_HIDE_WELCOME_SCREEN = "hide_welcome_screen";
     public static final String KEY_DISABLE_NOTIFICATION = "disable_notification";
+    public static final String DISABLE_NOTIFICATION = KEY_DISABLE_NOTIFICATION;
     public static final String KEY_DISABLE_SOUND_ON_ADD = "disable_sound_when_add_water";
+    public static final String DISABLE_SOUND_WHEN_ADD_WATER = KEY_DISABLE_SOUND_ON_ADD;
     public static final String KEY_SELECTED_CONTAINER = "selected_container";
     public static final String KEY_IGNORE_NEXT_STEP = "ignore_next_step";
     
     public static final String KEY_AUTO_BACKUP = "auto_backup";
+    public static final String AUTO_BACK_UP = KEY_AUTO_BACKUP;
     public static final String KEY_AUTO_BACKUP_ID = "auto_backup_id";
+    public static final String AUTO_BACK_UP_ID = KEY_AUTO_BACKUP_ID;
     public static final String KEY_AUTO_BACKUP_TYPE = "auto_backup_type";
+    public static final String AUTO_BACK_UP_TYPE = KEY_AUTO_BACKUP_TYPE;
 
     // Application Constants
     public static final String APP_DIRECTORY_NAME = "Water Diary";

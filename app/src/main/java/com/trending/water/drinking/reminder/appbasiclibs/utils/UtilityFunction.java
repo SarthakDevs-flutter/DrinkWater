@@ -85,6 +85,10 @@ public class UtilityFunction {
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
     }
 
+    public void permissionStrictMode() {
+        enableStrictMode();
+    }
+
     public void enableVmStrictMode() {
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().build());
     }

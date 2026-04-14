@@ -46,9 +46,9 @@ public class BaseFragment extends Fragment {
             this.databaseHelper = new DatabaseHelper(this.mContext, this.mActivity);
             this.intentHelper = new IntentHelper(this.mContext, this.mActivity);
             this.mapHelper = new MapHelper();
-            this.stringHelper = new StringHelper(this.mContext, this.mActivity);
-            this.preferencesHelper = new PreferenceHelper(this.mContext, this.mActivity);
-            this.zipHelper = new ZipHelper(this.mContext);
+            this.stringHelper = new StringHelper(this.mContext);
+            this.preferencesHelper = new PreferenceHelper(this.mContext);
+            this.zipHelper = new ZipHelper();
             
             this.utilityFunction.permissionStrictMode();
         }
