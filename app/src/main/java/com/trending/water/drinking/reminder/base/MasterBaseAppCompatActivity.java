@@ -4,24 +4,27 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
 import com.trending.water.drinking.reminder.R;
 import com.trending.water.drinking.reminder.appbasiclibs.BaseAppCompatActivity;
-import com.trending.water.drinking.reminder.utils.DB_Helper;
+import com.trending.water.drinking.reminder.utils.DbHelper;
 
 public class MasterBaseAppCompatActivity extends BaseAppCompatActivity {
-    DB_Helper dbh;
+    protected DbHelper dbHelper;
 
-    public static int getThemeColor(Context ctx) {
-        return ctx.getResources().getColor(R.color.colorPrimaryDark);
+    public static int getThemeColor(Context context) {
+        return ContextCompat.getColor(context, R.color.colorPrimaryDark);
     }
 
-    public static int[] getThemeColorArray(Context ctx) {
+    public static int[] getThemeColorArray(Context context) {
         return new int[]{Color.parseColor("#001455da"), Color.parseColor("#FF1455da")};
     }
 
-    /* access modifiers changed from: protected */
-    public void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.dbh = new DB_Helper(this, this);
+        this.dbHelper = new DbHelper(this, this);
     }
 }

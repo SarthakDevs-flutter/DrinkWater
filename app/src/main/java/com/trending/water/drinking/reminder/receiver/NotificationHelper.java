@@ -1,13 +1,10 @@
 package com.trending.water.drinking.reminder.receiver;
 
-import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
 import android.media.RingtoneManager;
@@ -18,236 +15,186 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.internal.view.SupportMenu;
 
 import com.trending.water.drinking.reminder.R;
 import com.trending.water.drinking.reminder.Screen_Dashboard;
 import com.trending.water.drinking.reminder.Screen_Select_Bottle;
 import com.trending.water.drinking.reminder.Screen_Select_Snooze;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Constant;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Date_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Preferences_Helper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.DatabaseHelper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.DateHelper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.PreferenceHelper;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 class NotificationHelper {
-    static final /* synthetic */ boolean $assertionsDisabled = false;
-    private static final String NOTIFICATION_CHANNEL_ID = "10001";
-    private static final String NOTIFICATION_SILENT_CHANNEL_ID = "10002";
-    private static final String NOTIFICATION_SILENT_VIBRATE_CHANNEL_ID = "10004";
-    private static final String NOTIFICATION_VIBRATE_CHANNEL_ID = "10003";
-    Date_Helper dth = new Date_Helper();
-    Preferences_Helper ph;
-    private Context mContext;
+    private static final String TAG = "NotificationHelper";
+    private static final String CHANNEL_REMINDER = "10001";
+    private static final String CHANNEL_VIBRATE = "10003";
+    private static final String CHANNEL_SILENT = "10002";
+    private static final String CHANNEL_SILENT_VIBRATE = "10004";
+
+    private final Context context;
+    private final PreferenceHelper preferencesHelper;
+    private final DateHelper dateHelper = new DateHelper();
 
     NotificationHelper(Context context) {
-        this.mContext = context;
-        this.ph = new Preferences_Helper(this.mContext);
-        if (URLFactory.notification_ringtone == null) {
-            URLFactory.notification_ringtone = RingtoneManager.getRingtone(this.mContext, getSound());
+        this.context = context;
+        this.preferencesHelper = new PreferenceHelper(context);
+        if (URLFactory.notificationRingtone == null) {
+            URLFactory.notificationRingtone = RingtoneManager.getRingtone(context, getSoundUri());
         }
     }
 
-    /* access modifiers changed from: package-private */
-    public void createNotification() {
-        Log.d("createNotification", "" + this.ph.getInt(URLFactory.REMINDER_OPTION));
-        Log.d("createNotification V", "" + this.ph.getBoolean(URLFactory.REMINDER_VIBRATE));
-        if (this.ph.getInt(URLFactory.REMINDER_OPTION) != 1) {
-            if (!reachedDailyGoal() || !this.ph.getBoolean(URLFactory.DISABLE_NOTIFICATION)) {
-                Intent intent = new Intent(this.mContext, Screen_Dashboard.class);
-                intent.setFlags(603979776);
-                PendingIntent resultPendingIntent = PendingIntent.getActivity(this.mContext, 0, intent, 134217728);
-                Intent snoozeIntent = new Intent(this.mContext, Screen_Select_Snooze.class);
-                snoozeIntent.setAction("SNOOZE_ACTION");
-                snoozeIntent.setFlags(603979776);
-                PendingIntent snoozePendingIntent = PendingIntent.getActivity(this.mContext, 0, snoozeIntent, 134217728);
-                Intent addWaterIntent = new Intent(this.mContext, Screen_Select_Bottle.class);
-                addWaterIntent.setAction("ADD_WATER_ACTION");
-                addWaterIntent.setFlags(603979776);
-                PendingIntent addWaterPendingIntent = PendingIntent.getActivity(this.mContext, 0, addWaterIntent, 134217728);
-                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this.mContext);
-                mBuilder.setSmallIcon(R.drawable.ic_small_app_icon);
-                mBuilder.setLargeIcon(BitmapFactory.decodeResource(this.mContext.getResources(), R.mipmap.ic_launcher));
-                NotificationCompat.Builder contentTitle = mBuilder.setContentTitle(this.mContext.getResources().getString(R.string.str_drink_water));
-                contentTitle.setContentText("" + get_today_report()).setAutoCancel(true).setContentIntent(resultPendingIntent).setColor(ContextCompat.getColor(this.mContext, R.color.colorPrimary));
-                if (this.ph.getInt(URLFactory.REMINDER_OPTION) == 0 && !this.ph.getBoolean(URLFactory.REMINDER_VIBRATE)) {
-                    mBuilder.setDefaults(-1);
-                    if (Build.VERSION.SDK_INT < 26) {
-                        mBuilder.setSound(getSound());
-                    }
-                } else if (this.ph.getInt(URLFactory.REMINDER_OPTION) == 0 && this.ph.getBoolean(URLFactory.REMINDER_VIBRATE)) {
-                    mBuilder.setDefaults(1);
-                    if (Build.VERSION.SDK_INT < 26) {
-                        mBuilder.setSound(getSound());
-                    }
-                } else if (this.ph.getInt(URLFactory.REMINDER_OPTION) == 2 && !this.ph.getBoolean(URLFactory.REMINDER_VIBRATE)) {
-                    mBuilder.setDefaults(2);
-                    if (Build.VERSION.SDK_INT < 26) {
-                        mBuilder.setSound((Uri) null);
-                    }
-                } else if (Build.VERSION.SDK_INT < 26) {
-                    mBuilder.setSound((Uri) null);
+    void createNotification() {
+        int reminderOption = preferencesHelper.getInt(URLFactory.REMINDER_OPTION);
+        boolean isVibrate = preferencesHelper.getBoolean(URLFactory.REMINDER_VIBRATE);
+        boolean disableNotification = preferencesHelper.getBoolean(URLFactory.DISABLE_NOTIFICATION);
+
+        if (reminderOption == 1) return; // Reminders off
+
+        if (isDailyGoalReached() && disableNotification) return;
+
+        Intent intent = new Intent(context, Screen_Dashboard.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        
+        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingIntentFlags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, pendingIntentFlags);
+
+        Intent snoozeIntent = new Intent(context, Screen_Select_Snooze.class);
+        snoozeIntent.setAction("SNOOZE_ACTION");
+        snoozeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent snoozePendingIntent = PendingIntent.getActivity(context, 0, snoozeIntent, pendingIntentFlags);
+
+        Intent addWaterIntent = new Intent(context, Screen_Select_Bottle.class);
+        addWaterIntent.setAction("ADD_WATER_ACTION");
+        addWaterIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent addWaterPendingIntent = PendingIntent.getActivity(context, 0, addWaterIntent, pendingIntentFlags);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_REMINDER);
+        builder.setSmallIcon(R.drawable.ic_small_app_icon)
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                .setContentTitle(context.getString(R.string.str_drink_water))
+                .setContentText(getTodayReport())
+                .setAutoCancel(true)
+                .setContentIntent(resultPendingIntent)
+                .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+                .addAction(R.drawable.ic_plus, context.getString(R.string.str_add_water), addWaterPendingIntent)
+                .addAction(R.drawable.ic_notification, context.getString(R.string.str_snooze), snoozePendingIntent);
+
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager == null) return;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channelId;
+            String channelName;
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+
+            if (reminderOption == 0) { // Normal
+                if (!isVibrate) {
+                    channelId = CHANNEL_REMINDER;
+                    channelName = "Reminder";
+                } else {
+                    channelId = CHANNEL_VIBRATE;
+                    channelName = "Vibrate Reminder";
                 }
-                mBuilder.addAction(R.drawable.ic_plus, this.mContext.getResources().getString(R.string.str_add_water), addWaterPendingIntent);
-                mBuilder.addAction(R.drawable.ic_notification, this.mContext.getResources().getString(R.string.str_snooze), snoozePendingIntent);
-                NotificationManager mNotificationManager = (NotificationManager) this.mContext.getSystemService("notification");
-                if (Build.VERSION.SDK_INT >= 26) {
-                    mNotificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_ID);
-                    mNotificationManager.deleteNotificationChannel(NOTIFICATION_VIBRATE_CHANNEL_ID);
-                    if (this.ph.getInt(URLFactory.REMINDER_OPTION) == 0) {
-                        if (!this.ph.getBoolean(URLFactory.REMINDER_VIBRATE)) {
-                            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "Reminder", 4);
-                            notificationChannel.enableLights(true);
-                            notificationChannel.setLightColor(SupportMenu.CATEGORY_MASK);
-                            notificationChannel.setSound((Uri) null, (AudioAttributes) null);
-                            notificationChannel.enableVibration(true);
-                            notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-                            mBuilder.setChannelId(NOTIFICATION_CHANNEL_ID);
-                            mNotificationManager.createNotificationChannel(notificationChannel);
-                        } else {
-                            NotificationChannel notificationChannel2 = new NotificationChannel(NOTIFICATION_VIBRATE_CHANNEL_ID, "Vibrate Reminder", 4);
-                            notificationChannel2.enableLights(true);
-                            notificationChannel2.setSound((Uri) null, (AudioAttributes) null);
-                            notificationChannel2.setLightColor(SupportMenu.CATEGORY_MASK);
-                            notificationChannel2.enableVibration(false);
-                            notificationChannel2.setVibrationPattern(new long[]{0});
-                            mBuilder.setChannelId(NOTIFICATION_VIBRATE_CHANNEL_ID);
-                            mNotificationManager.createNotificationChannel(notificationChannel2);
-                        }
-                        try {
-                            if (!URLFactory.notification_ringtone.isPlaying()) {
-                                URLFactory.notification_ringtone.play();
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else if (!this.ph.getBoolean(URLFactory.REMINDER_VIBRATE)) {
-                        NotificationChannel channel_none = new NotificationChannel(NOTIFICATION_SILENT_CHANNEL_ID, "Silent Reminder", 4);
-                        channel_none.setSound((Uri) null, (AudioAttributes) null);
-                        channel_none.enableVibration(true);
-                        channel_none.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-                        mBuilder.setChannelId(NOTIFICATION_SILENT_CHANNEL_ID);
-                        mNotificationManager.createNotificationChannel(channel_none);
-                    } else {
-                        NotificationChannel channel_none2 = new NotificationChannel(NOTIFICATION_SILENT_VIBRATE_CHANNEL_ID, "Silent-Vibrate Reminder", 4);
-                        channel_none2.setSound((Uri) null, (AudioAttributes) null);
-                        channel_none2.enableVibration(false);
-                        channel_none2.setVibrationPattern(new long[]{0});
-                        mBuilder.setChannelId(NOTIFICATION_SILENT_VIBRATE_CHANNEL_ID);
-                        mNotificationManager.createNotificationChannel(channel_none2);
+                
+                try {
+                    if (URLFactory.notificationRingtone != null && !URLFactory.notificationRingtone.isPlaying()) {
+                        URLFactory.notificationRingtone.play();
                     }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error playing sound", e);
                 }
-                mNotificationManager.notify(0, mBuilder.build());
+            } else { // Silent or other
+                if (!isVibrate) {
+                    channelId = CHANNEL_SILENT;
+                    channelName = "Silent Reminder";
+                } else {
+                    channelId = CHANNEL_SILENT_VIBRATE;
+                    channelName = "Silent-Vibrate Reminder";
+                }
             }
-        }
-    }
 
-    public Uri getSound() {
-        Uri uri = Settings.System.DEFAULT_NOTIFICATION_URI;
-        Log.d("getSound", "" + this.ph.getInt(URLFactory.REMINDER_SOUND));
-        if (this.ph.getInt(URLFactory.REMINDER_SOUND) == 1) {
-            return Uri.parse("android.resource://" + this.mContext.getPackageName() + "/" + R.raw.bell);
-        } else if (this.ph.getInt(URLFactory.REMINDER_SOUND) == 2) {
-            return Uri.parse("android.resource://" + this.mContext.getPackageName() + "/" + R.raw.blop);
-        } else if (this.ph.getInt(URLFactory.REMINDER_SOUND) == 3) {
-            return Uri.parse("android.resource://" + this.mContext.getPackageName() + "/" + R.raw.bong);
-        } else if (this.ph.getInt(URLFactory.REMINDER_SOUND) == 4) {
-            return Uri.parse("android.resource://" + this.mContext.getPackageName() + "/" + R.raw.click);
-        } else if (this.ph.getInt(URLFactory.REMINDER_SOUND) == 5) {
-            return Uri.parse("android.resource://" + this.mContext.getPackageName() + "/" + R.raw.echo_droplet);
-        } else if (this.ph.getInt(URLFactory.REMINDER_SOUND) == 6) {
-            return Uri.parse("android.resource://" + this.mContext.getPackageName() + "/" + R.raw.mario_droplet);
-        } else if (this.ph.getInt(URLFactory.REMINDER_SOUND) == 7) {
-            return Uri.parse("android.resource://" + this.mContext.getPackageName() + "/" + R.raw.ship_bell);
-        } else if (this.ph.getInt(URLFactory.REMINDER_SOUND) == 8) {
-            return Uri.parse("android.resource://" + this.mContext.getPackageName() + "/" + R.raw.simple_droplet);
-        } else if (this.ph.getInt(URLFactory.REMINDER_SOUND) != 9) {
-            return uri;
-        } else {
-            return Uri.parse("android.resource://" + this.mContext.getPackageName() + "/" + R.raw.tiny_droplet);
-        }
-    }
-
-    public boolean reachedDailyGoal() {
-        double d;
-        double d2;
-        Constant.SDB = this.mContext.openOrCreateDatabase(Constant.DATABASE_NAME, 268435456, (SQLiteDatabase.CursorFactory) null);
-        if (this.ph.getFloat(URLFactory.DAILY_WATER) == 0.0f) {
-            URLFactory.DAILY_WATER_VALUE = 2500.0f;
-        } else {
-            URLFactory.DAILY_WATER_VALUE = this.ph.getFloat(URLFactory.DAILY_WATER);
-        }
-        ArrayList<HashMap<String, String>> arr_data = getdata("tbl_drink_details", "DrinkDate ='" + this.dth.getCurrentDate("dd-MM-yyyy") + "'");
-        float drink_water = 0.0f;
-        for (int k = 0; k < arr_data.size(); k++) {
-            if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                d2 = (double) drink_water;
-                d = Double.parseDouble((String) arr_data.get(k).get("ContainerValue"));
+            NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
+            channel.setSound(null, null); // We handle sound manually or via system if enabled
+            if (isVibrate) {
+                channel.enableVibration(true);
+                channel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
             } else {
-                d2 = (double) drink_water;
-                d = Double.parseDouble((String) arr_data.get(k).get("ContainerValueOZ"));
+                channel.enableVibration(false);
             }
-            drink_water = (float) (d2 + d);
-        }
-        if (drink_water >= URLFactory.DAILY_WATER_VALUE) {
-            return true;
-        }
-        return false;
-    }
-
-    @SuppressLint({"WrongConstant"})
-    public String get_today_report() {
-        double d;
-        double d2;
-        Constant.SDB = this.mContext.openOrCreateDatabase(Constant.DATABASE_NAME, 268435456, (SQLiteDatabase.CursorFactory) null);
-        if (this.ph.getFloat(URLFactory.DAILY_WATER) == 0.0f) {
-            URLFactory.DAILY_WATER_VALUE = 2500.0f;
+            
+            notificationManager.createNotificationChannel(channel);
+            builder.setChannelId(channelId);
         } else {
-            URLFactory.DAILY_WATER_VALUE = this.ph.getFloat(URLFactory.DAILY_WATER);
-        }
-        if (check_blank_data("" + this.ph.getString(URLFactory.WATER_UNIT))) {
-            URLFactory.WATER_UNIT_VALUE = "ML";
-        } else {
-            URLFactory.WATER_UNIT_VALUE = this.ph.getString(URLFactory.WATER_UNIT);
-        }
-        ArrayList<HashMap<String, String>> arr_data = getdata("tbl_drink_details", "DrinkDate ='" + this.dth.getCurrentDate("dd-MM-yyyy") + "'");
-        float drink_water = 0.0f;
-        for (int k = 0; k < arr_data.size(); k++) {
-            if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                d2 = (double) drink_water;
-                d = Double.parseDouble((String) arr_data.get(k).get("ContainerValue"));
+            // Pre-Oreo sound/vibrate settings
+            if (reminderOption == 0) {
+                builder.setSound(getSoundUri());
+                if (isVibrate) builder.setDefaults(NotificationCompat.DEFAULT_VIBRATE);
+                else builder.setDefaults(NotificationCompat.DEFAULT_LIGHTS);
             } else {
-                d2 = (double) drink_water;
-                d = Double.parseDouble((String) arr_data.get(k).get("ContainerValueOZ"));
+                builder.setSound(null);
             }
-            drink_water = (float) (d2 + d);
         }
-        return this.mContext.getResources().getString(R.string.str_have_u_had_any_water_yet);
+
+        notificationManager.notify(0, builder.build());
     }
 
-    public boolean check_blank_data(String data) {
-        if (data.equals("") || data.isEmpty() || data.length() == 0 || data.equals("null") || data == null) {
-            return true;
+    public Uri getSoundUri() {
+        int soundIndex = preferencesHelper.getInt(URLFactory.REMINDER_SOUND);
+        int resId;
+        switch (soundIndex) {
+            case 1: resId = R.raw.bell; break;
+            case 2: resId = R.raw.blop; break;
+            case 3: resId = R.raw.bong; break;
+            case 4: resId = R.raw.click; break;
+            case 5: resId = R.raw.echo_droplet; break;
+            case 6: resId = R.raw.mario_droplet; break;
+            case 7: resId = R.raw.ship_bell; break;
+            case 8: resId = R.raw.simple_droplet; break;
+            case 9: resId = R.raw.tiny_droplet; break;
+            default: return Settings.System.DEFAULT_NOTIFICATION_URI;
         }
-        return false;
+        return Uri.parse("android.resource://" + context.getPackageName() + "/" + resId);
     }
 
-    public ArrayList<HashMap<String, String>> getdata(String table_name, String where_con) {
-        ArrayList<HashMap<String, String>> maplist = new ArrayList<>();
-        String query = ("SELECT * FROM " + table_name) + " where " + where_con;
-        Cursor c = Constant.SDB.rawQuery(query, (String[]) null);
-        System.out.println("SELECT QUERY : " + query);
-        if (c.moveToFirst()) {
-            do {
-                HashMap<String, String> map = new HashMap<>();
-                for (int i = 0; i < c.getColumnCount(); i++) {
-                    map.put(c.getColumnName(i), c.getString(i));
+    private float getTodayDrunkAmount() {
+        DatabaseHelper databaseHelper = new DatabaseHelper(context);
+        String today = dateHelper.getCurrentDate("dd-MM-yyyy");
+        ArrayList<HashMap<String, String>> drankData = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + today + "'");
+        
+        float totalAmount = 0.0f;
+        String unit = preferencesHelper.getString(URLFactory.WATER_UNIT);
+        if (unit.isEmpty()) unit = "ML";
+
+        for (HashMap<String, String> entry : drankData) {
+            try {
+                String valueStr = unit.equalsIgnoreCase("ml") ? entry.get("ContainerValue") : entry.get("ContainerValueOZ");
+                if (valueStr != null) {
+                    totalAmount += Float.parseFloat(valueStr);
                 }
-                maplist.add(map);
-            } while (c.moveToNext());
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "Error parsing drink amount", e);
+            }
         }
-        return maplist;
+        return totalAmount;
+    }
+
+    public boolean isDailyGoalReached() {
+        float goal = preferencesHelper.getFloat(URLFactory.DAILY_WATER);
+        if (goal == 0.0f) goal = 2500.0f;
+        
+        return getTodayDrunkAmount() >= goal;
+    }
+
+    public String getTodayReport() {
+        // This could be expanded to show actual progress
+        return context.getString(R.string.str_have_u_had_any_water_yet);
     }
 }

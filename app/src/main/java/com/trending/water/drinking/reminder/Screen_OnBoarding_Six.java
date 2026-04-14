@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
@@ -19,230 +21,174 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class Screen_OnBoarding_Six extends MasterBaseFragment {
-    int from_hour = 8;
-    int from_minute = 0;
-    View item_view;
-    AppCompatTextView lbl_message;
-    RadioButton rdo_15;
-    RadioButton rdo_30;
-    RadioButton rdo_45;
-    RadioButton rdo_60;
-    int to_hour = 22;
-    int to_minute = 0;
-    AppCompatTextView txt_bed_time;
-    AppCompatTextView txt_wakeup_time;
+    
+    private int fromHour = 8;
+    private int fromMinute = 0;
+    private int toHour = 22;
+    private int toMinute = 0;
+    
+    private AppCompatTextView txtWakeupTime;
+    private AppCompatTextView txtBedTime;
+    private AppCompatTextView lblMessage;
+    
+    private RadioButton rdo15;
+    private RadioButton rdo30;
+    private RadioButton rdo45;
+    private RadioButton rdo60;
+    
+    private View itemView;
 
     public static Timepoint[] generateTimepoints(double maxHour, int minutesInterval) {
-        int lastValue = (int) (60.0d * maxHour);
+        int lastValueInMinutes = (int) (60.0d * maxHour);
         List<Timepoint> timepoints = new ArrayList<>();
-        int minute = 0;
-        while (minute <= lastValue) {
-            int currentHour = minute / 60;
-            int currentMinute = minute - (currentHour > 0 ? currentHour * 60 : 0);
-            if (currentHour != 24) {
-                timepoints.add(new Timepoint(currentHour, currentMinute));
+        int currentMinute = 0;
+        while (currentMinute <= lastValueInMinutes) {
+            int h = currentMinute / 60;
+            int m = currentMinute % 60;
+            if (h < 24) {
+                timepoints.add(new Timepoint(h, m));
             }
-            minute += minutesInterval;
+            currentMinute += minutesInterval;
         }
-        return (Timepoint[]) timepoints.toArray(new Timepoint[timepoints.size()]);
+        return timepoints.toArray(new Timepoint[0]);
     }
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        this.item_view = inflater.inflate(R.layout.screen_onboarding_six, container, false);
-        FindViewById();
-        Body();
-        setCount();
-        return this.item_view;
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        itemView = inflater.inflate(R.layout.screen_onboarding_six, container, false);
+        findViewByIds(itemView);
+        initView();
+        calculateIntervalConsumption();
+        return itemView;
     }
 
+    @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            setCount();
+        if (isVisibleToUser && isAdded()) {
+            calculateIntervalConsumption();
         }
     }
 
-    private void FindViewById() {
-        this.txt_wakeup_time = (AppCompatTextView) this.item_view.findViewById(R.id.txt_wakeup_time);
-        this.txt_bed_time = (AppCompatTextView) this.item_view.findViewById(R.id.txt_bed_time);
-        this.rdo_15 = (RadioButton) this.item_view.findViewById(R.id.rdo_15);
-        this.rdo_30 = (RadioButton) this.item_view.findViewById(R.id.rdo_30);
-        this.rdo_45 = (RadioButton) this.item_view.findViewById(R.id.rdo_45);
-        this.rdo_60 = (RadioButton) this.item_view.findViewById(R.id.rdo_60);
-        this.lbl_message = (AppCompatTextView) this.item_view.findViewById(R.id.lbl_message);
+    private void findViewByIds(View view) {
+        txtWakeupTime = view.findViewById(R.id.txt_wakeup_time);
+        txtBedTime = view.findViewById(R.id.txt_bed_time);
+        rdo15 = view.findViewById(R.id.rdo_15);
+        rdo30 = view.findViewById(R.id.rdo_30);
+        rdo45 = view.findViewById(R.id.rdo_45);
+        rdo60 = view.findViewById(R.id.rdo_60);
+        lblMessage = view.findViewById(R.id.lbl_message);
     }
 
-    private void Body() {
-        RadioButton radioButton = this.rdo_15;
-        radioButton.setText("15 " + this.sh.get_string(R.string.str_min));
-        RadioButton radioButton2 = this.rdo_30;
-        radioButton2.setText("30 " + this.sh.get_string(R.string.str_min));
-        RadioButton radioButton3 = this.rdo_45;
-        radioButton3.setText("45 " + this.sh.get_string(R.string.str_min));
-        RadioButton radioButton4 = this.rdo_60;
-        radioButton4.setText("1 " + this.sh.get_string(R.string.str_hour));
-        this.txt_wakeup_time.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_OnBoarding_Six.this.openAutoTimePicker(Screen_OnBoarding_Six.this.txt_wakeup_time, true);
-            }
-        });
-        this.txt_bed_time.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_OnBoarding_Six.this.openAutoTimePicker(Screen_OnBoarding_Six.this.txt_bed_time, false);
-            }
-        });
-        this.rdo_15.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_OnBoarding_Six.this.setCount();
-            }
-        });
-        this.rdo_30.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_OnBoarding_Six.this.setCount();
-            }
-        });
-        this.rdo_45.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_OnBoarding_Six.this.setCount();
-            }
-        });
-        this.rdo_60.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_OnBoarding_Six.this.setCount();
-            }
-        });
+    private void initView() {
+        String minStr = " " + stringHelper.getString(R.string.str_min);
+        String hourStr = " " + stringHelper.getString(R.string.str_hour);
+        
+        rdo15.setText("15" + minStr);
+        rdo30.setText("30" + minStr);
+        rdo45.setText("45" + minStr);
+        rdo60.setText("1" + hourStr);
+
+        txtWakeupTime.setOnClickListener(v -> openTimePicker(txtWakeupTime, true));
+        txtBedTime.setOnClickListener(v -> openTimePicker(txtBedTime, false));
+
+        View.OnClickListener intervalListener = v -> calculateIntervalConsumption();
+        rdo15.setOnClickListener(intervalListener);
+        rdo30.setOnClickListener(intervalListener);
+        rdo45.setOnClickListener(intervalListener);
+        rdo60.setOnClickListener(intervalListener);
     }
 
-    public void openAutoTimePicker(final AppCompatTextView appCompatTextView, final boolean isFrom) {
-        TimePickerDialog tpd;
-        TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
-                SimpleDateFormat sdfs = new SimpleDateFormat("hh:mm a", Locale.US);
-                try {
-                    if (isFrom) {
-                        Screen_OnBoarding_Six.this.from_hour = hourOfDay;
-                        Screen_OnBoarding_Six.this.from_minute = minute;
-                    } else {
-                        Screen_OnBoarding_Six.this.to_hour = hourOfDay;
-                        Screen_OnBoarding_Six.this.to_minute = minute;
-                    }
-                    String formatedDate = sdfs.format(sdf.parse("" + hourOfDay + ":" + minute + ":00"));
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("");
-                    sb.append(formatedDate);
-                    appCompatTextView.setText(sb.toString());
-                    Screen_OnBoarding_Six.this.setCount();
-                } catch (ParseException e) {
-                    e.printStackTrace();
+    private void openTimePicker(final AppCompatTextView textView, final boolean isFrom) {
+        TimePickerDialog.OnTimeSetListener listener = (view, hourOfDay, minute, second) -> {
+            SimpleDateFormat sdf24 = new SimpleDateFormat("HH:mm:ss", Locale.US);
+            SimpleDateFormat sdf12 = new SimpleDateFormat("hh:mm a", Locale.US);
+            try {
+                if (isFrom) {
+                    fromHour = hourOfDay;
+                    fromMinute = minute;
+                } else {
+                    toHour = hourOfDay;
+                    toMinute = minute;
                 }
+                String formattedTime = sdf12.format(sdf24.parse(hourOfDay + ":" + minute + ":00"));
+                textView.setText(formattedTime);
+                calculateIntervalConsumption();
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
         };
-        Calendar now = Calendar.getInstance();
-        if (isFrom) {
-            now.set(11, this.from_hour);
-            now.set(12, this.from_minute);
-        } else {
-            now.set(11, this.to_hour);
-            now.set(12, this.to_minute);
-        }
-        if (!DateFormat.is24HourFormat(this.act)) {
-            tpd = TimePickerDialog.newInstance(onTimeSetListener, now.get(11), now.get(12), false);
-            tpd.setSelectableTimes(generateTimepoints(23.5d, 30));
-            tpd.setMaxTime(23, 30, 0);
-        } else {
-            tpd = TimePickerDialog.newInstance(onTimeSetListener, now.get(11), now.get(12), true);
-            tpd.setSelectableTimes(generateTimepoints(23.5d, 30));
-            tpd.setMaxTime(23, 30, 0);
-        }
-        tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(this.mContext));
-//        tpd.show(this.act.getFragmentManager(), "Datepickerdialog");
-        tpd.show(getChildFragmentManager(), "Datepickerdialog");
-        tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(this.mContext));
+
+        int h = isFrom ? fromHour : toHour;
+        int m = isFrom ? fromMinute : toMinute;
+        
+        TimePickerDialog tpd = TimePickerDialog.newInstance(listener, h, m, DateFormat.is24HourFormat(mContext));
+        tpd.setSelectableTimes(generateTimepoints(23.5d, 30));
+        tpd.setMaxTime(23, 30, 0);
+        tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(mContext));
+        tpd.show(getChildFragmentManager(), "TimePickerDialog");
     }
 
-    public int getDifference() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a");
+    private boolean isNextDayEnd() {
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.US);
         try {
-            long difference = simpleDateFormat.parse(this.txt_bed_time.getText().toString().trim()).getTime() - simpleDateFormat.parse(this.txt_wakeup_time.getText().toString().trim()).getTime();
-            int days = (int) (difference / 86400000);
-            return ((int) ((difference - ((long) (86400000 * days))) - ((long) (3600000 * ((int) ((difference - ((long) (days * 86400000))) / 3600000)))))) / 60000;
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    public boolean isValidDate() {
-        if ((this.rdo_15.isChecked() ? 15 : this.rdo_30.isChecked() ? 30 : this.rdo_45.isChecked() ? 45 : 60) <= getDifference()) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isNextDayEnd() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a");
-        try {
-            if (simpleDateFormat.parse(this.txt_wakeup_time.getText().toString().trim()).getTime() > simpleDateFormat.parse(this.txt_bed_time.getText().toString().trim()).getTime()) {
-                return true;
-            }
-            return false;
+            long wakeup = sdf.parse(txtWakeupTime.getText().toString().trim()).getTime();
+            long bed = sdf.parse(txtBedTime.getText().toString().trim()).getTime();
+            return wakeup > bed;
         } catch (Exception e) {
             return false;
         }
     }
 
-    public void setCount() {
-        Calendar startTime = Calendar.getInstance();
-        startTime.set(11, this.from_hour);
-        startTime.set(12, this.from_minute);
-        startTime.set(13, 0);
-        Calendar endTime = Calendar.getInstance();
-        endTime.set(11, this.to_hour);
-        endTime.set(12, this.to_minute);
-        endTime.set(13, 0);
-        if (isNextDayEnd()) {
-            endTime.add(5, 1);
-        }
-        long mills = endTime.getTimeInMillis() - startTime.getTimeInMillis();
-        float total_minutes = (float) ((((int) (mills / 3600000)) * 60) + ((int) ((mills / 60000) % 60)));
-        int interval = this.rdo_15.isChecked() ? 15 : this.rdo_30.isChecked() ? 30 : this.rdo_45.isChecked() ? 45 : 60;
-        int consume = 0;
-        if (total_minutes > 0.0f) {
-            consume = Math.round(URLFactory.DAILY_WATER_VALUE / (total_minutes / ((float) interval)));
-        }
-        String unit = this.ph.getBoolean(URLFactory.PERSON_WEIGHT_UNIT) ? "ml" : "fl oz";
-        AppCompatTextView appCompatTextView = this.lbl_message;
-        String str = this.sh.get_string(R.string.str_goal_consume);
-        String replace = str.replace("$1", "" + consume + " " + unit);
-        appCompatTextView.setText(replace.replace("$2", "" + ((int) URLFactory.DAILY_WATER_VALUE) + " " + unit));
-        this.ph.savePreferences(URLFactory.WAKE_UP_TIME, this.txt_wakeup_time.getText().toString().trim());
-        this.ph.savePreferences(URLFactory.WAKE_UP_TIME_HOUR, this.from_hour);
-        this.ph.savePreferences(URLFactory.WAKE_UP_TIME_MINUTE, this.from_minute);
-        this.ph.savePreferences(URLFactory.BED_TIME, this.txt_bed_time.getText().toString().trim());
-        this.ph.savePreferences(URLFactory.BED_TIME_HOUR, this.to_hour);
-        this.ph.savePreferences(URLFactory.BED_TIME_MINUTE, this.to_minute);
-        this.ph.savePreferences(URLFactory.INTERVAL, interval);
-        if (consume > ((int) URLFactory.DAILY_WATER_VALUE)) {
-            this.ph.savePreferences(URLFactory.IGNORE_NEXT_STEP, true);
-        } else if (consume == 0) {
-            this.ph.savePreferences(URLFactory.IGNORE_NEXT_STEP, true);
-        } else {
-            this.ph.savePreferences(URLFactory.IGNORE_NEXT_STEP, false);
-        }
-    }
+    private void calculateIntervalConsumption() {
+        if (!isAdded()) return;
 
-    private Date parseDate(String date) {
-        try {
-            return new SimpleDateFormat("hh:mm aa", Locale.US).parse(date);
-        } catch (ParseException e) {
-            return new Date(0);
+        Calendar startTime = Calendar.getInstance();
+        startTime.set(Calendar.HOUR_OF_DAY, fromHour);
+        startTime.set(Calendar.MINUTE, fromMinute);
+        startTime.set(Calendar.SECOND, 0);
+
+        Calendar endTime = Calendar.getInstance();
+        endTime.set(Calendar.HOUR_OF_DAY, toHour);
+        endTime.set(Calendar.MINUTE, toMinute);
+        endTime.set(Calendar.SECOND, 0);
+
+        if (isNextDayEnd()) {
+            endTime.add(Calendar.DAY_OF_YEAR, 1);
         }
+
+        long diffMills = endTime.getTimeInMillis() - startTime.getTimeInMillis();
+        float totalMinutes = diffMills / 60000f;
+        
+        int interval = rdo15.isChecked() ? 15 : rdo30.isChecked() ? 30 : rdo45.isChecked() ? 45 : 60;
+        int consumptionPerInterval = 0;
+        
+        if (totalMinutes > 0) {
+            consumptionPerInterval = Math.round(URLFactory.dailyWaterValue / (totalMinutes / (float) interval));
+        }
+
+        String unit = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true) ? "ML" : "FL OZ";
+        String goalMsg = stringHelper.getString(R.string.str_goal_consume);
+        goalMsg = goalMsg.replace("$1", consumptionPerInterval + " " + unit)
+                        .replace("$2", (int) URLFactory.dailyWaterValue + " " + unit);
+        
+        lblMessage.setText(goalMsg);
+
+        // Save preferences
+        preferencesHelper.savePreferences(URLFactory.KEY_WAKE_UP_TIME, txtWakeupTime.getText().toString().trim());
+        preferencesHelper.savePreferences(URLFactory.KEY_WAKE_UP_HOUR, fromHour);
+        preferencesHelper.savePreferences(URLFactory.KEY_WAKE_UP_MINUTE, fromMinute);
+        preferencesHelper.savePreferences(URLFactory.KEY_BED_TIME, txtBedTime.getText().toString().trim());
+        preferencesHelper.savePreferences(URLFactory.KEY_BED_TIME_HOUR, toHour);
+        preferencesHelper.savePreferences(URLFactory.KEY_BED_TIME_MINUTE, toMinute);
+        preferencesHelper.savePreferences(URLFactory.KEY_INTERVAL, interval);
+        
+        boolean ignoreStep = (consumptionPerInterval > (int) URLFactory.dailyWaterValue) || (consumptionPerInterval == 0);
+        preferencesHelper.savePreferences(URLFactory.KEY_IGNORE_NEXT_STEP, ignoreStep);
     }
 }

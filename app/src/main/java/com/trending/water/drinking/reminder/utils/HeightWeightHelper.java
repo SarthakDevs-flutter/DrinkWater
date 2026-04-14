@@ -1,68 +1,76 @@
 package com.trending.water.drinking.reminder.utils;
 
-import androidx.core.os.EnvironmentCompat;
+import androidx.annotation.NonNull;
 
-import com.github.mikephil.charting.utils.Utils;
-
-import java.text.DecimalFormat;
+import java.util.Locale;
 
 public class HeightWeightHelper {
+
+    private HeightWeightHelper() {
+        // Private constructor to prevent instantiation
+    }
+
     private static double format(double value) {
-        if (value == Utils.DOUBLE_EPSILON) {
-            return -1.0d;
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            return -1.0;
         }
         try {
-            return Double.valueOf(new DecimalFormat("###.##").format(value).replace(",", ".").replace("٫", ".")).doubleValue();
+            return Double.parseDouble(String.format(Locale.US, "%.2f", value));
         } catch (Exception e) {
-            return -1.0d;
+            return -1.0;
         }
     }
 
-    public static double lbToKgConverter(double lb) {
-        return format(0.453592d * lb);
+    public static double convertLbToKg(double lb) {
+        return format(0.453592 * lb);
     }
 
-    public static double kgToLbConverter(double kg) {
-        return format(2.204624420183777d * kg);
+    public static double convertKgToLb(double kg) {
+        return format(2.2046226218 * kg);
     }
 
-    public static double cmToFeetConverter(double cm) {
-        return format(cm / 30.0d);
+    public static double convertCmToFeet(double cm) {
+        return format(cm / 30.48);
     }
 
-    public static double feetToCmConverter(double feet) {
-        return format(30.0d * feet);
+    public static double convertFeetToCm(double feet) {
+        return format(30.48 * feet);
     }
 
-    public static double getBMIKg(double height, double weight) {
-        return format(weight / Math.pow(height / 100.0d, 2.0d));
+    public static double calculateBmiMetric(double heightCm, double weightKg) {
+        if (heightCm <= 0) return -1.0;
+        return format(weightKg / Math.pow(heightCm / 100.0, 2.0));
     }
 
-    public static double getBMILb(double height, double weight) {
-        return format((703.0d * weight) / Math.pow((double) ((int) (12.0d * height)), 2.0d));
+    public static double calculateBmiImperial(double heightFeet, double weightLb) {
+        if (heightFeet <= 0) return -1.0;
+        // Formula: 703 * weight (lb) / [height (in)]^2
+        double heightInches = heightFeet * 12.0;
+        return format((703.0 * weightLb) / Math.pow(heightInches, 2.0));
     }
 
-    public static String getBMIClassification(double bmi) {
-        if (bmi <= Utils.DOUBLE_EPSILON) {
-            return EnvironmentCompat.MEDIA_UNKNOWN;
+    @NonNull
+    public static String getBmiClassification(double bmi) {
+        if (bmi <= 0) {
+            return "Unknown";
         }
-        if (bmi < 18.5d) {
-            return "underweight";
+        if (bmi < 18.5) {
+            return "Underweight";
         }
-        if (bmi < 25.0d) {
-            return "normal";
+        if (bmi < 25.0) {
+            return "Normal";
         }
-        if (bmi < 30.0d) {
-            return "overweight";
+        if (bmi < 30.0) {
+            return "Overweight";
         }
-        return "obese";
+        return "Obese";
     }
 
-    public static double ozToMlConverter(double oz) {
-        return format(29.5735d * oz);
+    public static double convertOzToMl(double oz) {
+        return format(29.5735 * oz);
     }
 
-    public static double mlToOzConverter(double ml) {
-        return format(0.03381405650328842d * ml);
+    public static double convertMlToOz(double ml) {
+        return format(0.033814 * ml);
     }
 }

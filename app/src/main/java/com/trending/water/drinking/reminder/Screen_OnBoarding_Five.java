@@ -5,25 +5,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
 
 public class Screen_OnBoarding_Five extends MasterBaseFragment {
-    View item_view;
+    
+    private View itemView;
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        this.item_view = inflater.inflate(R.layout.screen_onboarding_five, container, false);
-        FindViewById();
-        Body();
-        return this.item_view;
-    }
-
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-    }
-
-    private void FindViewById() {
-    }
-
-    private void Body() {
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        itemView = inflater.inflate(R.layout.screen_onboarding_five, container, false);
+        return itemView;
     }
 }

@@ -10,46 +10,53 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.trending.water.drinking.reminder.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CustomShareAdapter extends ArrayAdapter<ResolveInfo> {
-    ArrayList<String> app_name = new ArrayList<>();
-    Context context;
-    private PackageManager pm = null;
+    private final PackageManager packageManager;
+    private final LayoutInflater inflater;
 
-    public CustomShareAdapter(Context ctx, PackageManager pm2, List<ResolveInfo> apps) {
-        super(ctx, R.layout.custom_share_list, apps);
-        this.pm = pm2;
-        this.context = ctx;
+    public CustomShareAdapter(@NonNull Context context, @NonNull PackageManager packageManager, @NonNull List<ResolveInfo> apps) {
+        super(context, R.layout.custom_share_list, apps);
+        this.packageManager = packageManager;
+        this.inflater = LayoutInflater.from(context);
     }
 
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @NonNull
+    @Override
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        ViewHolder holder;
         if (convertView == null) {
-            convertView = newView(parent);
+            convertView = inflater.inflate(R.layout.custom_share_list, parent, false);
+            holder = new ViewHolder();
+            holder.label = convertView.findViewById(R.id.label);
+            holder.icon = convertView.findViewById(R.id.icon);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
         }
-        bindView(position, convertView);
+
+        ResolveInfo info = getItem(position);
+        if (info != null) {
+            holder.label.setText(info.loadLabel(packageManager));
+            holder.icon.setImageDrawable(info.loadIcon(packageManager));
+        }
+
         return convertView;
     }
 
-    private View newView(ViewGroup parent) {
-        return ((LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_share_list, parent, false);
+    public String getAppName(int position) {
+        ResolveInfo info = getItem(position);
+        return info != null ? info.loadLabel(packageManager).toString() : "";
     }
 
-    public ArrayList<String> getAppName() {
-        return this.app_name;
-    }
-
-    public String get_app_name(int position) {
-        return "" + ((ResolveInfo) getItem(position)).loadLabel(this.pm);
-    }
-
-    private void bindView(int position, View row) {
-        ArrayList<String> arrayList = this.app_name;
-        arrayList.add("" + ((ResolveInfo) getItem(position)).loadLabel(this.pm));
-        ((TextView) row.findViewById(R.id.label)).setText(((ResolveInfo) getItem(position)).loadLabel(this.pm));
-        ((ImageView) row.findViewById(R.id.icon)).setImageDrawable(((ResolveInfo) getItem(position)).loadIcon(this.pm));
+    private static class ViewHolder {
+        TextView label;
+        ImageView icon;
     }
 }

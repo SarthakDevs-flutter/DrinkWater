@@ -16,91 +16,104 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 
-import com.github.mikephil.charting.utils.Utils;
 import com.trending.water.drinking.reminder.R;
 
 public class MaterialProgressBar extends View {
-    private static final String TAG = MaterialProgressBar.class.getSimpleName();
-    private final int barLength = 16;
-    private final int barMaxLength = 270;
-    private final long pauseGrowingTime = 200;
-    private int barColor = -1442840576;
+    private static final String TAG = "MaterialProgressBar";
+
+    private static final int BAR_LENGTH = 16;
+    private static final int BAR_MAX_LENGTH = 270;
+    private static final long PAUSE_GROWING_TIME = 200;
+
+    private int barColor = 0xAA0000FF; // Semi-transparent blue
+    private int rimColor = ViewCompat.MEASURED_SIZE_MASK;
+    private int barWidth = 4;
+    private int rimWidth = 4;
+    private int circleRadius = 28;
+
+    private boolean fillRadius = false;
+    private double barSpinCycleTime = 460.0d;
+    private float spinSpeed = 230.0f;
+    private boolean linearProgress = false;
+
+    private float progress = 0.0f;
+    private float targetProgress = 0.0f;
+    private boolean isSpinning = false;
+
+    private long lastTimeAnimated = 0;
+    private long pausedTimeWithoutGrowing = 0;
+    private double timeStartGrowing = 0.0d;
     private float barExtraLength = 0.0f;
     private boolean barGrowingFromFront = true;
-    private Paint barPaint = new Paint();
-    private double barSpinCycleTime = 460.0d;
-    private int barWidth = 4;
-    private ProgressCallback callback;
-    private RectF circleBounds = new RectF();
-    private int circleRadius = 28;
-    private boolean fillRadius = false;
-    private boolean isSpinning = false;
-    private long lastTimeAnimated = 0;
-    private boolean linearProgress;
-    private float mProgress = 0.0f;
-    private float mTargetProgress = 0.0f;
-    private long pausedTimeWithoutGrowing = 0;
-    private int rimColor = ViewCompat.MEASURED_SIZE_MASK;
-    private Paint rimPaint = new Paint();
-    private int rimWidth = 4;
-    private boolean shouldAnimate;
-    private float spinSpeed = 230.0f;
-    private double timeStartGrowing = Utils.DOUBLE_EPSILON;
 
-    public MaterialProgressBar(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        parseAttributes(context.obtainStyledAttributes(attrs, R.styleable.MaterialProgressBar));
-        setAnimationEnabled();
-    }
+    private final Paint barPaint = new Paint();
+    private final Paint rimPaint = new Paint();
+    private RectF circleBounds = new RectF();
+
+    private boolean shouldAnimate = true;
+    private ProgressCallback callback;
 
     public MaterialProgressBar(Context context) {
         super(context);
-        setAnimationEnabled();
+        initAnimationScale();
     }
 
-    @TargetApi(17)
-    private void setAnimationEnabled() {
-        float animationValue;
-        if (Build.VERSION.SDK_INT >= 17) {
-            animationValue = Settings.Global.getFloat(getContext().getContentResolver(), "animator_duration_scale", 1.0f);
-        } else {
-            animationValue = Settings.System.getFloat(getContext().getContentResolver(), "animator_duration_scale", 1.0f);
-        }
-        this.shouldAnimate = animationValue != 0.0f;
+    public MaterialProgressBar(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MaterialProgressBar);
+        parseAttributes(a);
+        initAnimationScale();
     }
 
-    /* access modifiers changed from: protected */
-    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width;
-        int height;
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        int viewWidth = this.circleRadius + getPaddingLeft() + getPaddingRight();
-        int viewHeight = this.circleRadius + getPaddingTop() + getPaddingBottom();
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-        if (widthMode == 1073741824) {
-            width = widthSize;
-        } else if (widthMode == Integer.MIN_VALUE) {
-            width = Math.min(viewWidth, widthSize);
+    private void initAnimationScale() {
+        float scale;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            scale = Settings.Global.getFloat(getContext().getContentResolver(), Settings.Global.ANIMATOR_DURATION_SCALE, 1.0f);
         } else {
-            width = viewWidth;
+            scale = Settings.System.getFloat(getContext().getContentResolver(), "animator_duration_scale", 1.0f);
         }
-        if (heightMode == 1073741824 || widthMode == 1073741824) {
-            height = heightSize;
-        } else if (heightMode == Integer.MIN_VALUE) {
-            height = Math.min(viewHeight, heightSize);
-        } else {
-            height = viewHeight;
+        this.shouldAnimate = scale != 0.0f;
+    }
+
+    private void parseAttributes(TypedArray a) {
+        DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+        barWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, barWidth, metrics);
+        rimWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, rimWidth, metrics);
+        circleRadius = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, circleRadius, metrics);
+
+        circleRadius = (int) a.getDimension(R.styleable.MaterialProgressBar_matProg_circleRadius, circleRadius);
+        fillRadius = a.getBoolean(R.styleable.MaterialProgressBar_matProg_fillRadius, false);
+        barWidth = (int) a.getDimension(R.styleable.MaterialProgressBar_matProg_barWidth, barWidth);
+        rimWidth = (int) a.getDimension(R.styleable.MaterialProgressBar_matProg_rimWidth, rimWidth);
+        spinSpeed = a.getFloat(R.styleable.MaterialProgressBar_matProg_spinSpeed, spinSpeed / 360.0f) * 360f;
+        barSpinCycleTime = a.getInt(R.styleable.MaterialProgressBar_matProg_barSpinCycleTime, (int) barSpinCycleTime);
+        barColor = a.getColor(R.styleable.MaterialProgressBar_matProg_barColor, barColor);
+        rimColor = a.getColor(R.styleable.MaterialProgressBar_matProg_rimColor, rimColor);
+        linearProgress = a.getBoolean(R.styleable.MaterialProgressBar_matProg_linearProgress, false);
+
+        if (a.getBoolean(R.styleable.MaterialProgressBar_matProg_progressIndeterminate, false)) {
+            spin();
         }
+        a.recycle();
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int viewWidth = circleRadius + getPaddingLeft() + getPaddingRight();
+        int viewHeight = circleRadius + getPaddingTop() + getPaddingBottom();
+
+        int width = resolveSize(viewWidth, widthMeasureSpec);
+        int height = resolveSize(viewHeight, heightMeasureSpec);
+
         setMeasuredDimension(width, height);
     }
 
-    /* access modifiers changed from: protected */
-    public void onSizeChanged(int w, int h, int oldw, int oldh) {
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         setupBounds(w, h);
         setupPaints();
@@ -108,196 +121,203 @@ public class MaterialProgressBar extends View {
     }
 
     private void setupPaints() {
-        this.barPaint.setColor(this.barColor);
-        this.barPaint.setAntiAlias(true);
-        this.barPaint.setStyle(Paint.Style.STROKE);
-        this.barPaint.setStrokeWidth((float) this.barWidth);
-        this.rimPaint.setColor(this.rimColor);
-        this.rimPaint.setAntiAlias(true);
-        this.rimPaint.setStyle(Paint.Style.STROKE);
-        this.rimPaint.setStrokeWidth((float) this.rimWidth);
+        barPaint.setColor(barColor);
+        barPaint.setAntiAlias(true);
+        barPaint.setStyle(Paint.Style.STROKE);
+        barPaint.setStrokeWidth(barWidth);
+
+        rimPaint.setColor(rimColor);
+        rimPaint.setAntiAlias(true);
+        rimPaint.setStyle(Paint.Style.STROKE);
+        rimPaint.setStrokeWidth(rimWidth);
     }
 
-    private void setupBounds(int layout_width, int layout_height) {
+    private void setupBounds(int width, int height) {
         int paddingTop = getPaddingTop();
         int paddingBottom = getPaddingBottom();
         int paddingLeft = getPaddingLeft();
         int paddingRight = getPaddingRight();
-        if (!this.fillRadius) {
-            int minValue = Math.min((layout_width - paddingLeft) - paddingRight, (layout_height - paddingBottom) - paddingTop);
-            int circleDiameter = Math.min(minValue, (this.circleRadius * 2) - (this.barWidth * 2));
-            int xOffset = ((((layout_width - paddingLeft) - paddingRight) - circleDiameter) / 2) + paddingLeft;
-            int yOffset = ((((layout_height - paddingTop) - paddingBottom) - circleDiameter) / 2) + paddingTop;
-            int i = minValue;
-            this.circleBounds = new RectF((float) (this.barWidth + xOffset), (float) (this.barWidth + yOffset), (float) ((xOffset + circleDiameter) - this.barWidth), (float) ((yOffset + circleDiameter) - this.barWidth));
-            return;
-        }
-        this.circleBounds = new RectF((float) (this.barWidth + paddingLeft), (float) (this.barWidth + paddingTop), (float) ((layout_width - paddingRight) - this.barWidth), (float) ((layout_height - paddingBottom) - this.barWidth));
-    }
 
-    private void parseAttributes(TypedArray a) {
-        DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
-        this.barWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) this.barWidth, metrics);
-        this.rimWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) this.rimWidth, metrics);
-        this.circleRadius = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) this.circleRadius, metrics);
-        this.circleRadius = (int) a.getDimension(R.styleable.MaterialProgressBar_matProg_circleRadius, (float) this.circleRadius);
-        this.fillRadius = a.getBoolean(R.styleable.MaterialProgressBar_matProg_fillRadius, false);
-        this.barWidth = (int) a.getDimension(R.styleable.MaterialProgressBar_matProg_barWidth, (float) this.barWidth);
-        this.rimWidth = (int) a.getDimension(R.styleable.MaterialProgressBar_matProg_rimWidth, (float) this.rimWidth);
-        this.spinSpeed = 360.0f * a.getFloat(R.styleable.MaterialProgressBar_matProg_spinSpeed, this.spinSpeed / 360.0f);
-        this.barSpinCycleTime = (double) a.getInt(R.styleable.MaterialProgressBar_matProg_barSpinCycleTime, (int) this.barSpinCycleTime);
-        this.barColor = a.getColor(R.styleable.MaterialProgressBar_matProg_barColor, this.barColor);
-        this.rimColor = a.getColor(R.styleable.MaterialProgressBar_matProg_rimColor, this.rimColor);
-        this.linearProgress = a.getBoolean(R.styleable.MaterialProgressBar_matProg_linearProgress, false);
-        if (a.getBoolean(R.styleable.MaterialProgressBar_matProg_progressIndeterminate, false)) {
-            spin();
-        }
-        a.recycle();
-    }
+        if (!fillRadius) {
+            int minValue = Math.min((width - paddingLeft) - paddingRight, (height - paddingTop) - paddingBottom);
+            int circleDiameter = Math.min(minValue, (circleRadius * 2) - (barWidth * 2));
+            int xOffset = ((((width - paddingLeft) - paddingRight) - circleDiameter) / 2) + paddingLeft;
+            int yOffset = ((((height - paddingTop) - paddingBottom) - circleDiameter) / 2) + paddingTop;
 
-    public void setCallback(ProgressCallback progressCallback) {
-        this.callback = progressCallback;
-        if (!this.isSpinning) {
-            runCallback();
+            circleBounds = new RectF(xOffset + barWidth, yOffset + barWidth, xOffset + circleDiameter - barWidth, yOffset + circleDiameter - barWidth);
+        } else {
+            circleBounds = new RectF(paddingLeft + barWidth, paddingTop + barWidth, width - paddingRight - barWidth, height - paddingBottom - barWidth);
         }
     }
 
-    /* access modifiers changed from: protected */
-    public void onDraw(Canvas canvas) {
+    @Override
+    protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawArc(this.circleBounds, 360.0f, 360.0f, false, this.rimPaint);
+
+        canvas.drawArc(circleBounds, 360, 360, false, rimPaint);
+
         boolean mustInvalidate = false;
-        if (this.shouldAnimate) {
-            if (this.isSpinning) {
+
+        if (!shouldAnimate) return;
+
+        if (isSpinning) {
+            mustInvalidate = true;
+            long deltaTime = SystemClock.uptimeMillis() - lastTimeAnimated;
+            updateBarLength(deltaTime);
+
+            progress += (deltaTime * spinSpeed) / 1000.0f;
+            if (progress > 360.0f) {
+                progress -= 360.0f;
+                runCallback(-1.0f);
+            }
+            lastTimeAnimated = SystemClock.uptimeMillis();
+
+            float from = progress - 90;
+            float length = barExtraLength + BAR_LENGTH;
+
+            if (isInEditMode()) {
+                from = 0;
+                length = 135;
+            }
+
+            canvas.drawArc(circleBounds, from, length, false, barPaint);
+        } else {
+            float oldProgress = progress;
+            if (progress != targetProgress) {
                 mustInvalidate = true;
-                long deltaTime = SystemClock.uptimeMillis() - this.lastTimeAnimated;
-                updateBarLength(deltaTime);
-                this.mProgress += (((float) deltaTime) * this.spinSpeed) / 1000.0f;
-                if (this.mProgress > 360.0f) {
-                    this.mProgress -= 360.0f;
-                    runCallback(-1.0f);
-                }
-                this.lastTimeAnimated = SystemClock.uptimeMillis();
-                float from = this.mProgress - 90.0f;
-                float length = this.barExtraLength + 16.0f;
-                if (isInEditMode()) {
-                    from = 0.0f;
-                    length = 135.0f;
-                }
-                canvas.drawArc(this.circleBounds, from, length, false, this.barPaint);
-            } else {
-                float oldProgress = this.mProgress;
-                if (this.mProgress != this.mTargetProgress) {
-                    mustInvalidate = true;
-                    this.mProgress = Math.min(this.mProgress + (this.spinSpeed * (((float) (SystemClock.uptimeMillis() - this.lastTimeAnimated)) / 1000.0f)), this.mTargetProgress);
-                    this.lastTimeAnimated = SystemClock.uptimeMillis();
-                }
-                if (oldProgress != this.mProgress) {
-                    runCallback();
-                }
-                float offset = 0.0f;
-                float progress = this.mProgress;
-                if (!this.linearProgress) {
-                    offset = ((float) (1.0d - Math.pow((double) (1.0f - (this.mProgress / 360.0f)), (double) (2.0f * 2.0f)))) * 360.0f;
-                    progress = ((float) (1.0d - Math.pow((double) (1.0f - (this.mProgress / 360.0f)), (double) 2.0f))) * 360.0f;
-                }
-                if (isInEditMode()) {
-                    progress = 360.0f;
-                }
-                canvas.drawArc(this.circleBounds, offset - 90.0f, progress, false, this.barPaint);
+                this.progress = Math.min(progress + (spinSpeed * (((float) (SystemClock.uptimeMillis() - lastTimeAnimated)) / 1000.0f)), targetProgress);
+                lastTimeAnimated = SystemClock.uptimeMillis();
             }
-            if (mustInvalidate) {
-                invalidate();
+
+            if (oldProgress != progress) {
+                runCallback();
             }
-        }
-    }
 
-    /* access modifiers changed from: protected */
-    public void onVisibilityChanged(View changedView, int visibility) {
-        super.onVisibilityChanged(changedView, visibility);
-        if (visibility == 0) {
-            this.lastTimeAnimated = SystemClock.uptimeMillis();
-        }
-    }
-
-    private void updateBarLength(long deltaTimeInMilliSeconds) {
-        if (this.pausedTimeWithoutGrowing >= 200) {
-            this.timeStartGrowing += (double) deltaTimeInMilliSeconds;
-            if (this.timeStartGrowing > this.barSpinCycleTime) {
-                this.timeStartGrowing -= this.barSpinCycleTime;
-                this.pausedTimeWithoutGrowing = 0;
-                this.barGrowingFromFront = !this.barGrowingFromFront;
+            float offset = 0.0f;
+            float drawProgress = progress;
+            if (!linearProgress) {
+                float factor = 2.0f;
+                offset = (float) (1.0f - Math.pow(1.0f - (progress / 360.0f), factor * 2.0f)) * 360.0f;
+                drawProgress = (float) (1.0f - Math.pow(1.0f - (progress / 360.0f), factor)) * 360.0f;
             }
-            float distance = (((float) Math.cos(((this.timeStartGrowing / this.barSpinCycleTime) + 1.0d) * 3.141592653589793d)) / 2.0f) + 0.5f;
-            if (this.barGrowingFromFront) {
-                this.barExtraLength = distance * 254.0f;
-                return;
-            }
-            float newLength = (1.0f - distance) * 254.0f;
-            this.mProgress += this.barExtraLength - newLength;
-            this.barExtraLength = newLength;
-            return;
+
+            if (isInEditMode()) drawProgress = 360;
+
+            canvas.drawArc(circleBounds, offset - 90, drawProgress, false, barPaint);
         }
-        this.pausedTimeWithoutGrowing += deltaTimeInMilliSeconds;
-    }
 
-    public boolean isSpinning() {
-        return this.isSpinning;
-    }
-
-    public void resetCount() {
-        this.mProgress = 0.0f;
-        this.mTargetProgress = 0.0f;
-        invalidate();
-    }
-
-    public void stopSpinning() {
-        this.isSpinning = false;
-        this.mProgress = 0.0f;
-        this.mTargetProgress = 0.0f;
-        invalidate();
-    }
-
-    public void spin() {
-        this.lastTimeAnimated = SystemClock.uptimeMillis();
-        this.isSpinning = true;
-        invalidate();
-    }
-
-    private void runCallback(float value) {
-        if (this.callback != null) {
-            this.callback.onProgressUpdate(value);
-        }
-    }
-
-    private void runCallback() {
-        if (this.callback != null) {
-            this.callback.onProgressUpdate(((float) Math.round((this.mProgress * 100.0f) / 360.0f)) / 100.0f);
-        }
-    }
-
-    public void setInstantProgress(float progress) {
-        if (this.isSpinning) {
-            this.mProgress = 0.0f;
-            this.isSpinning = false;
-        }
-        if (progress > 1.0f) {
-            progress -= 1.0f;
-        } else if (progress < 0.0f) {
-            progress = 0.0f;
-        }
-        if (progress != this.mTargetProgress) {
-            this.mTargetProgress = Math.min(progress * 360.0f, 360.0f);
-            this.mProgress = this.mTargetProgress;
-            this.lastTimeAnimated = SystemClock.uptimeMillis();
+        if (mustInvalidate) {
             invalidate();
         }
     }
 
+    @Override
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (visibility == VISIBLE) {
+            lastTimeAnimated = SystemClock.uptimeMillis();
+        }
+    }
+
+    private void updateBarLength(long deltaTime) {
+        if (pausedTimeWithoutGrowing >= PAUSE_GROWING_TIME) {
+            timeStartGrowing += deltaTime;
+            if (timeStartGrowing > barSpinCycleTime) {
+                timeStartGrowing -= barSpinCycleTime;
+                pausedTimeWithoutGrowing = 0;
+                barGrowingFromFront = !barGrowingFromFront;
+            }
+
+            float distance = (float) (Math.cos(((timeStartGrowing / barSpinCycleTime) + 1.0d) * Math.PI) / 2.0d) + 0.5f;
+            float range = BAR_MAX_LENGTH - BAR_LENGTH;
+
+            if (barGrowingFromFront) {
+                barExtraLength = distance * range;
+            } else {
+                float newLength = (1.0f - distance) * range;
+                progress += (barExtraLength - newLength);
+                barExtraLength = newLength;
+            }
+        } else {
+            pausedTimeWithoutGrowing += deltaTime;
+        }
+    }
+
+    public void spin() {
+        lastTimeAnimated = SystemClock.uptimeMillis();
+        isSpinning = true;
+        invalidate();
+    }
+
+    public void stopSpinning() {
+        isSpinning = false;
+        progress = 0;
+        targetProgress = 0;
+        invalidate();
+    }
+
+    public void setProgress(float progress) {
+        if (isSpinning) {
+            this.progress = 0;
+            isSpinning = false;
+            runCallback();
+        }
+
+        if (progress > 1.0f) progress -= 1.0f;
+        else if (progress < 0.0f) progress = 0.0f;
+
+        if (progress != targetProgress) {
+            if (this.progress == targetProgress) {
+                lastTimeAnimated = SystemClock.uptimeMillis();
+            }
+            targetProgress = Math.min(progress * 360.0f, 360.0f);
+            invalidate();
+        }
+    }
+
+    private void runCallback(float value) {
+        if (callback != null) {
+            callback.onProgressUpdate(value);
+        }
+    }
+
+    private void runCallback() {
+        if (callback != null) {
+            callback.onProgressUpdate((float) Math.round((progress * 100) / 360) / 100.0f);
+        }
+    }
+
+    public void setCallback(ProgressCallback callback) {
+        this.callback = callback;
+        if (!isSpinning) runCallback();
+    }
+
+    public float getProgress() {
+        return isSpinning ? -1 : progress / 360.0f;
+    }
+
+    public void setInstantProgress(float progress) {
+        if (isSpinning) {
+            this.progress = 0;
+            isSpinning = false;
+        }
+
+        if (progress > 1.0f) progress -= 1.0f;
+        else if (progress < 0.0f) progress = 0.0f;
+
+        if (progress != targetProgress) {
+            targetProgress = Math.min(progress * 360.0f, 360.0f);
+            this.progress = targetProgress;
+            lastTimeAnimated = SystemClock.uptimeMillis();
+            invalidate();
+        }
+    }
+
+    @Override
     public Parcelable onSaveInstanceState() {
         WheelSavedState ss = new WheelSavedState(super.onSaveInstanceState());
-        ss.mProgress = this.mProgress;
-        ss.mTargetProgress = this.mTargetProgress;
+        ss.progress = this.progress;
+        ss.targetProgress = this.targetProgress;
         ss.isSpinning = this.isSpinning;
         ss.spinSpeed = this.spinSpeed;
         ss.barWidth = this.barWidth;
@@ -310,6 +330,7 @@ public class MaterialProgressBar extends View {
         return ss;
     }
 
+    @Override
     public void onRestoreInstanceState(Parcelable state) {
         if (!(state instanceof WheelSavedState)) {
             super.onRestoreInstanceState(state);
@@ -317,8 +338,8 @@ public class MaterialProgressBar extends View {
         }
         WheelSavedState ss = (WheelSavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
-        this.mProgress = ss.mProgress;
-        this.mTargetProgress = ss.mTargetProgress;
+        this.progress = ss.progress;
+        this.targetProgress = ss.targetProgress;
         this.isSpinning = ss.isSpinning;
         this.spinSpeed = ss.spinSpeed;
         this.barWidth = ss.barWidth;
@@ -331,110 +352,58 @@ public class MaterialProgressBar extends View {
         this.lastTimeAnimated = SystemClock.uptimeMillis();
     }
 
-    public float getProgress() {
-        if (this.isSpinning) {
-            return -1.0f;
-        }
-        return this.mProgress / 360.0f;
-    }
-
-    public void setProgress(float progress) {
-        if (this.isSpinning) {
-            this.mProgress = 0.0f;
-            this.isSpinning = false;
-            runCallback();
-        }
-        if (progress > 1.0f) {
-            progress -= 1.0f;
-        } else if (progress < 0.0f) {
-            progress = 0.0f;
-        }
-        if (progress != this.mTargetProgress) {
-            if (this.mProgress == this.mTargetProgress) {
-                this.lastTimeAnimated = SystemClock.uptimeMillis();
-            }
-            this.mTargetProgress = Math.min(progress * 360.0f, 360.0f);
-            invalidate();
-        }
-    }
-
-    public void setLinearProgress(boolean isLinear) {
-        this.linearProgress = isLinear;
-        if (!this.isSpinning) {
-            invalidate();
-        }
-    }
-
-    public int getCircleRadius() {
-        return this.circleRadius;
-    }
-
-    public void setCircleRadius(int circleRadius2) {
-        this.circleRadius = circleRadius2;
-        if (!this.isSpinning) {
-            invalidate();
-        }
-    }
-
-    public int getBarWidth() {
-        return this.barWidth;
-    }
-
-    public void setBarWidth(int barWidth2) {
-        this.barWidth = barWidth2;
-        if (!this.isSpinning) {
-            invalidate();
-        }
-    }
-
-    public int getBarColor() {
-        return this.barColor;
-    }
-
-    public void setBarColor(int barColor2) {
-        this.barColor = barColor2;
-        setupPaints();
-        if (!this.isSpinning) {
-            invalidate();
-        }
-    }
-
-    public int getRimColor() {
-        return this.rimColor;
-    }
-
-    public void setRimColor(int rimColor2) {
-        this.rimColor = rimColor2;
-        setupPaints();
-        if (!this.isSpinning) {
-            invalidate();
-        }
-    }
-
-    public float getSpinSpeed() {
-        return this.spinSpeed / 360.0f;
-    }
-
-    public void setSpinSpeed(float spinSpeed2) {
-        this.spinSpeed = 360.0f * spinSpeed2;
-    }
-
-    public int getRimWidth() {
-        return this.rimWidth;
-    }
-
-    public void setRimWidth(int rimWidth2) {
-        this.rimWidth = rimWidth2;
-        if (!this.isSpinning) {
-            invalidate();
-        }
-    }
-
     public interface ProgressCallback {
-        void onProgressUpdate(float f);
+        void onProgressUpdate(float progress);
     }
 
     static class WheelSavedState extends BaseSavedState {
+        float progress;
+        float targetProgress;
+        boolean isSpinning;
+        float spinSpeed;
+        int barWidth;
+        int barColor;
+        int rimWidth;
+        int rimColor;
+        int circleRadius;
+        boolean linearProgress;
+        boolean fillRadius;
+
+        WheelSavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        private WheelSavedState(Parcel in) {
+            super(in);
+            this.progress = in.readFloat();
+            this.targetProgress = in.readFloat();
+            this.isSpinning = in.readByte() != 0;
+            this.spinSpeed = in.readFloat();
+            this.barWidth = in.readInt();
+            this.barColor = in.readInt();
+            this.rimWidth = in.readInt();
+            this.rimColor = in.readInt();
+            this.circleRadius = in.readInt();
+            this.linearProgress = in.readByte() != 0;
+            this.fillRadius = in.readByte() != 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeFloat(this.progress);
+            out.writeFloat(this.targetProgress);
+            out.writeByte((byte) (isSpinning ? 1 : 0));
+            out.writeFloat(this.spinSpeed);
+            out.writeInt(this.barWidth);
+            out.writeInt(this.barColor);
+            out.writeInt(this.rimWidth);
+            out.writeInt(this.rimColor);
+            out.writeInt(this.circleRadius);
+            out.writeByte((byte) (linearProgress ? 1 : 0));
+            out.writeByte((byte) (fillRadius ? 1 : 0));
+        }
+
         public static final Creator<WheelSavedState> CREATOR = new Creator<WheelSavedState>() {
             public WheelSavedState createFromParcel(Parcel in) {
                 return new WheelSavedState(in);
@@ -444,51 +413,5 @@ public class MaterialProgressBar extends View {
                 return new WheelSavedState[size];
             }
         };
-        int barColor;
-        int barWidth;
-        int circleRadius;
-        boolean fillRadius;
-        boolean isSpinning;
-        boolean linearProgress;
-        float mProgress;
-        float mTargetProgress;
-        int rimColor;
-        int rimWidth;
-        float spinSpeed;
-
-        WheelSavedState(Parcelable superState) {
-            super(superState);
-        }
-
-        private WheelSavedState(Parcel in) {
-            super(in);
-            this.mProgress = in.readFloat();
-            this.mTargetProgress = in.readFloat();
-            boolean z = false;
-            this.isSpinning = in.readByte() != 0;
-            this.spinSpeed = in.readFloat();
-            this.barWidth = in.readInt();
-            this.barColor = in.readInt();
-            this.rimWidth = in.readInt();
-            this.rimColor = in.readInt();
-            this.circleRadius = in.readInt();
-            this.linearProgress = in.readByte() != 0;
-            this.fillRadius = in.readByte() != 0 ? true : z;
-        }
-
-        public void writeToParcel(Parcel out, int flags) {
-            super.writeToParcel(out, flags);
-            out.writeFloat(this.mProgress);
-            out.writeFloat(this.mTargetProgress);
-            out.writeByte(this.isSpinning ? (byte) 1 : 0);
-            out.writeFloat(this.spinSpeed);
-            out.writeInt(this.barWidth);
-            out.writeInt(this.barColor);
-            out.writeInt(this.rimWidth);
-            out.writeInt(this.rimColor);
-            out.writeInt(this.circleRadius);
-            out.writeByte(this.linearProgress ? (byte) 1 : 0);
-            out.writeByte(this.fillRadius ? (byte) 1 : 0);
-        }
     }
 }

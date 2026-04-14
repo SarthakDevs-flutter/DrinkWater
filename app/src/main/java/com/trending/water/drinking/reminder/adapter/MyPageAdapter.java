@@ -5,38 +5,40 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.trending.water.drinking.reminder.R;
 
 public class MyPageAdapter extends PagerAdapter {
-    Context mContext;
-    int resId = 0;
+    private final Context context;
 
-    public MyPageAdapter(Context context) {
-        this.mContext = context;
+    public MyPageAdapter(@NonNull Context context) {
+        this.context = context;
     }
 
-    public Object instantiateItem(ViewGroup collection, int position) {
-        LayoutInflater inflater = LayoutInflater.from(this.mContext);
-        switch (position) {
-            case 0:
-                this.resId = R.layout.screen_battery_optimize_one;
-                break;
-            case 1:
-                this.resId = R.layout.screen_battery_optimize_two;
-                break;
-        }
-        ViewGroup layout = (ViewGroup) inflater.inflate(this.resId, collection, false);
+    @NonNull
+    @Override
+    public Object instantiateItem(@NonNull ViewGroup collection, int position) {
+        int layoutResId = (position == 0) ? R.layout.screen_battery_optimize_one : R.layout.screen_battery_optimize_two;
+        
+        View layout = LayoutInflater.from(context).inflate(layoutResId, collection, false);
         collection.addView(layout);
         return layout;
     }
 
+    @Override
     public int getCount() {
         return 2;
     }
 
-    public boolean isViewFromObject(View arg0, Object arg1) {
-        return arg0 == arg1;
+    @Override
+    public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+        return view == object;
+    }
+
+    @Override
+    public void destroyItem(@NonNull ViewGroup collection, int position, @NonNull Object view) {
+        collection.removeView((View) view);
     }
 }

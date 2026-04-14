@@ -7,7 +7,6 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
@@ -19,6 +18,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.InputFilter;
@@ -27,16 +27,18 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -45,10 +47,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.request.BaseRequestOptions;
 import com.bumptech.glide.request.RequestOptions;
-import com.github.mikephil.charting.utils.Utils;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
@@ -56,11 +55,7 @@ import com.trending.water.drinking.reminder.adapter.ContainerAdapterNew;
 import com.trending.water.drinking.reminder.adapter.MenuAdapter;
 import com.trending.water.drinking.reminder.adapter.MyPageAdapter;
 import com.trending.water.drinking.reminder.adapter.SoundAdapter;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Alert_Helper;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.Constant;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Database_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Date_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.String_Helper;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
 import com.trending.water.drinking.reminder.model.Container;
@@ -72,7 +67,6 @@ import com.trending.water.drinking.reminder.utils.HeightWeightHelper;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
 import java.io.File;
-import java.io.PrintStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -85,54 +79,873 @@ import java.util.Locale;
 import java.util.Random;
 
 public class Screen_Dashboard extends MasterBaseAppCompatActivity {
-    public static Calendar filter_cal;
-    public static Calendar today_cal;
-    public static Calendar yesterday_cal;
-    ContainerAdapterNew adapter;
-    RelativeLayout add_water;
-    LottieAnimationView animationView;
-    LinearLayout banner_view;
-    BottomSheetDialog bottomSheetDialog;
-    ImageView btn_alarm;
-    LinearLayout btn_contact_us;
-    ImageView btn_menu;
-    LinearLayout btn_rate_us;
-    boolean btnclick = true;
-    ArrayList<Container> containerArrayList = new ArrayList<>();
-    AppCompatTextView container_name;
-    RelativeLayout content_frame;
-    RelativeLayout content_frame_test;
-    int cp = 0;
-    float drink_water = 0.0f;
-    Handler handler;
-    Handler handlerReminder;
-    ImageView img_next;
-    ImageView img_pre;
-    ImageView img_selected_container;
-    ImageView img_user;
-    AppCompatTextView lbl_next_reminder;
-    AppCompatTextView lbl_toolbar_title;
-    AppCompatTextView lbl_total_drunk;
-    AppCompatTextView lbl_total_goal;
-    AppCompatTextView lbl_user_name;
-    List<SoundModel> lst_sounds = new ArrayList();
-    DrawerLayout mDrawerLayout;
-    RecyclerView mDrawerList;
-    int max_bottle_height = 870;
-    MenuAdapter menuAdapter;
-    ArrayList<Menu> menu_name = new ArrayList<>();
-    LinearLayout next_reminder_block;
-    int np = 0;
-    float old_drink_water = 0.0f;
-    RelativeLayout open_history;
-    LinearLayout open_profile;
-    int progress_bottle_height = 0;
-    Ringtone ringtone;
-    Runnable runnable;
-    Runnable runnableReminder;
-    RelativeLayout selected_container_block;
-    int selected_pos = 0;
-    SoundAdapter soundAdapter;
+
+    private static final String TAG = "Screen_Dashboard";
+
+    public static Calendar filterCal;
+    public static Calendar todayCal;
+    public static Calendar yesterdayCal;
+
+    private LottieAnimationView animationView;
+    private RelativeLayout contentFrame;
+    private RelativeLayout contentFrameTest;
+    private RelativeLayout addWaterLayout;
+    private RelativeLayout selectedContainerBlock;
+    private RelativeLayout openHistory;
+    private LinearLayout nextReminderBlock;
+    private LinearLayout openProfile;
+    private LinearLayout btnRateUs;
+    private LinearLayout btnContactUs;
+    private LinearLayout bannerView;
+
+    private ImageView imgNext;
+    private ImageView imgPre;
+    private ImageView imgSelectedContainer;
+    private ImageView imgUser;
+    private ImageView btnMenu;
+    private ImageView btnAlarm;
+
+    private AppCompatTextView lblNextReminder;
+    private AppCompatTextView lblToolbarTitle;
+    private AppCompatTextView lblTotalConsumed;
+    private AppCompatTextView lblDailyGoal;
+    private AppCompatTextView lblUserName;
+    private AppCompatTextView containerName;
+
+    private DrawerLayout drawerLayout;
+    private RecyclerView drawerRecyclerView;
+    private BottomSheetDialog bottomSheetDialog;
+
+    private ContainerAdapterNew containerAdapter;
+    private MenuAdapter menuAdapter;
+    private SoundAdapter soundAdapter;
+
+    private final ArrayList<Container> containerList = new ArrayList<>();
+    private final ArrayList<Menu> menuList = new ArrayList<>();
+    private final List<SoundModel> soundList = new ArrayList<>();
+
+    private int maxBottleHeight = 870;
+    private int currentBottleHeight = 0;
+    private int targetBottleHeight = 0;
+    private int selectedContainerPos = 0;
+    
+    private float consumedWater = 0.0f;
+    private float oldConsumedWater = 0.0f;
+    
+    private boolean isAnimating = false;
+    private boolean isClickable = true;
+
+    private Ringtone fillWaterRingtone;
+    private Handler animationHandler;
+    private Runnable animationRunnable;
+    private Handler reminderHandler;
+    private Runnable reminderRunnable;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.screen_dashboard);
+
+        initializeData();
+        findViewByIds();
+        initNavigationDrawer();
+        setupListeners();
+        
+        initializeRingtone();
+        checkBatteryOptimization();
+    }
+
+    private void initializeData() {
+        if (preferencesHelper.getFloat(URLFactory.KEY_DAILY_WATER_GOAL, 0.0f) == 0.0f) {
+            URLFactory.dailyWaterValue = 2500.0f;
+        } else {
+            URLFactory.dailyWaterValue = preferencesHelper.getFloat(URLFactory.KEY_DAILY_WATER_GOAL, 2500.0f);
+        }
+
+        if (stringHelper.check_blank_data(preferencesHelper.getString(URLFactory.KEY_WATER_UNIT, ""))) {
+            URLFactory.waterUnitValue = "ML";
+        } else {
+            URLFactory.waterUnitValue = preferencesHelper.getString(URLFactory.KEY_WATER_UNIT, "ML");
+        }
+
+        filterCal = Calendar.getInstance();
+        todayCal = Calendar.getInstance();
+        yesterdayCal = Calendar.getInstance();
+        yesterdayCal.add(Calendar.DAY_OF_YEAR, -1);
+    }
+
+    private void findViewByIds() {
+        animationView = findViewById(R.id.animationView);
+        contentFrame = findViewById(R.id.content_frame);
+        contentFrameTest = findViewById(R.id.content_frame_test);
+        lblNextReminder = findViewById(R.id.lbl_next_reminder);
+        nextReminderBlock = findViewById(R.id.next_reminder_block);
+        addWaterLayout = findViewById(R.id.add_water);
+        containerName = findViewById(R.id.container_name);
+        imgSelectedContainer = findViewById(R.id.img_selected_container);
+        selectedContainerBlock = findViewById(R.id.selected_container_block);
+        openHistory = findViewById(R.id.open_history);
+        lblDailyGoal = findViewById(R.id.lbl_total_goal);
+        lblTotalConsumed = findViewById(R.id.lbl_total_drunk);
+        bannerView = findViewById(R.id.banner_view);
+        
+        btnMenu = findViewById(R.id.btn_menu);
+        btnAlarm = findViewById(R.id.btn_alarm);
+        lblToolbarTitle = findViewById(R.id.lbl_toolbar_title);
+        imgPre = findViewById(R.id.img_pre);
+        imgNext = findViewById(R.id.img_next);
+        imgUser = findViewById(R.id.img_user);
+        openProfile = findViewById(R.id.open_profile);
+        btnRateUs = findViewById(R.id.btn_rate_us);
+        btnContactUs = findViewById(R.id.btn_contact_us);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        drawerRecyclerView = findViewById(R.id.left_drawer);
+        lblUserName = findViewById(R.id.lbl_user_name);
+
+        contentFrameTest.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            maxBottleHeight = contentFrameTest.getHeight() - 30;
+        });
+    }
+
+    private void setupListeners() {
+        lblToolbarTitle.setOnClickListener(v -> {
+            filterCal.setTimeInMillis(todayCal.getTimeInMillis());
+            lblToolbarTitle.setText(stringHelper.getString(R.string.str_today));
+            setDashboardDate(dateHelper.getDate(URLFactory.DATE_FORMAT));
+        });
+
+        btnRateUs.setOnClickListener(v -> rateApp());
+        btnContactUs.setOnClickListener(v -> contactUs());
+        openProfile.setOnClickListener(v -> {
+            closeDrawer();
+            startActivity(new Intent(mActivity, Screen_Profile.class));
+        });
+        btnAlarm.setOnClickListener(v -> showReminderSettingsDialog());
+        btnMenu.setOnClickListener(v -> toggleDrawer());
+        
+        imgPre.setOnClickListener(v -> changeDateBy(-1));
+        imgNext.setOnClickListener(v -> changeDateBy(1));
+        
+        selectedContainerBlock.setOnClickListener(v -> openChangeContainerPicker());
+        openHistory.setOnClickListener(v -> startActivity(new Intent(mActivity, Screen_History.class)));
+        
+        addWaterLayout.setOnClickListener(v -> {
+            if (!containerList.isEmpty() && isTodaySelected() && isClickable) {
+                isClickable = false;
+                executeAddWater();
+            }
+        });
+    }
+
+    private void initNavigationDrawer() {
+        updateUserInfo();
+        menuList.clear();
+        menuList.add(new Menu(stringHelper.getString(R.string.str_home), true));
+        menuList.add(new Menu(stringHelper.getString(R.string.str_drink_history), false));
+        menuList.add(new Menu(stringHelper.getString(R.string.str_drink_report), false));
+        menuList.add(new Menu(stringHelper.getString(R.string.str_settings), false));
+        menuList.add(new Menu(stringHelper.getString(R.string.str_faqs), false));
+        menuList.add(new Menu(stringHelper.getString(R.string.str_privacy_policy), false));
+        menuList.add(new Menu(stringHelper.getString(R.string.str_tell_a_friend), false));
+
+        menuAdapter = new MenuAdapter(mActivity, menuList, (menu, position) -> {
+            closeDrawer();
+            switch (position) {
+                case 1: startActivity(new Intent(mActivity, Screen_History.class)); break;
+                case 2: startActivity(new Intent(mActivity, Screen_Report.class)); break;
+                case 3: startActivity(new Intent(mActivity, Screen_Settings.class)); break;
+                case 4: startActivity(new Intent(mActivity, Screen_FAQ.class)); break;
+                case 5: openPrivacyPolicy(); break;
+                case 6: shareApp(); break;
+            }
+        });
+        drawerRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        drawerRecyclerView.setAdapter(menuAdapter);
+    }
+
+    private void initializeRingtone() {
+        fillWaterRingtone = RingtoneManager.getRingtone(mContext, Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.fill_water_sound));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            fillWaterRingtone.setLooping(false);
+        }
+    }
+
+    private void checkBatteryOptimization() {
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        String packageName = getPackageName();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !pm.isIgnoringBatteryOptimizations(packageName)) {
+            if (Build.MANUFACTURER.equalsIgnoreCase("OnePlus")) {
+                showBatteryOptimizationDialog();
+            } else {
+                try {
+                    Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                    intent.setData(Uri.parse("package:" + packageName));
+                    startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    Log.e(TAG, "Battery settings not found", e);
+                }
+            }
+        }
+    }
+
+    private void showBatteryOptimizationDialog() {
+        final Dialog dialog = new Dialog(mActivity);
+        dialog.requestWindowFeature(1);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_battery_optimization, null, false);
+        
+        ViewPager viewPager = view.findViewById(R.id.viewPager);
+        viewPager.setAdapter(new MyPageAdapter(mActivity));
+        viewPager.setOffscreenPageLimit(5);
+        
+        DotsIndicator dotsIndicator = view.findViewById(R.id.dots_indicator);
+        dotsIndicator.setViewPager(viewPager);
+
+        view.findViewById(R.id.img_cancel).setOnClickListener(v -> dialog.dismiss());
+        view.findViewById(R.id.btn_settings).setOnClickListener(v -> {
+            dialog.dismiss();
+            startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));
+        });
+        
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (URLFactory.reloadDashboard) {
+            initDashboard();
+        } else {
+            URLFactory.reloadDashboard = true;
+        }
+    }
+
+    private void initDashboard() {
+        updateUserInfo();
+        lblToolbarTitle.setText(stringHelper.getString(R.string.str_today));
+        loadAllContainers();
+        updateIntakeData(dateHelper.getDate(URLFactory.DATE_FORMAT), false);
+        startReminderPoller();
+    }
+
+    private void updateUserInfo() {
+        lblUserName.setText(preferencesHelper.getString(URLFactory.KEY_USER_NAME, "User"));
+        loadUserPhoto();
+    }
+
+    private void loadUserPhoto() {
+        String photoPath = preferencesHelper.getString(URLFactory.KEY_USER_PHOTO, "");
+        boolean isFemale = preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false);
+        int defaultRes = isFemale ? R.drawable.female_white : R.drawable.male_white;
+
+        if (stringHelper.check_blank_data(photoPath) || !new File(photoPath).exists()) {
+            Glide.with(mActivity).load(defaultRes).apply(RequestOptions.circleCropTransform()).into(imgUser);
+        } else {
+            Glide.with(mActivity).load(photoPath).apply(RequestOptions.circleCropTransform()).into(imgUser);
+        }
+    }
+
+    private void changeDateBy(int days) {
+        filterCal.add(Calendar.DAY_OF_YEAR, days);
+        if (filterCal.getTimeInMillis() > todayCal.getTimeInMillis()) {
+            filterCal.add(Calendar.DAY_OF_YEAR, -1);
+            return;
+        }
+
+        String filterDate = dateHelper.getDate(filterCal.getTimeInMillis(), URLFactory.DATE_FORMAT);
+        String todayDate = dateHelper.getDate(todayCal.getTimeInMillis(), URLFactory.DATE_FORMAT);
+        String yesterdayDate = dateHelper.getDate(yesterdayCal.getTimeInMillis(), URLFactory.DATE_FORMAT);
+
+        if (filterDate.equalsIgnoreCase(todayDate)) {
+            lblToolbarTitle.setText(stringHelper.getString(R.string.str_today));
+        } else if (filterDate.equalsIgnoreCase(yesterdayDate)) {
+            lblToolbarTitle.setText(stringHelper.getString(R.string.str_yesterday));
+        } else {
+            lblToolbarTitle.setText(filterDate);
+        }
+        
+        setDashboardDate(filterDate);
+    }
+
+    private void setDashboardDate(String date) {
+        updateIntakeData(date, false);
+    }
+
+    private boolean isTodaySelected() {
+        String filterDate = dateHelper.getDate(filterCal.getTimeInMillis(), URLFactory.DATE_FORMAT);
+        String todayDate = dateHelper.getDate(todayCal.getTimeInMillis(), URLFactory.DATE_FORMAT);
+        return filterDate.equalsIgnoreCase(todayDate);
+    }
+
+    private void startReminderPoller() {
+        if (reminderHandler != null) reminderHandler.removeCallbacks(reminderRunnable);
+        reminderHandler = new Handler(Looper.getMainLooper());
+        reminderRunnable = new Runnable() {
+            @Override
+            public void run() {
+                updateNextReminderLabel();
+                reminderHandler.postDelayed(this, 1000);
+            }
+        };
+        reminderHandler.postDelayed(reminderRunnable, 1000);
+    }
+
+    private void updateNextReminderLabel() {
+        List<NextReminderModel> nextReminders = new ArrayList<>();
+        ArrayList<HashMap<String, String>> alarms = databaseHelper.getdata("tbl_alarm_details");
+
+        for (HashMap<String, String> alarm : alarms) {
+            String type = alarm.get("AlarmType");
+            if ("R".equalsIgnoreCase(type)) {
+                if (!preferencesHelper.getBoolean(URLFactory.KEY_IS_MANUAL_REMINDER, false)) {
+                    ArrayList<HashMap<String, String>> subAlarms = databaseHelper.getdata("tbl_alarm_sub_details", "SuperId='" + alarm.get("id") + "'");
+                    for (HashMap<String, String> sub : subAlarms) {
+                        nextReminders.add(new NextReminderModel(getMilliFromAlarmTime(sub.get("AlarmTime")), sub.get("AlarmTime")));
+                    }
+                }
+            } else if (preferencesHelper.getBoolean(URLFactory.KEY_IS_MANUAL_REMINDER, false) && "0".equals(alarm.get("IsOff"))) {
+                nextReminders.add(new NextReminderModel(getMilliFromAlarmTime(alarm.get("AlarmTime")), alarm.get("AlarmTime")));
+            }
+        }
+
+        Collections.sort(nextReminders);
+        long now = System.currentTimeMillis();
+        NextReminderModel next = null;
+        for (NextReminderModel rem : nextReminders) {
+            if (rem.getMillesecond() > now) {
+                next = rem;
+                break;
+            }
+        }
+
+        if (next != null) {
+            nextReminderBlock.setVisibility(View.VISIBLE);
+            lblNextReminder.setText(stringHelper.getString(R.string.str_next_reminder).replace("$1", next.getTime()));
+        } else {
+            nextReminderBlock.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private long getMilliFromAlarmTime(String timeStr) {
+        try {
+            String today = dateHelper.getDate("yyyy-MM-dd");
+            return new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US).parse(today + " " + timeStr).getTime();
+        } catch (ParseException e) {
+            Log.e(TAG, "Parsing alarm time failed", e);
+            return 0;
+        }
+    }
+
+    private void updateIntakeData(String date, boolean isRegularAnimation) {
+        ArrayList<HashMap<String, String>> intakeRecords = databaseHelper.getdata("tbl_drink_details", "DrinkDate ='" + date + "'");
+        
+        consumedWater = 0.0f;
+        boolean isMl = URLFactory.waterUnitValue.equalsIgnoreCase("ML");
+
+        for (HashMap<String, String> record : intakeRecords) {
+            String valKey = isMl ? "ContainerValue" : "ContainerValueOZ";
+            consumedWater += Float.parseFloat(record.get(valKey));
+        }
+
+        // Set Daily Goal Label
+        float dailyGoal;
+        if (date.equalsIgnoreCase(dateHelper.getCurrentDate(URLFactory.DATE_FORMAT))) {
+            dailyGoal = URLFactory.dailyWaterValue;
+        } else if (!intakeRecords.isEmpty()) {
+            String goalKey = isMl ? "TodayGoal" : "TodayGoalOZ";
+            dailyGoal = Float.parseFloat(intakeRecords.get(0).get(goalKey));
+        } else {
+            dailyGoal = URLFactory.dailyWaterValue;
+        }
+
+        lblTotalConsumed.setText(formatWaterValue(consumedWater));
+        lblDailyGoal.setText(formatWaterValue(dailyGoal));
+        
+        animateBottle(consumedWater, dailyGoal, isRegularAnimation);
+    }
+
+    private void animateBottle(float consumed, float goal, boolean isRegular) {
+        if (animationHandler != null) animationHandler.removeCallbacks(animationRunnable);
+        
+        isClickable = false;
+        targetBottleHeight = Math.round((consumed * maxBottleHeight) / goal);
+        final int step = 6;
+        final long delay = isRegular ? 50 : 5;
+
+        animationRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (currentBottleHeight < targetBottleHeight) {
+                    currentBottleHeight = Math.min(currentBottleHeight + step, targetBottleHeight);
+                    updateBottleHeight(currentBottleHeight);
+                    animationHandler.postDelayed(this, delay);
+                } else if (currentBottleHeight > targetBottleHeight && !isRegular) {
+                    currentBottleHeight = Math.max(currentBottleHeight - step, targetBottleHeight);
+                    updateBottleHeight(currentBottleHeight);
+                    animationHandler.postDelayed(this, delay);
+                } else {
+                    isClickable = true;
+                    checkGoalReached();
+                }
+            }
+        };
+
+        animationHandler = new Handler(Looper.getMainLooper());
+        animationHandler.postDelayed(animationRunnable, delay);
+        
+        animationView.setVisibility(targetBottleHeight > 0 ? View.VISIBLE : View.GONE);
+    }
+
+    private void updateBottleHeight(int height) {
+        contentFrame.getLayoutParams().height = height;
+        contentFrame.requestLayout();
+    }
+
+    private void checkGoalReached() {
+        if (oldConsumedWater < URLFactory.dailyWaterValue && consumedWater >= URLFactory.dailyWaterValue) {
+            showGoalReachedDialog();
+        }
+        oldConsumedWater = consumedWater;
+    }
+
+    private void executeAddWater() {
+        if (containerList.isEmpty()) return;
+
+        Container selected = containerList.get(selectedContainerPos);
+        float containerValue = URLFactory.waterUnitValue.equalsIgnoreCase("ML") ? 
+                Float.parseFloat(selected.getContainerValue()) : 
+                Float.parseFloat(selected.getContainerValueOZ());
+
+        float maxLimit = URLFactory.waterUnitValue.equalsIgnoreCase("ML") ? 8000f : 270f;
+
+        if (consumedWater >= maxLimit) {
+            showLimitReachedDialog();
+            isClickable = true;
+            return;
+        }
+
+        if (consumedWater + containerValue > maxLimit) {
+            showLimitReachedDialog();
+            // We still allow adding up to the limit if they click again? 
+            // The logic in original was a bit convoluted, let's keep it safe.
+        }
+
+        if (!preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_SOUND, false)) {
+            if (fillWaterRingtone.isPlaying()) fillWaterRingtone.stop();
+            fillWaterRingtone.play();
+        }
+
+        ContentValues values = new ContentValues();
+        values.put("ContainerValue", selected.getContainerValue());
+        values.put("ContainerValueOZ", selected.getContainerValueOZ());
+        values.put("DrinkDate", dateHelper.getDate(filterCal.getTimeInMillis(), URLFactory.DATE_FORMAT));
+        values.put("DrinkTime", dateHelper.getCurrentTime(true));
+        values.put("DrinkDateTime", dateHelper.getDate(filterCal.getTimeInMillis(), URLFactory.DATE_FORMAT) + " " + dateHelper.getCurrentDate("HH:mm:ss"));
+        
+        if (URLFactory.waterUnitValue.equalsIgnoreCase("ML")) {
+            values.put("TodayGoal", String.valueOf(URLFactory.dailyWaterValue));
+            values.put("TodayGoalOZ", String.valueOf(HeightWeightHelper.mlToOzConverter(URLFactory.dailyWaterValue)));
+        } else {
+            values.put("TodayGoal", String.valueOf(HeightWeightHelper.ozToMlConverter(URLFactory.dailyWaterValue)));
+            values.put("TodayGoalOZ", String.valueOf(URLFactory.dailyWaterValue));
+        }
+
+        databaseHelper.INSERT("tbl_drink_details", values);
+        
+        updateIntakeData(dateHelper.getDate(filterCal.getTimeInMillis(), URLFactory.DATE_FORMAT), true);
+        updateWidgets();
+    }
+
+    private void loadAllContainers() {
+        containerList.clear();
+        ArrayList<HashMap<String, String>> data = databaseHelper.getdata("tbl_container_details", "IsCustom", 1);
+        int savedId = preferencesHelper.getInt(URLFactory.KEY_SELECTED_CONTAINER, 1);
+
+        for (int i = 0; i < data.size(); i++) {
+            HashMap<String, String> map = data.get(i);
+            Container c = new Container();
+            c.setContainerId(map.get("ContainerID"));
+            c.setContainerValue(map.get("ContainerValue"));
+            c.setContainerValueOZ(map.get("ContainerValueOZ"));
+            c.isOpen("1".equals(map.get("IsOpen")));
+            c.isCustom("1".equals(map.get("IsCustom")));
+            
+            boolean isSelected = String.valueOf(savedId).equals(c.getContainerId());
+            c.isSelected(isSelected);
+            if (isSelected) selectedContainerPos = i;
+            
+            containerList.add(c);
+        }
+        updateSelectedContainerInfo();
+    }
+
+    private void updateSelectedContainerInfo() {
+        if (containerList.isEmpty()) return;
+        
+        Container selected = containerList.get(selectedContainerPos);
+        String unit = URLFactory.waterUnitValue;
+        String val = unit.equalsIgnoreCase("ML") ? selected.getContainerValue() : selected.getContainerValueOZ();
+        
+        containerName.setText(val + " " + unit);
+        
+        int iconRes = selected.isCustom() ? R.drawable.ic_custom_ml : getContainerIcon(val);
+        Glide.with(mContext).load(iconRes).into(imgSelectedContainer);
+    }
+
+    private int getContainerIcon(String val) {
+        double dVal = Double.parseDouble(val);
+        if (URLFactory.waterUnitValue.equalsIgnoreCase("ML")) {
+            if (dVal == 50) return R.drawable.ic_50_ml;
+            if (dVal == 100) return R.drawable.ic_100_ml;
+            if (dVal == 150) return R.drawable.ic_150_ml;
+            if (dVal == 200) return R.drawable.ic_200_ml;
+            if (dVal == 250) return R.drawable.ic_250_ml;
+            if (dVal == 300) return R.drawable.ic_300_ml;
+            if (dVal == 500) return R.drawable.ic_500_ml;
+            if (dVal == 600) return R.drawable.ic_600_ml;
+            if (dVal == 700) return R.drawable.ic_700_ml;
+            if (dVal == 800) return R.drawable.ic_800_ml;
+            if (dVal == 900) return R.drawable.ic_900_ml;
+            if (dVal == 1000) return R.drawable.ic_1000_ml;
+        } else {
+            if (dVal == 2) return R.drawable.ic_50_ml;
+            if (dVal == 3) return R.drawable.ic_100_ml;
+            if (dVal == 5) return R.drawable.ic_150_ml;
+            if (dVal == 7) return R.drawable.ic_200_ml;
+            if (dVal == 8) return R.drawable.ic_250_ml;
+            if (dVal == 10) return R.drawable.ic_300_ml;
+            if (dVal == 17) return R.drawable.ic_500_ml;
+            if (dVal == 20) return R.drawable.ic_600_ml;
+            if (dVal == 24) return R.drawable.ic_700_ml;
+            if (dVal == 27) return R.drawable.ic_800_ml;
+            if (dVal == 30) return R.drawable.ic_900_ml;
+            if (dVal == 34) return R.drawable.ic_1000_ml;
+        }
+        return R.drawable.ic_custom_ml;
+    }
+
+    private void openChangeContainerPicker() {
+        bottomSheetDialog = new BottomSheetDialog(mActivity);
+        bottomSheetDialog.setOnShowListener(dialog -> {
+            FrameLayout bottomSheet = ((BottomSheetDialog) dialog).findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                bottomSheet.setBackground(null);
+            }
+        });
+
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.bottom_sheet_change_container, null, false);
+        RecyclerView rv = view.findViewById(R.id.containerRecyclerView);
+        rv.setLayoutManager(new GridLayoutManager(mContext, 3));
+        
+        containerAdapter = new ContainerAdapterNew(mActivity, containerList, (container, position) -> {
+            bottomSheetDialog.dismiss();
+            selectedContainerPos = position;
+            preferencesHelper.savePreferences(URLFactory.KEY_SELECTED_CONTAINER, Integer.parseInt(container.getContainerId()));
+            
+            for (Container c : containerList) c.isSelected(false);
+            containerList.get(position).isSelected(true);
+            updateSelectedContainerInfo();
+        });
+        rv.setAdapter(containerAdapter);
+
+        view.findViewById(R.id.add_custom_container).setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            openAddCustomContainerDialog();
+        });
+
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+    }
+
+    private void openAddCustomContainerDialog() {
+        final Dialog dialog = new Dialog(mActivity);
+        dialog.requestWindowFeature(1);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setSoftInputMode(16);
+        
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.bottom_sheet_add_custom_container, null, false);
+        AppCompatEditText etValue = view.findViewById(R.id.txt_value);
+        AppCompatTextView tvUnitLabel = view.findViewById(R.id.lbl_unit);
+        
+        boolean isMl = URLFactory.waterUnitValue.equalsIgnoreCase("ML");
+        tvUnitLabel.setText(stringHelper.getString(R.string.str_capacity).replace("$1", URLFactory.waterUnitValue));
+        etValue.setFilters(new InputFilter[]{new InputFilterWeightRange(1.0, isMl ? 8000.0 : 270.0)});
+        etValue.requestFocus();
+
+        view.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
+        view.findViewById(R.id.img_cancel).setOnClickListener(v -> dialog.dismiss());
+        view.findViewById(R.id.btn_add).setOnClickListener(v -> {
+            String input = etValue.getText().toString().trim();
+            if (stringHelper.check_blank_data(input) || "0".equals(input)) {
+                alertHelper.customAlert(stringHelper.getString(R.string.str_enter_value_validation));
+                return;
+            }
+
+            double ml, oz;
+            if (isMl) {
+                ml = Double.parseDouble(input);
+                oz = HeightWeightHelper.mlToOzConverter(ml);
+            } else {
+                oz = Double.parseDouble(input);
+                ml = HeightWeightHelper.ozToMlConverter(oz);
+            }
+
+            int nextId = getNextContainerId();
+            ContentValues values = new ContentValues();
+            values.put("ContainerID", String.valueOf(nextId));
+            values.put("ContainerValue", String.valueOf(Math.round(ml)));
+            values.put("ContainerValueOZ", String.valueOf(Math.round(oz)));
+            values.put("IsOpen", "1");
+            values.put("IsCustom", "1");
+            
+            databaseHelper.INSERT("tbl_container_details", values);
+            preferencesHelper.savePreferences(URLFactory.KEY_SELECTED_CONTAINER, nextId);
+            
+            loadAllContainers();
+            dialog.dismiss();
+        });
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private int getNextContainerId() {
+        try (Cursor cursor = databaseHelper.rawQuery("SELECT MAX(ContainerID) FROM tbl_container_details", null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getInt(0) + 1;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to get next container ID", e);
+        }
+        return 100; // Default high start for custom IDs
+    }
+
+    private void showGoalReachedDialog() {
+        final Dialog dialog = new Dialog(mActivity);
+        dialog.requestWindowFeature(1);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_goal_reached, null, false);
+        view.findViewById(R.id.img_cancel).setOnClickListener(v -> dialog.dismiss());
+        view.findViewById(R.id.btn_share).setOnClickListener(v -> {
+            dialog.dismiss();
+            shareAchievement();
+        });
+        
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private void showLimitReachedDialog() {
+        final Dialog dialog = new Dialog(mActivity);
+        dialog.requestWindowFeature(1);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_goal_target_reached, null, false);
+        AppCompatTextView tvDesc = view.findViewById(R.id.lbl_desc);
+        ImageView imgBottle = view.findViewById(R.id.img_bottle);
+
+        boolean isMl = URLFactory.waterUnitValue.equalsIgnoreCase("ML");
+        imgBottle.setImageResource(isMl ? R.drawable.ic_limit_ml : R.drawable.ic_limit_oz);
+        tvDesc.setText(stringHelper.getString(R.string.str_you_should_not_drink_more_then_target)
+                .replace("$1", isMl ? "8000 ML" : "270 FL OZ"));
+
+        view.findViewById(R.id.img_cancel).setOnClickListener(v -> dialog.dismiss());
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private void showReminderSettingsDialog() {
+        final Dialog dialog = new Dialog(mActivity);
+        dialog.requestWindowFeature(1);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_reminder, null, false);
+        final RelativeLayout offBlock = view.findViewById(R.id.off_block);
+        final RelativeLayout silentBlock = view.findViewById(R.id.silent_block);
+        final RelativeLayout autoBlock = view.findViewById(R.id.auto_block);
+        final ImageView imgOff = view.findViewById(R.id.img_off);
+        final ImageView imgSilent = view.findViewById(R.id.img_silent);
+        final ImageView imgAuto = view.findViewById(R.id.img_auto);
+        
+        view.findViewById(R.id.advance_settings).setOnClickListener(v -> {
+            dialog.dismiss();
+            startActivity(new Intent(mActivity, Screen_Reminder.class));
+        });
+
+        view.findViewById(R.id.custom_sound_block).setOnClickListener(v -> openSoundMenuPicker());
+
+        SwitchCompat switchVibrate = view.findViewById(R.id.switch_vibrate);
+        switchVibrate.setChecked(!preferencesHelper.getBoolean(URLFactory.KEY_REMINDER_VIBRATE, false));
+        switchVibrate.setOnCheckedChangeListener((bv, isChecked) -> {
+            preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_VIBRATE, !isChecked);
+        });
+
+        int option = preferencesHelper.getInt(URLFactory.KEY_REMINDER_OPTION, 0);
+        updateReminderOptionUI(option, offBlock, silentBlock, autoBlock, imgOff, imgSilent, imgAuto);
+
+        offBlock.setOnClickListener(v -> {
+            updateReminderOptionUI(1, offBlock, silentBlock, autoBlock, imgOff, imgSilent, imgAuto);
+            preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, 1);
+        });
+        silentBlock.setOnClickListener(v -> {
+            updateReminderOptionUI(2, offBlock, silentBlock, autoBlock, imgOff, imgSilent, imgAuto);
+            preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, 2);
+        });
+        autoBlock.setOnClickListener(v -> {
+            updateReminderOptionUI(0, offBlock, silentBlock, autoBlock, imgOff, imgSilent, imgAuto);
+            preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, 0);
+        });
+
+        view.findViewById(R.id.img_cancel).setOnClickListener(v -> dialog.dismiss());
+        view.findViewById(R.id.btn_save).setOnClickListener(v -> dialog.dismiss());
+        
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private void updateReminderOptionUI(int option, View off, View silent, View auto, ImageView iOff, ImageView iSilent, ImageView iAuto) {
+        off.setBackgroundResource(option == 1 ? R.drawable.drawable_circle_selected : R.drawable.drawable_circle_unselected);
+        iOff.setImageResource(option == 1 ? R.drawable.ic_off_selected : R.drawable.ic_off_normal);
+        
+        silent.setBackgroundResource(option == 2 ? R.drawable.drawable_circle_selected : R.drawable.drawable_circle_unselected);
+        iSilent.setImageResource(option == 2 ? R.drawable.ic_silent_selected : R.drawable.ic_silent_normal);
+        
+        auto.setBackgroundResource(option == 0 ? R.drawable.drawable_circle_selected : R.drawable.drawable_circle_unselected);
+        iAuto.setImageResource(option == 0 ? R.drawable.ic_auto_selected : R.drawable.ic_auto_normal);
+    }
+
+    private void openSoundMenuPicker() {
+        loadSoundsList();
+        final Dialog dialog = new Dialog(mActivity);
+        dialog.requestWindowFeature(1);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
+        
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_sound_pick, null, false);
+        view.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
+        view.findViewById(R.id.btn_save).setOnClickListener(v -> {
+            for (int i = 0; i < soundList.size(); i++) {
+                if (soundList.get(i).isSelected()) {
+                    preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_SOUND, i);
+                    break;
+                }
+            }
+            dialog.dismiss();
+        });
+
+        RecyclerView rv = view.findViewById(R.id.soundRecyclerView);
+        rv.setLayoutManager(new LinearLayoutManager(mActivity));
+        soundAdapter = new SoundAdapter(mActivity, soundList, (sound, position) -> {
+            for (SoundModel s : soundList) s.isSelected(false);
+            soundList.get(position).isSelected(true);
+            soundAdapter.notifyDataSetChanged();
+            playPreviewSound(position);
+        });
+        rv.setAdapter(soundAdapter);
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private void loadSoundsList() {
+        soundList.clear();
+        String[] internalNames = {"Default", "Bell", "Blop", "Bong", "Click", "Echo Droplet", "Mario Droplet", "Ship Bell", "Simple Droplet", "Tiny Droplet"};
+        int savedIdx = preferencesHelper.getInt(URLFactory.KEY_REMINDER_SOUND, 0);
+        for (int i = 0; i < internalNames.length; i++) {
+            SoundModel sm = new SoundModel();
+            sm.setId(i);
+            sm.setName(internalNames[i]);
+            sm.isSelected(i == savedIdx);
+            soundList.add(sm);
+        }
+    }
+
+    private void playPreviewSound(int idx) {
+        MediaPlayer mp;
+        switch (idx) {
+            case 1: mp = MediaPlayer.create(this, R.raw.bell); break;
+            case 2: mp = MediaPlayer.create(this, R.raw.blop); break;
+            case 3: mp = MediaPlayer.create(this, R.raw.bong); break;
+            case 4: mp = MediaPlayer.create(this, R.raw.click); break;
+            case 5: mp = MediaPlayer.create(this, R.raw.echo_droplet); break;
+            case 6: mp = MediaPlayer.create(this, R.raw.mario_droplet); break;
+            case 7: mp = MediaPlayer.create(this, R.raw.ship_bell); break;
+            case 8: mp = MediaPlayer.create(this, R.raw.simple_droplet); break;
+            case 9: mp = MediaPlayer.create(this, R.raw.tiny_droplet); break;
+            default: mp = MediaPlayer.create(this, Settings.System.DEFAULT_NOTIFICATION_URI); break;
+        }
+        if (mp != null) {
+            mp.start();
+            mp.setOnCompletionListener(MediaPlayer::release);
+        }
+    }
+
+    private void updateWidgets() {
+        Intent intent = new Intent(mActivity, NewAppWidget.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        int[] ids = AppWidgetManager.getInstance(mActivity).getAppWidgetIds(new ComponentName(mActivity, NewAppWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        sendBroadcast(intent);
+    }
+
+    private String formatWaterValue(float value) {
+        return String.format(Locale.US, "%d %s", (int) value, URLFactory.waterUnitValue);
+    }
+
+    private void toggleDrawer() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            drawerLayout.openDrawer(GravityCompat.START);
+        }
+    }
+
+    private void closeDrawer() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+    }
+
+    private void rateApp() {
+        String pkg = getPackageName();
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + pkg)));
+        } catch (ActivityNotFoundException e) {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + pkg)));
+        }
+    }
+
+    private void contactUs() {
+        try {
+            Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:support@yourdomain.com"));
+            intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback: Water Reminder");
+            startActivity(intent);
+        } catch (Exception ignored) {}
+    }
+
+    private void openPrivacyPolicy() {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URLFactory.PRIVACY_POLICY_URL)));
+        } catch (Exception ignored) {}
+    }
+
+    private void shareApp() {
+        String msg = stringHelper.getString(R.string.app_share_txt).replace("#1", URLFactory.APP_SHARE_URL);
+        intentHelper.ShareText(getApplicationName(mContext), msg);
+    }
+
+    private void shareAchievement() {
+        String msg = stringHelper.getString(R.string.str_share_text)
+                .replace("$1", formatWaterValue(consumedWater))
+                .replace("$2", "@ " + URLFactory.APP_SHARE_URL);
+        intentHelper.ShareText(getApplicationName(mContext), msg);
+    }
 
     public static String getApplicationName(Context context) {
         ApplicationInfo applicationInfo = context.getApplicationInfo();
@@ -140,1218 +953,19 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
         return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
     }
 
-    /* access modifiers changed from: protected */
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView((int) R.layout.screen_dashboard);
-        if (this.ph.getFloat(URLFactory.DAILY_WATER) == 0.0f) {
-            URLFactory.DAILY_WATER_VALUE = 2500.0f;
-        } else {
-            URLFactory.DAILY_WATER_VALUE = this.ph.getFloat(URLFactory.DAILY_WATER);
-        }
-        String_Helper string_Helper = this.sh;
-        if (string_Helper.check_blank_data("" + this.ph.getString(URLFactory.WATER_UNIT))) {
-            URLFactory.WATER_UNIT_VALUE = "ml";
-        } else {
-            URLFactory.WATER_UNIT_VALUE = this.ph.getString(URLFactory.WATER_UNIT);
-        }
-        FindViewById();
-        Context context = this.mContext;
-        this.ringtone = RingtoneManager.getRingtone(context, Uri.parse("android.resource://" + this.mContext.getPackageName() + "/" + R.raw.fill_water_sound));
-        if (Build.VERSION.SDK_INT >= 28) {
-            this.ringtone.setLooping(false);
-        }
-        try {
-            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            String packageName = getApplicationContext().getPackageName();
-            if (Build.VERSION.SDK_INT >= 23 && !pm.isIgnoringBatteryOptimizations(packageName)) {
-                if (Build.MANUFACTURER.equalsIgnoreCase("OnePlus")) {
-                    showPermissionDialog();
-                    return;
-                }
-                Intent intent = new Intent("android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS");
-                intent.setData(Uri.parse("package:" + packageName));
-                startActivity(intent);
-            }
-        } catch (ActivityNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void showPermissionDialog() {
-        try {
-            final Dialog dialog = new Dialog(this.act);
-            dialog.requestWindowFeature(1);
-            dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
-            dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-            View view = LayoutInflater.from(this.act).inflate(R.layout.dialog_battery_optimization, (ViewGroup) null, false);
-            ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewPager);
-            viewPager.setAdapter(new MyPageAdapter(this.act));
-            viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                }
-
-                public void onPageSelected(int position) {
-                }
-
-                public void onPageScrollStateChanged(int state) {
-                }
-            });
-            viewPager.setOffscreenPageLimit(5);
-            ((DotsIndicator) view.findViewById(R.id.dots_indicator)).setViewPager(viewPager);
-            ((ImageView) view.findViewById(R.id.img_cancel)).setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    dialog.dismiss();
-                }
-            });
-            ((RelativeLayout) view.findViewById(R.id.btn_settings)).setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    dialog.dismiss();
-                    Screen_Dashboard.this.startActivity(new Intent("android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS"));
-                }
-            });
-            dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                public void onDismiss(DialogInterface dialog) {
-                }
-            });
-            dialog.setContentView(view);
-            dialog.show();
-        } catch (Exception e) {
-            Alert_Helper alert_Helper = this.ah;
-            alert_Helper.Show_Alert_Dialog("" + e.getMessage());
-        }
-    }
-
-    public void loadPhoto() {
-        boolean check_blank_data = this.sh.check_blank_data(this.ph.getString(URLFactory.USER_PHOTO));
-        int i = R.drawable.male_white;
-        if (check_blank_data) {
-            RequestManager with = Glide.with(this.act);
-            if (this.ph.getBoolean(URLFactory.USER_GENDER)) {
-                i = R.drawable.female_white;
-            }
-            with.load(Integer.valueOf(i)).apply((BaseRequestOptions<?>) RequestOptions.circleCropTransform()).into(this.img_user);
-            return;
-        }
-        boolean ex = false;
-        try {
-            if (new File(this.ph.getString(URLFactory.USER_PHOTO)).exists()) {
-                ex = true;
-            }
-        } catch (Exception e) {
-        }
-        if (ex) {
-            Glide.with(this.act).load(this.ph.getString(URLFactory.USER_PHOTO)).apply((BaseRequestOptions<?>) RequestOptions.circleCropTransform()).into(this.img_user);
-            return;
-        }
-        RequestManager with2 = Glide.with(this.act);
-        if (this.ph.getBoolean(URLFactory.USER_GENDER)) {
-            i = R.drawable.female_white;
-        }
-        with2.load(Integer.valueOf(i)).apply((BaseRequestOptions<?>) RequestOptions.circleCropTransform()).into(this.img_user);
-    }
-
-    /* access modifiers changed from: protected */
-    public void onResume() {
-        super.onResume();
-        if (URLFactory.RELOAD_DASHBOARD) {
-            init();
-        } else {
-            URLFactory.RELOAD_DASHBOARD = true;
-        }
-    }
-
-    public void init() {
-        initMenuScreen();
-        FindViewById();
-        Body();
-        loadAds();
-        getAllReminderData();
-        fetchNextReminder();
-    }
-
-    public void initMenuScreen() {
-        filter_cal = Calendar.getInstance();
-        today_cal = Calendar.getInstance();
-        yesterday_cal = Calendar.getInstance();
-        yesterday_cal.add(5, -1);
-        menuBody();
-        this.lbl_toolbar_title.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Dashboard.filter_cal.setTimeInMillis(Screen_Dashboard.today_cal.getTimeInMillis());
-                Screen_Dashboard.this.lbl_toolbar_title.setText(Screen_Dashboard.this.sh.get_string(R.string.str_today));
-                Screen_Dashboard screen_Dashboard = Screen_Dashboard.this;
-                Date_Helper date_Helper = Screen_Dashboard.this.dth;
-                screen_Dashboard.setCustomDate(Date_Helper.getDate(Screen_Dashboard.filter_cal.getTimeInMillis(), URLFactory.DATE_FORMAT));
-            }
-        });
-        this.lbl_user_name.setText(this.ph.getString(URLFactory.USER_NAME));
-    }
-
-    public void menuBody() {
-        this.btn_menu = (ImageView) findViewById(R.id.btn_menu);
-        this.btn_alarm = (ImageView) findViewById(R.id.btn_alarm);
-        this.lbl_toolbar_title = (AppCompatTextView) findViewById(R.id.lbl_toolbar_title);
-        this.img_pre = (ImageView) findViewById(R.id.img_pre);
-        this.img_next = (ImageView) findViewById(R.id.img_next);
-        this.img_user = (ImageView) findViewById(R.id.img_user);
-        this.open_profile = (LinearLayout) findViewById(R.id.open_profile);
-        this.btn_rate_us = (LinearLayout) findViewById(R.id.btn_rate_us);
-        this.btn_contact_us = (LinearLayout) findViewById(R.id.btn_contact_us);
-        this.mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        this.mDrawerList = (RecyclerView) findViewById(R.id.left_drawer);
-        this.lbl_user_name = (AppCompatTextView) findViewById(R.id.lbl_user_name);
-        loadPhoto();
-        this.lbl_toolbar_title.setText(this.sh.get_string(R.string.str_today));
-        this.lbl_user_name.setText(this.ph.getString(URLFactory.USER_NAME));
-        this.menu_name.clear();
-        this.menu_name.add(new Menu(this.sh.get_string(R.string.str_home), true));
-        this.menu_name.add(new Menu(this.sh.get_string(R.string.str_drink_history), false));
-        this.menu_name.add(new Menu(this.sh.get_string(R.string.str_drink_report), false));
-        this.menu_name.add(new Menu(this.sh.get_string(R.string.str_settings), false));
-        this.menu_name.add(new Menu(this.sh.get_string(R.string.str_faqs), false));
-        this.menu_name.add(new Menu(this.sh.get_string(R.string.str_privacy_policy), false));
-        this.menu_name.add(new Menu(this.sh.get_string(R.string.str_tell_a_friend), false));
-        this.menuAdapter = new MenuAdapter(this.act, this.menu_name, new MenuAdapter.CallBack() {
-            public void onClickSelect(Menu menu, int position) {
-                Screen_Dashboard.this.mDrawerLayout.closeDrawer(Gravity.LEFT);
-                if (position == 1) {
-                    Screen_Dashboard.this.intent = new Intent(Screen_Dashboard.this.act, Screen_History.class);
-                    Screen_Dashboard.this.startActivity(Screen_Dashboard.this.intent);
-                } else if (position == 2) {
-                    Screen_Dashboard.this.intent = new Intent(Screen_Dashboard.this.act, Screen_Report.class);
-                    Screen_Dashboard.this.startActivity(Screen_Dashboard.this.intent);
-                } else if (position == 3) {
-                    Screen_Dashboard.this.intent = new Intent(Screen_Dashboard.this.act, Screen_Settings.class);
-                    Screen_Dashboard.this.startActivity(Screen_Dashboard.this.intent);
-                } else if (position == 4) {
-                    Screen_Dashboard.this.intent = new Intent(Screen_Dashboard.this.act, Screen_FAQ.class);
-                    Screen_Dashboard.this.startActivity(Screen_Dashboard.this.intent);
-                } else if (position == 5) {
-                    Intent i = new Intent("android.intent.action.VIEW");
-                    i.setData(Uri.parse(URLFactory.PRIVACY_POLICY_ULR));
-                    Screen_Dashboard.this.startActivity(i);
-                } else if (position == 6) {
-                    Screen_Dashboard.this.ih.ShareText(Screen_Dashboard.getApplicationName(Screen_Dashboard.this.mContext), Screen_Dashboard.this.sh.get_string(R.string.app_share_txt).replace("#1", URLFactory.APP_SHARE_URL));
-                }
-            }
-        });
-        this.btn_rate_us.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                String appPackageName = Screen_Dashboard.this.getPackageName();
-                try {
-                    Screen_Dashboard screen_Dashboard = Screen_Dashboard.this;
-                    screen_Dashboard.startActivity(new Intent("android.intent.action.VIEW", Uri.parse("market://details?id=" + appPackageName)));
-                } catch (ActivityNotFoundException e) {
-                    Screen_Dashboard screen_Dashboard2 = Screen_Dashboard.this;
-                    screen_Dashboard2.startActivity(new Intent("android.intent.action.VIEW", Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
-                }
-            }
-        });
-        this.btn_contact_us.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                try {
-                    Intent intent = new Intent("android.intent.action.VIEW", Uri.parse("mailto:youremail@gmail.com"));
-                    intent.putExtra("android.intent.extra.SUBJECT", "");
-                    intent.putExtra("android.intent.extra.TEXT", "");
-                    Screen_Dashboard.this.startActivity(intent);
-                } catch (Exception e) {
-                }
-            }
-        });
-        this.mDrawerList.setLayoutManager(new LinearLayoutManager(getActivity(), androidx.recyclerview.widget.RecyclerView.VERTICAL, false));
-        this.mDrawerList.setAdapter(this.menuAdapter);
-        this.open_profile.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                try {
-                    if (Screen_Dashboard.this.mDrawerLayout.isDrawerOpen(android.view.Gravity.LEFT)) {
-                        Screen_Dashboard.this.mDrawerLayout.closeDrawer(android.view.Gravity.LEFT);
-                    }
-                } catch (Exception e) {
-                }
-                Screen_Dashboard.this.startActivity(new Intent(Screen_Dashboard.this.act, Screen_Profile.class));
-            }
-        });
-        this.btn_alarm.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Screen_Dashboard.this.showReminderDialog();
-            }
-        });
-        this.btn_menu.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                try {
-                    if (Screen_Dashboard.this.mDrawerLayout.isDrawerOpen(android.view.Gravity.LEFT)) {
-                        Screen_Dashboard.this.mDrawerLayout.closeDrawer(android.view.Gravity.LEFT);
-                    } else {
-                        Screen_Dashboard.this.mDrawerLayout.openDrawer(android.view.Gravity.LEFT);
-                    }
-                } catch (Exception e) {
-                }
-            }
-        });
-        this.img_pre.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Dashboard.filter_cal.add(5, -1);
-                Date_Helper date_Helper = Screen_Dashboard.this.dth;
-                String date = Date_Helper.getDate(Screen_Dashboard.filter_cal.getTimeInMillis(), URLFactory.DATE_FORMAT);
-                Date_Helper date_Helper2 = Screen_Dashboard.this.dth;
-                if (date.equalsIgnoreCase(Date_Helper.getDate(Screen_Dashboard.yesterday_cal.getTimeInMillis(), URLFactory.DATE_FORMAT))) {
-                    Screen_Dashboard.this.lbl_toolbar_title.setText(Screen_Dashboard.this.sh.get_string(R.string.str_yesterday));
-                } else {
-                    AppCompatTextView appCompatTextView = Screen_Dashboard.this.lbl_toolbar_title;
-                    Date_Helper date_Helper3 = Screen_Dashboard.this.dth;
-                    appCompatTextView.setText(Date_Helper.getDate(Screen_Dashboard.filter_cal.getTimeInMillis(), URLFactory.DATE_FORMAT));
-                }
-                Screen_Dashboard screen_Dashboard = Screen_Dashboard.this;
-                Date_Helper date_Helper4 = Screen_Dashboard.this.dth;
-                screen_Dashboard.setCustomDate(Date_Helper.getDate(Screen_Dashboard.filter_cal.getTimeInMillis(), URLFactory.DATE_FORMAT));
-            }
-        });
-        this.img_next.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Dashboard.filter_cal.add(5, 1);
-                if (Screen_Dashboard.filter_cal.getTimeInMillis() > Screen_Dashboard.today_cal.getTimeInMillis()) {
-                    Screen_Dashboard.filter_cal.add(5, -1);
-                    return;
-                }
-                Date_Helper date_Helper = Screen_Dashboard.this.dth;
-                String date = Date_Helper.getDate(Screen_Dashboard.filter_cal.getTimeInMillis(), URLFactory.DATE_FORMAT);
-                Date_Helper date_Helper2 = Screen_Dashboard.this.dth;
-                if (date.equalsIgnoreCase(Date_Helper.getDate(Screen_Dashboard.today_cal.getTimeInMillis(), URLFactory.DATE_FORMAT))) {
-                    Screen_Dashboard.this.lbl_toolbar_title.setText(Screen_Dashboard.this.sh.get_string(R.string.str_today));
-                } else {
-                    Date_Helper date_Helper3 = Screen_Dashboard.this.dth;
-                    String date2 = Date_Helper.getDate(Screen_Dashboard.filter_cal.getTimeInMillis(), URLFactory.DATE_FORMAT);
-                    Date_Helper date_Helper4 = Screen_Dashboard.this.dth;
-                    if (date2.equalsIgnoreCase(Date_Helper.getDate(Screen_Dashboard.yesterday_cal.getTimeInMillis(), URLFactory.DATE_FORMAT))) {
-                        Screen_Dashboard.this.lbl_toolbar_title.setText(Screen_Dashboard.this.sh.get_string(R.string.str_yesterday));
-                    } else {
-                        AppCompatTextView appCompatTextView = Screen_Dashboard.this.lbl_toolbar_title;
-                        Date_Helper date_Helper5 = Screen_Dashboard.this.dth;
-                        appCompatTextView.setText(Date_Helper.getDate(Screen_Dashboard.filter_cal.getTimeInMillis(), URLFactory.DATE_FORMAT));
-                    }
-                }
-                Screen_Dashboard screen_Dashboard = Screen_Dashboard.this;
-                Date_Helper date_Helper6 = Screen_Dashboard.this.dth;
-                screen_Dashboard.setCustomDate(Date_Helper.getDate(Screen_Dashboard.filter_cal.getTimeInMillis(), URLFactory.DATE_FORMAT));
-            }
-        });
-    }
-
-    public void loadAds() {
-        Screen_Dashboard.this.execute_add_water();
-        Screen_Dashboard.this.btnclick = true;
-    }
-
-    public void getAllReminderData() {
-        List<NextReminderModel> reminder_data = new ArrayList<>();
-        ArrayList<HashMap<String, String>> arr_data = this.dh.getdata("tbl_alarm_details");
-        for (int k = 0; k < arr_data.size(); k++) {
-            if (((String) arr_data.get(k).get("AlarmType")).equalsIgnoreCase("R")) {
-                if (!this.ph.getBoolean(URLFactory.IS_MANUAL_REMINDER)) {
-                    Database_Helper database_Helper = this.dh;
-                    ArrayList<HashMap<String, String>> arr_data2 = database_Helper.getdata("tbl_alarm_sub_details", "SuperId='" + ((String) arr_data.get(k).get("id")) + "'");
-                    for (int j = 0; j < arr_data2.size(); j++) {
-                        reminder_data.add(new NextReminderModel(getMillisecond((String) arr_data2.get(j).get("AlarmTime")), (String) arr_data2.get(j).get("AlarmTime")));
-                    }
-                }
-            } else if (this.ph.getBoolean(URLFactory.IS_MANUAL_REMINDER) && ((String) arr_data.get(k).get("IsOff")).equalsIgnoreCase("0")) {
-                reminder_data.add(new NextReminderModel(getMillisecond((String) arr_data.get(k).get("AlarmTime")), (String) arr_data.get(k).get("AlarmTime")));
-            }
-        }
-        Date mDate = new Date();
-        Collections.sort(reminder_data);
-        int tmp_pos = 0;
-        int k2 = 0;
-        while (true) {
-            if (k2 >= reminder_data.size()) {
-                break;
-            } else if (reminder_data.get(k2).getMillesecond() > mDate.getTime()) {
-                tmp_pos = k2;
-                break;
-            } else {
-                k2++;
-            }
-        }
-        this.next_reminder_block.setVisibility(View.VISIBLE);
-        if (reminder_data.size() > 0) {
-            this.lbl_next_reminder.setText(this.sh.get_string(R.string.str_next_reminder).replace("$1", reminder_data.get(tmp_pos).getTime()));
-        } else {
-            this.next_reminder_block.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    public long getMillisecond(String givenDateString) {
-        long timeInMilliseconds = 0;
-        try {
-            timeInMilliseconds = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US).parse(this.dth.getFormatDate("yyyy-MM-dd") + " " + givenDateString).getTime();
-            PrintStream printStream = System.out;
-            printStream.println("Date in milli :: " + timeInMilliseconds);
-            return timeInMilliseconds;
-        } catch (ParseException e) {
-            e.printStackTrace();
-            this.ah.Show_Alert_Dialog(e.getMessage());
-            return timeInMilliseconds;
-        }
-    }
-
-    public void fetchNextReminder() {
-        this.runnableReminder = new Runnable() {
-            public void run() {
-                Screen_Dashboard.this.getAllReminderData();
-                Screen_Dashboard.this.handlerReminder.postDelayed(Screen_Dashboard.this.runnableReminder, 1000);
-            }
-        };
-        this.handlerReminder = new Handler();
-        this.handlerReminder.postDelayed(this.runnableReminder, 1000);
-    }
-
-    private void FindViewById() {
-        this.animationView = (LottieAnimationView) findViewById(R.id.animationView);
-        this.content_frame = (RelativeLayout) findViewById(R.id.content_frame);
-        this.content_frame_test = (RelativeLayout) findViewById(R.id.content_frame_test);
-        this.content_frame.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            public void onGlobalLayout() {
-                int w = Screen_Dashboard.this.content_frame.getWidth();
-                int h = Screen_Dashboard.this.content_frame.getHeight();
-                Log.v("getWidthHeight", w + "   -   " + h);
-            }
-        });
-        this.content_frame_test.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            public void onGlobalLayout() {
-                int w = Screen_Dashboard.this.content_frame_test.getWidth();
-                int h = Screen_Dashboard.this.content_frame_test.getHeight();
-                Log.v("getWidthHeight test", w + "   -   " + h);
-                Screen_Dashboard.this.max_bottle_height = h + -30;
-            }
-        });
-        this.lbl_next_reminder = (AppCompatTextView) findViewById(R.id.lbl_next_reminder);
-        this.next_reminder_block = (LinearLayout) findViewById(R.id.next_reminder_block);
-        this.add_water = (RelativeLayout) findViewById(R.id.add_water);
-        this.container_name = (AppCompatTextView) findViewById(R.id.container_name);
-        this.img_selected_container = (ImageView) findViewById(R.id.img_selected_container);
-        this.selected_container_block = (RelativeLayout) findViewById(R.id.selected_container_block);
-        this.open_history = (RelativeLayout) findViewById(R.id.open_history);
-        this.lbl_total_goal = (AppCompatTextView) findViewById(R.id.lbl_total_goal);
-        this.lbl_total_drunk = (AppCompatTextView) findViewById(R.id.lbl_total_drunk);
-        this.banner_view = (LinearLayout) findViewById(R.id.banner_view);
-    }
-
-    private void Body() {
-        Database_Helper database_Helper = this.dh;
-        ArrayList<HashMap<String, String>> arr_data = database_Helper.getdata("tbl_drink_details", "DrinkDate ='" + this.dth.getCurrentDate(URLFactory.DATE_FORMAT) + "'");
-        this.old_drink_water = 0.0f;
-        for (int k = 0; k < arr_data.size(); k++) {
-            if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                this.old_drink_water = (float) (((double) this.old_drink_water) + Double.parseDouble("" + ((String) arr_data.get(k).get("ContainerValue"))));
-            } else {
-                this.old_drink_water = (float) (((double) this.old_drink_water) + Double.parseDouble("" + ((String) arr_data.get(k).get("ContainerValueOZ"))));
-            }
-        }
-        count_today_drink(false);
-        this.selected_container_block.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Screen_Dashboard.this.openChangeContainerPicker();
-            }
-        });
-        this.open_history.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Dashboard.this.intent = new Intent(Screen_Dashboard.this.act, Screen_History.class);
-                Screen_Dashboard.this.startActivity(Screen_Dashboard.this.intent);
-            }
-        });
-        this.add_water.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                if (Screen_Dashboard.this.containerArrayList.size() > 0) {
-                    Date_Helper date_Helper = Screen_Dashboard.this.dth;
-                    String date = Date_Helper.getDate(Screen_Dashboard.filter_cal.getTimeInMillis(), URLFactory.DATE_FORMAT);
-                    Date_Helper date_Helper2 = Screen_Dashboard.this.dth;
-                    if (date.equalsIgnoreCase(Date_Helper.getDate(Screen_Dashboard.today_cal.getTimeInMillis(), URLFactory.DATE_FORMAT)) && Screen_Dashboard.this.btnclick) {
-                        Screen_Dashboard.this.btnclick = false;
-                        if (new Random().nextBoolean()) {
-                            URLFactory.RELOAD_DASHBOARD = false;
-                            Screen_Dashboard.this.execute_add_water();
-                            URLFactory.RELOAD_DASHBOARD = true;
-                        } else {
-                            Screen_Dashboard.this.execute_add_water();
-                        }
-                    }
-                }
-            }
-        });
-        load_all_container();
-        String unit = this.ph.getString(URLFactory.WATER_UNIT);
-        if (unit.equalsIgnoreCase("ml")) {
-            AppCompatTextView appCompatTextView = this.container_name;
-            appCompatTextView.setText("" + this.containerArrayList.get(this.selected_pos).getContainerValue() + " " + unit);
-            if (this.containerArrayList.get(this.selected_pos).isCustom()) {
-                Glide.with(this.mContext).load(Integer.valueOf(R.drawable.ic_custom_ml)).into(this.img_selected_container);
-            } else {
-                Glide.with(this.mContext).load(getImage(this.containerArrayList.get(this.selected_pos).getContainerValue())).into(this.img_selected_container);
-            }
-        } else {
-            AppCompatTextView appCompatTextView2 = this.container_name;
-            appCompatTextView2.setText("" + this.containerArrayList.get(this.selected_pos).getContainerValueOZ() + " " + unit);
-            if (this.containerArrayList.get(this.selected_pos).isCustom()) {
-                Glide.with(this.mContext).load(Integer.valueOf(R.drawable.ic_custom_ml)).into(this.img_selected_container);
-            } else {
-                Glide.with(this.mContext).load(getImage(this.containerArrayList.get(this.selected_pos).getContainerValueOZ())).into(this.img_selected_container);
-            }
-        }
-        this.adapter = new ContainerAdapterNew(this.act, this.containerArrayList, new ContainerAdapterNew.CallBack() {
-            public void onClickSelect(Container menu, int position) {
-                Screen_Dashboard.this.bottomSheetDialog.dismiss();
-                Screen_Dashboard.this.selected_pos = position;
-                Screen_Dashboard.this.ph.savePreferences(URLFactory.SELECTED_CONTAINER, Integer.parseInt(menu.getContainerId()));
-                for (int k = 0; k < Screen_Dashboard.this.containerArrayList.size(); k++) {
-                    Screen_Dashboard.this.containerArrayList.get(k).isSelected(false);
-                }
-                Screen_Dashboard.this.containerArrayList.get(position).isSelected(true);
-                Screen_Dashboard.this.adapter.notifyDataSetChanged();
-                String unit = Screen_Dashboard.this.ph.getString(URLFactory.WATER_UNIT);
-                if (unit.equalsIgnoreCase("ml")) {
-                    AppCompatTextView appCompatTextView = Screen_Dashboard.this.container_name;
-                    appCompatTextView.setText("" + menu.getContainerValue() + " " + unit);
-                    if (menu.isCustom()) {
-                        Glide.with(Screen_Dashboard.this.mContext).load(Integer.valueOf(R.drawable.ic_custom_ml)).into(Screen_Dashboard.this.img_selected_container);
-                    } else {
-                        Glide.with(Screen_Dashboard.this.mContext).load(Screen_Dashboard.this.getImage(menu.getContainerValue())).into(Screen_Dashboard.this.img_selected_container);
-                    }
-                } else {
-                    AppCompatTextView appCompatTextView2 = Screen_Dashboard.this.container_name;
-                    appCompatTextView2.setText("" + menu.getContainerValueOZ() + " " + unit);
-                    if (menu.isCustom()) {
-                        Glide.with(Screen_Dashboard.this.mContext).load(Integer.valueOf(R.drawable.ic_custom_ml)).into(Screen_Dashboard.this.img_selected_container);
-                    } else {
-                        Glide.with(Screen_Dashboard.this.mContext).load(Screen_Dashboard.this.getImage(menu.getContainerValueOZ())).into(Screen_Dashboard.this.img_selected_container);
-                    }
-                }
-            }
-        });
-    }
-
-    public void execute_add_water() {
-        if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml") && this.drink_water > 8000.0f) {
-            showDailyMoreThanTargetDialog();
-            this.btnclick = true;
-        } else if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml") || this.drink_water <= 270.0f) {
-            float count_drink_after_add_current_water = this.drink_water;
-            if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                count_drink_after_add_current_water += Float.parseFloat("" + this.containerArrayList.get(this.selected_pos).getContainerValue());
-            } else if (!URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                count_drink_after_add_current_water += Float.parseFloat("" + this.containerArrayList.get(this.selected_pos).getContainerValueOZ());
-            }
-            Log.d("above8000", "" + URLFactory.WATER_UNIT_VALUE + " @@@  " + this.drink_water + " @@@ " + count_drink_after_add_current_water);
-            if (!URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml") || count_drink_after_add_current_water <= 8000.0f) {
-                if (!URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml") && count_drink_after_add_current_water > 270.0f) {
-                    if (this.drink_water >= 270.0f) {
-                        showDailyMoreThanTargetDialog();
-                    } else {
-                        float f = URLFactory.DAILY_WATER_VALUE;
-                        if (f < 270.0f - Float.parseFloat("" + this.containerArrayList.get(this.selected_pos).getContainerValueOZ())) {
-                            showDailyMoreThanTargetDialog();
-                        }
-                    }
-                }
-            } else if (this.drink_water >= 8000.0f) {
-                showDailyMoreThanTargetDialog();
-            } else {
-                float f2 = URLFactory.DAILY_WATER_VALUE;
-                if (f2 < 8000.0f - Float.parseFloat("" + this.containerArrayList.get(this.selected_pos).getContainerValue())) {
-                    showDailyMoreThanTargetDialog();
-                }
-            }
-            if (this.drink_water == 8000.0f && URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                this.btnclick = true;
-            } else if (this.drink_water != 270.0f || URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                if (!this.ph.getBoolean(URLFactory.DISABLE_SOUND_WHEN_ADD_WATER)) {
-                    this.ringtone.stop();
-                    this.ringtone.play();
-                }
-                ContentValues initialValues = new ContentValues();
-                initialValues.put("ContainerValue", "" + this.containerArrayList.get(this.selected_pos).getContainerValue());
-                initialValues.put("ContainerValueOZ", "" + this.containerArrayList.get(this.selected_pos).getContainerValueOZ());
-                StringBuilder sb = new StringBuilder();
-                sb.append("");
-                Date_Helper date_Helper = this.dth;
-                sb.append(Date_Helper.getDate(filter_cal.getTimeInMillis(), URLFactory.DATE_FORMAT));
-                initialValues.put("DrinkDate", sb.toString());
-                initialValues.put("DrinkTime", "" + this.dth.getCurrentTime(true));
-                StringBuilder sb2 = new StringBuilder();
-                sb2.append("");
-                Date_Helper date_Helper2 = this.dth;
-                sb2.append(Date_Helper.getDate(filter_cal.getTimeInMillis(), URLFactory.DATE_FORMAT));
-                sb2.append(" ");
-                sb2.append(this.dth.getCurrentDate("HH:mm:ss"));
-                initialValues.put("DrinkDateTime", sb2.toString());
-                if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                    initialValues.put("TodayGoal", "" + URLFactory.DAILY_WATER_VALUE);
-                    initialValues.put("TodayGoalOZ", "" + HeightWeightHelper.mlToOzConverter((double) URLFactory.DAILY_WATER_VALUE));
-                } else {
-                    initialValues.put("TodayGoal", "" + HeightWeightHelper.ozToMlConverter((double) URLFactory.DAILY_WATER_VALUE));
-                    initialValues.put("TodayGoalOZ", "" + URLFactory.DAILY_WATER_VALUE);
-                }
-                this.dh.INSERT("tbl_drink_details", initialValues);
-                count_today_drink(true);
-                Intent intent = new Intent(this.act, NewAppWidget.class);
-                intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
-                intent.putExtra("appWidgetIds", AppWidgetManager.getInstance(this.act).getAppWidgetIds(new ComponentName(this.act, NewAppWidget.class)));
-                this.act.sendBroadcast(intent);
-            } else {
-                this.btnclick = true;
-            }
-        } else {
-            showDailyMoreThanTargetDialog();
-            this.btnclick = true;
-        }
-    }
-
-    public void load_all_container() {
-        String selected_container_id;
-        this.containerArrayList.clear();
-        ArrayList<HashMap<String, String>> arr_container = this.dh.getdata("tbl_container_details", "IsCustom", 1);
-        if (this.ph.getInt(URLFactory.SELECTED_CONTAINER) == 0) {
-            selected_container_id = "1";
-        } else {
-            selected_container_id = "" + this.ph.getInt(URLFactory.SELECTED_CONTAINER);
-        }
-        for (int k = 0; k < arr_container.size(); k++) {
-            Container container = new Container();
-            container.setContainerId((String) arr_container.get(k).get("ContainerID"));
-            container.setContainerValue((String) arr_container.get(k).get("ContainerValue"));
-            container.setContainerValueOZ((String) arr_container.get(k).get("ContainerValueOZ"));
-            container.isOpen(((String) arr_container.get(k).get("IsOpen")).equalsIgnoreCase("1"));
-            container.isSelected(selected_container_id.equalsIgnoreCase((String) arr_container.get(k).get("ContainerID")));
-            container.isCustom(((String) arr_container.get(k).get("IsCustom")).equalsIgnoreCase("1"));
-            if (container.isSelected()) {
-                this.selected_pos = k;
-            }
-            this.containerArrayList.add(container);
-        }
-    }
-
-    public void count_today_drink(boolean isRegularAnimation) {
-        Database_Helper database_Helper = this.dh;
-        StringBuilder sb = new StringBuilder();
-        sb.append("DrinkDate ='");
-        Date_Helper date_Helper = this.dth;
-        sb.append(Date_Helper.getDate(filter_cal.getTimeInMillis(), URLFactory.DATE_FORMAT));
-        sb.append("'");
-        ArrayList<HashMap<String, String>> arr_data = database_Helper.getdata("tbl_drink_details", sb.toString());
-        this.drink_water = 0.0f;
-        for (int k = 0; k < arr_data.size(); k++) {
-            if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                this.drink_water = (float) (((double) this.drink_water) + Double.parseDouble("" + ((String) arr_data.get(k).get("ContainerValue"))));
-            } else {
-                this.drink_water = (float) (((double) this.drink_water) + Double.parseDouble("" + ((String) arr_data.get(k).get("ContainerValueOZ"))));
-            }
-        }
-        AppCompatTextView appCompatTextView = this.lbl_total_drunk;
-        appCompatTextView.setText(getData("" + ((int) this.drink_water) + " " + URLFactory.WATER_UNIT_VALUE));
-        AppCompatTextView appCompatTextView2 = this.lbl_total_goal;
-        appCompatTextView2.setText(getData("" + ((int) URLFactory.DAILY_WATER_VALUE) + " " + URLFactory.WATER_UNIT_VALUE));
-        refresh_bottle(true, isRegularAnimation);
-    }
-
-    public String getData(String str) {
-        return str.replace(",", ".");
-    }
-
-    public void callDialog() {
-        if (this.old_drink_water < URLFactory.DAILY_WATER_VALUE && this.drink_water >= URLFactory.DAILY_WATER_VALUE) {
-            showDailyGoalReachedDialog();
-        }
-        this.old_drink_water = this.drink_water;
-    }
-
-    public void refresh_bottle(boolean isFromCurrentProgress, boolean isRegularAnimation) {
-        final long animationDuration = isRegularAnimation ? 50 : 5;
-        if (!(this.handler == null || this.runnable == null)) {
-            this.handler.removeCallbacks(this.runnable);
-        }
-        this.btnclick = false;
-        this.cp = this.progress_bottle_height;
-        this.np = Math.round((this.drink_water * ((float) this.max_bottle_height)) / URLFactory.DAILY_WATER_VALUE);
-        if (this.cp <= this.np && isFromCurrentProgress) {
-            this.animationView.setVisibility(View.VISIBLE);
-            this.runnable = new Runnable() {
-                public void run() {
-                    if (Screen_Dashboard.this.cp > Screen_Dashboard.this.max_bottle_height) {
-                        Screen_Dashboard.this.btnclick = true;
-                        Screen_Dashboard.this.callDialog();
-                    } else if (Screen_Dashboard.this.cp < Screen_Dashboard.this.np) {
-                        Screen_Dashboard.this.cp += 6;
-                        Screen_Dashboard.this.content_frame.getLayoutParams().height = Screen_Dashboard.this.cp;
-                        Screen_Dashboard.this.content_frame.requestLayout();
-                        Screen_Dashboard.this.handler.postDelayed(Screen_Dashboard.this.runnable, animationDuration);
-                    } else {
-                        Screen_Dashboard.this.btnclick = true;
-                        Screen_Dashboard.this.callDialog();
-                    }
-                }
-            };
-            this.handler = new Handler();
-            this.handler.postDelayed(this.runnable, animationDuration);
-        } else if (this.np == 0) {
-            this.animationView.setVisibility(View.GONE);
-            this.content_frame.getLayoutParams().height = this.np;
-            this.content_frame.requestLayout();
-            this.btnclick = true;
-            callDialog();
-        } else {
-            this.content_frame.getLayoutParams().height = 0;
-            this.cp = 0;
-            this.animationView.setVisibility(View.VISIBLE);
-            this.runnable = new Runnable() {
-                public void run() {
-                    if (Screen_Dashboard.this.cp > Screen_Dashboard.this.max_bottle_height) {
-                        Screen_Dashboard.this.btnclick = true;
-                        Screen_Dashboard.this.callDialog();
-                    } else if (Screen_Dashboard.this.cp < Screen_Dashboard.this.np) {
-                        Screen_Dashboard.this.cp += 6;
-                        Screen_Dashboard.this.content_frame.getLayoutParams().height = Screen_Dashboard.this.cp;
-                        Screen_Dashboard.this.content_frame.requestLayout();
-                        Screen_Dashboard.this.handler.postDelayed(Screen_Dashboard.this.runnable, animationDuration);
-                    } else {
-                        Screen_Dashboard.this.btnclick = true;
-                        Screen_Dashboard.this.callDialog();
-                    }
-                }
-            };
-            this.handler = new Handler();
-            this.handler.postDelayed(this.runnable, animationDuration);
-        }
-        this.progress_bottle_height = this.np;
-        if (this.np > 0) {
-            this.animationView.setVisibility(View.VISIBLE);
-        } else {
-            this.animationView.setVisibility(View.GONE);
-        }
-    }
-
-    public void count_specific_day_drink(String custom_date) {
-        ArrayList<HashMap<String, String>> arr_dataO = this.dh.getdata("tbl_drink_details", "DrinkDate ='" + custom_date + "'");
-        this.old_drink_water = 0.0f;
-        for (int k = 0; k < arr_dataO.size(); k++) {
-            if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                this.old_drink_water = (float) (((double) this.old_drink_water) + Double.parseDouble("" + ((String) arr_dataO.get(k).get("ContainerValue"))));
-            } else {
-                this.old_drink_water = (float) (((double) this.old_drink_water) + Double.parseDouble("" + ((String) arr_dataO.get(k).get("ContainerValueOZ"))));
-            }
-        }
-        ArrayList<HashMap<String, String>> arr_data22 = this.dh.getdata("tbl_drink_details", "DrinkDate ='" + custom_date + "'", "id", 1);
-        double total_drink = Utils.DOUBLE_EPSILON;
-        if (arr_data22.size() > 0) {
-            if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                total_drink = Double.parseDouble((String) arr_data22.get(0).get("TodayGoal"));
-            } else {
-                total_drink = Double.parseDouble((String) arr_data22.get(0).get("TodayGoalOZ"));
-            }
-        }
-        ArrayList<HashMap<String, String>> arr_data = this.dh.getdata("tbl_drink_details", "DrinkDate ='" + custom_date + "'");
-        this.drink_water = 0.0f;
-        for (int k2 = 0; k2 < arr_data.size(); k2++) {
-            if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                this.drink_water += (float) Integer.parseInt((String) arr_data.get(k2).get("ContainerValue"));
-            } else {
-                this.drink_water += (float) Integer.parseInt((String) arr_data.get(k2).get("ContainerValueOZ"));
-            }
-        }
-        if (custom_date.equalsIgnoreCase(this.dth.getCurrentDate(URLFactory.DATE_FORMAT))) {
-            URLFactory.DAILY_WATER_VALUE = this.ph.getFloat(URLFactory.DAILY_WATER);
-        } else if (total_drink > Utils.DOUBLE_EPSILON) {
-            URLFactory.DAILY_WATER_VALUE = Float.parseFloat("" + total_drink);
-        } else {
-            URLFactory.DAILY_WATER_VALUE = this.ph.getFloat(URLFactory.DAILY_WATER);
-        }
-        this.lbl_total_drunk.setText(getData("" + ((int) this.drink_water) + " " + URLFactory.WATER_UNIT_VALUE));
-        this.lbl_total_goal.setText(getData("" + ((int) URLFactory.DAILY_WATER_VALUE) + " " + URLFactory.WATER_UNIT_VALUE));
-        refresh_bottle(false, false);
-    }
-
-    public Activity getActivity() {
-        return this.act;
-    }
-
-    public void setCustomDate(String date) {
-        count_specific_day_drink(date);
-    }
-
-    public void openChangeContainerPicker() {
-        this.bottomSheetDialog = new BottomSheetDialog(this.act);
-        this.bottomSheetDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            public void onShow(DialogInterface dialog) {
-                FrameLayout bottomSheet = (FrameLayout) ((BottomSheetDialog) dialog).findViewById(com.google.android.material.R.id.design_bottom_sheet);
-                if (bottomSheet != null) {
-                    BottomSheetBehavior from = BottomSheetBehavior.from(bottomSheet);
-                    bottomSheet.setBackground((Drawable) null);
-                }
-            }
-        });
-        View view = LayoutInflater.from(this.act).inflate(R.layout.bottom_sheet_change_container, (ViewGroup) null, false);
-        RecyclerView containerRecyclerViewN = (RecyclerView) view.findViewById(R.id.containerRecyclerView);
-        containerRecyclerViewN.setLayoutManager(new GridLayoutManager((Context) this.act, 3, RecyclerView.VERTICAL, false));
-        containerRecyclerViewN.setAdapter(this.adapter);
-        ((RelativeLayout) view.findViewById(R.id.add_custom_container)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Dashboard.this.bottomSheetDialog.dismiss();
-                Screen_Dashboard.this.openCustomContainerPicker();
-            }
-        });
-        this.bottomSheetDialog.setContentView(view);
-        this.bottomSheetDialog.show();
-    }
-
-    public void openCustomContainerPicker() {
-        final Dialog dialog = new Dialog(this.act);
-        dialog.requestWindowFeature(1);
-        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setSoftInputMode(16);
-        View view = LayoutInflater.from(this.act).inflate(R.layout.bottom_sheet_add_custom_container, (ViewGroup) null, false);
-        RelativeLayout btn_cancel = (RelativeLayout) view.findViewById(R.id.btn_cancel);
-        RelativeLayout btn_add = (RelativeLayout) view.findViewById(R.id.btn_add);
-        ImageView img_cancel = (ImageView) view.findViewById(R.id.img_cancel);
-        final AppCompatEditText txt_value = (AppCompatEditText) view.findViewById(R.id.txt_value);
-        ((AppCompatTextView) view.findViewById(R.id.lbl_unit)).setText(this.sh.get_string(R.string.str_capacity).replace("$1", URLFactory.WATER_UNIT_VALUE));
-        if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-            txt_value.setFilters(new InputFilter[]{new InputFilterWeightRange(1.0d, 8000.0d)});
-        } else {
-            txt_value.setFilters(new InputFilter[]{new InputFilterWeightRange(1.0d, 270.0d)});
-        }
-        txt_value.requestFocus();
-        btn_cancel.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.cancel();
-            }
-        });
-        img_cancel.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.cancel();
-            }
-        });
-        btn_add.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                double tfloz;
-                double tml;
-                if (Screen_Dashboard.this.sh.check_blank_data(txt_value.getText().toString().trim())) {
-                    Screen_Dashboard.this.ah.customAlert(Screen_Dashboard.this.sh.get_string(R.string.str_enter_value_validation));
-                } else if (Integer.parseInt(txt_value.getText().toString().trim()) == 0) {
-                    Screen_Dashboard.this.ah.customAlert(Screen_Dashboard.this.sh.get_string(R.string.str_enter_value_validation));
-                } else {
-                    if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                        tml = (double) Float.parseFloat(txt_value.getText().toString().trim());
-                        tfloz = HeightWeightHelper.mlToOzConverter(tml);
-                    } else {
-                        tfloz = (double) Float.parseFloat(txt_value.getText().toString().trim());
-                        tml = HeightWeightHelper.ozToMlConverter(tfloz);
-                    }
-                    Log.d("HeightWeightHelper", "" + tml + " @@@ " + tfloz);
-                    Cursor c = Constant.SDB.rawQuery("SELECT MAX(ContainerID) FROM tbl_container_details", (String[]) null);
-                    int nextContainerID = 0;
-                    try {
-                        if (c.getCount() > 0) {
-                            c.moveToNext();
-                            nextContainerID = Integer.parseInt(c.getString(0)) + 1;
-                        }
-                    } catch (Exception e) {
-                    }
-                    ContentValues initialValues = new ContentValues();
-                    initialValues.put("ContainerID", "" + nextContainerID);
-                    initialValues.put("ContainerValue", "" + Math.round(tml));
-                    initialValues.put("ContainerValueOZ", "" + Math.round(tfloz));
-                    initialValues.put("IsOpen", "1");
-                    initialValues.put("IsCustom", "1");
-                    Screen_Dashboard.this.dh.INSERT("tbl_container_details", initialValues);
-                    Screen_Dashboard.this.load_all_container();
-                    Screen_Dashboard.this.ph.savePreferences(URLFactory.SELECTED_CONTAINER, nextContainerID);
-                    int tmp_pos = -1;
-                    for (int k = 0; k < Screen_Dashboard.this.containerArrayList.size(); k++) {
-                        try {
-                            if (nextContainerID == Integer.parseInt(Screen_Dashboard.this.containerArrayList.get(k).getContainerId())) {
-                                Screen_Dashboard.this.containerArrayList.get(k).isSelected(true);
-                                tmp_pos = k;
-                            } else {
-                                Screen_Dashboard.this.containerArrayList.get(k).isSelected(false);
-                            }
-                        } catch (Exception e2) {
-                            Screen_Dashboard.this.containerArrayList.get(k).isSelected(false);
-                        }
-                    }
-                    String unit = Screen_Dashboard.this.ph.getString(URLFactory.WATER_UNIT);
-                    if (tmp_pos >= 0) {
-                        Screen_Dashboard.this.selected_pos = tmp_pos;
-                        Container menu = Screen_Dashboard.this.containerArrayList.get(tmp_pos);
-                        if (unit.equalsIgnoreCase("ml")) {
-                            Screen_Dashboard.this.container_name.setText("" + menu.getContainerValue() + " " + unit);
-                            if (menu.isCustom()) {
-                                Glide.with(Screen_Dashboard.this.mContext).load(Integer.valueOf(R.drawable.ic_custom_ml)).into(Screen_Dashboard.this.img_selected_container);
-                            } else {
-                                Glide.with(Screen_Dashboard.this.mContext).load(Screen_Dashboard.this.getImage(menu.getContainerValue())).into(Screen_Dashboard.this.img_selected_container);
-                            }
-                        } else {
-                            Screen_Dashboard.this.container_name.setText("" + menu.getContainerValueOZ() + " " + unit);
-                            if (menu.isCustom()) {
-                                Glide.with(Screen_Dashboard.this.mContext).load(Integer.valueOf(R.drawable.ic_custom_ml)).into(Screen_Dashboard.this.img_selected_container);
-                            } else {
-                                Glide.with(Screen_Dashboard.this.mContext).load(Screen_Dashboard.this.getImage(menu.getContainerValueOZ())).into(Screen_Dashboard.this.img_selected_container);
-                            }
-                        }
-                    }
-                    Screen_Dashboard.this.adapter.notifyDataSetChanged();
-                    dialog.dismiss();
-                }
-            }
-        });
-        dialog.setContentView(view);
-        dialog.show();
-    }
-
-    public Integer getImage(String val) {
-        Integer drawable = Integer.valueOf(R.drawable.ic_custom_ml);
-        if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-            if (Double.parseDouble(val) == 50.0d) {
-                return Integer.valueOf(R.drawable.ic_50_ml);
-            }
-            if (Double.parseDouble(val) == 100.0d) {
-                return Integer.valueOf(R.drawable.ic_100_ml);
-            }
-            if (Double.parseDouble(val) == 150.0d) {
-                return Integer.valueOf(R.drawable.ic_150_ml);
-            }
-            if (Double.parseDouble(val) == 200.0d) {
-                return Integer.valueOf(R.drawable.ic_200_ml);
-            }
-            if (Double.parseDouble(val) == 250.0d) {
-                return Integer.valueOf(R.drawable.ic_250_ml);
-            }
-            if (Double.parseDouble(val) == 300.0d) {
-                return Integer.valueOf(R.drawable.ic_300_ml);
-            }
-            if (Double.parseDouble(val) == 500.0d) {
-                return Integer.valueOf(R.drawable.ic_500_ml);
-            }
-            if (Double.parseDouble(val) == 600.0d) {
-                return Integer.valueOf(R.drawable.ic_600_ml);
-            }
-            if (Double.parseDouble(val) == 700.0d) {
-                return Integer.valueOf(R.drawable.ic_700_ml);
-            }
-            if (Double.parseDouble(val) == 800.0d) {
-                return Integer.valueOf(R.drawable.ic_800_ml);
-            }
-            if (Double.parseDouble(val) == 900.0d) {
-                return Integer.valueOf(R.drawable.ic_900_ml);
-            }
-            if (Double.parseDouble(val) == 1000.0d) {
-                return Integer.valueOf(R.drawable.ic_1000_ml);
-            }
-            return drawable;
-        } else if (Double.parseDouble(val) == 2.0d) {
-            return Integer.valueOf(R.drawable.ic_50_ml);
-        } else {
-            if (Double.parseDouble(val) == 3.0d) {
-                return Integer.valueOf(R.drawable.ic_100_ml);
-            }
-            if (Double.parseDouble(val) == 5.0d) {
-                return Integer.valueOf(R.drawable.ic_150_ml);
-            }
-            if (Double.parseDouble(val) == 7.0d) {
-                return Integer.valueOf(R.drawable.ic_200_ml);
-            }
-            if (Double.parseDouble(val) == 8.0d) {
-                return Integer.valueOf(R.drawable.ic_250_ml);
-            }
-            if (Double.parseDouble(val) == 10.0d) {
-                return Integer.valueOf(R.drawable.ic_300_ml);
-            }
-            if (Double.parseDouble(val) == 17.0d) {
-                return Integer.valueOf(R.drawable.ic_500_ml);
-            }
-            if (Double.parseDouble(val) == 20.0d) {
-                return Integer.valueOf(R.drawable.ic_600_ml);
-            }
-            if (Double.parseDouble(val) == 24.0d) {
-                return Integer.valueOf(R.drawable.ic_700_ml);
-            }
-            if (Double.parseDouble(val) == 27.0d) {
-                return Integer.valueOf(R.drawable.ic_800_ml);
-            }
-            if (Double.parseDouble(val) == 30.0d) {
-                return Integer.valueOf(R.drawable.ic_900_ml);
-            }
-            if (Double.parseDouble(val) == 34.0d) {
-                return Integer.valueOf(R.drawable.ic_1000_ml);
-            }
-            return drawable;
-        }
-    }
-
-    public void showDailyGoalReachedDialog() {
-        final Dialog dialog = new Dialog(this.act);
-        dialog.requestWindowFeature(1);
-        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setSoftInputMode(16);
-        View view = LayoutInflater.from(this.act).inflate(R.layout.dialog_goal_reached, (ViewGroup) null, false);
-        ((ImageView) view.findViewById(R.id.img_cancel)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        ((RelativeLayout) view.findViewById(R.id.btn_share)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.dismiss();
-                String packageName = Screen_Dashboard.this.mContext.getPackageName();
-                String str = Screen_Dashboard.this.sh.get_string(R.string.str_share_text);
-                String share_text = str.replace("$1", "" + ((int) Screen_Dashboard.this.drink_water) + " " + URLFactory.WATER_UNIT_VALUE);
-                StringBuilder sb = new StringBuilder();
-                sb.append("@ ");
-                sb.append(URLFactory.APP_SHARE_URL);
-                Screen_Dashboard.this.ih.ShareText(Screen_Dashboard.getApplicationName(Screen_Dashboard.this.mContext), share_text.replace("$2", sb.toString()));
-            }
-        });
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            public void onDismiss(DialogInterface dialog) {
-            }
-        });
-        dialog.setContentView(view);
-        dialog.show();
-    }
-
-    public void showDailyMoreThanTargetDialog() {
-        final Dialog dialog = new Dialog(this.act);
-        dialog.requestWindowFeature(1);
-        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setSoftInputMode(16);
-        View view = LayoutInflater.from(this.act).inflate(R.layout.dialog_goal_target_reached, (ViewGroup) null, false);
-        AppCompatTextView lbl_desc = (AppCompatTextView) view.findViewById(R.id.lbl_desc);
-        ImageView img_cancel = (ImageView) view.findViewById(R.id.img_cancel);
-        View findViewById = view.findViewById(R.id.btn_share);
-        ImageView img_bottle = (ImageView) view.findViewById(R.id.img_bottle);
-        if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-            img_bottle.setImageResource(R.drawable.ic_limit_ml);
-        } else {
-            img_bottle.setImageResource(R.drawable.ic_limit_oz);
-        }
-        lbl_desc.setText(this.sh.get_string(R.string.str_you_should_not_drink_more_then_target).replace("$1", URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml") ? "8000 ml" : "270 fl oz"));
-        img_cancel.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        dialog.setContentView(view);
-        dialog.show();
-    }
-
-    public void showReminderDialog() {
-        final Dialog dialog = new Dialog(this.act);
-        dialog.requestWindowFeature(1);
-        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setSoftInputMode(16);
-        View view = LayoutInflater.from(this.act).inflate(R.layout.dialog_reminder, (ViewGroup) null, false);
-        ImageView img_cancel = (ImageView) view.findViewById(R.id.img_cancel);
-        RelativeLayout btn_save = (RelativeLayout) view.findViewById(R.id.btn_save);
-        final RelativeLayout off_block = (RelativeLayout) view.findViewById(R.id.off_block);
-        final RelativeLayout silent_block = (RelativeLayout) view.findViewById(R.id.silent_block);
-        final RelativeLayout auto_block = (RelativeLayout) view.findViewById(R.id.auto_block);
-        final ImageView img_off = (ImageView) view.findViewById(R.id.img_off);
-        final ImageView img_silent = (ImageView) view.findViewById(R.id.img_silent);
-        final ImageView img_auto = (ImageView) view.findViewById(R.id.img_auto);
-        AppCompatTextView advance_settings = (AppCompatTextView) view.findViewById(R.id.advance_settings);
-        advance_settings.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.dismiss();
-                Screen_Dashboard.this.startActivity(new Intent(Screen_Dashboard.this.act, Screen_Reminder.class));
-            }
-        });
-        LinearLayout custom_sound_block = (LinearLayout) view.findViewById(R.id.custom_sound_block);
-        custom_sound_block.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Dashboard.this.openSoundMenuPicker();
-            }
-        });
-        SwitchCompat switch_vibrate2 = (SwitchCompat) view.findViewById(R.id.switch_vibrate);
-        switch_vibrate2.setChecked(!this.ph.getBoolean(URLFactory.REMINDER_VIBRATE));
-        switch_vibrate2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Screen_Dashboard.this.ph.savePreferences(URLFactory.REMINDER_VIBRATE, !isChecked);
-            }
-        });
-        if (this.ph.getInt(URLFactory.REMINDER_OPTION) == 1) {
-            off_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
-            img_off.setImageResource(R.drawable.ic_off_selected);
-            silent_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-            img_silent.setImageResource(R.drawable.ic_silent_normal);
-            auto_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-            img_auto.setImageResource(R.drawable.ic_auto_normal);
-        } else if (this.ph.getInt(URLFactory.REMINDER_OPTION) == 2) {
-            off_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-            img_off.setImageResource(R.drawable.ic_off_normal);
-            silent_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
-            img_silent.setImageResource(R.drawable.ic_silent_selected);
-            auto_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-            img_auto.setImageResource(R.drawable.ic_auto_normal);
-        } else {
-            off_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-            img_off.setImageResource(R.drawable.ic_off_normal);
-            silent_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-            img_silent.setImageResource(R.drawable.ic_silent_normal);
-            auto_block.setBackground(this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
-            img_auto.setImageResource(R.drawable.ic_auto_selected);
-        }
-
-        off_block.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                off_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
-                img_off.setImageResource(R.drawable.ic_off_selected);
-                silent_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_silent.setImageResource(R.drawable.ic_silent_normal);
-                auto_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_auto.setImageResource(R.drawable.ic_auto_normal);
-                Screen_Dashboard.this.ph.savePreferences(URLFactory.REMINDER_OPTION, 1);
-            }
-        });
-        silent_block.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                off_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_off.setImageResource(R.drawable.ic_off_normal);
-                silent_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
-                img_silent.setImageResource(R.drawable.ic_silent_selected);
-                auto_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_auto.setImageResource(R.drawable.ic_auto_normal);
-                Screen_Dashboard.this.ph.savePreferences(URLFactory.REMINDER_OPTION, 2);
-            }
-        });
-        auto_block.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                off_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_off.setImageResource(R.drawable.ic_off_normal);
-                silent_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_unselected));
-                img_silent.setImageResource(R.drawable.ic_silent_normal);
-                auto_block.setBackground(Screen_Dashboard.this.mContext.getResources().getDrawable(R.drawable.drawable_circle_selected));
-                img_auto.setImageResource(R.drawable.ic_auto_selected);
-                Screen_Dashboard.this.ph.savePreferences(URLFactory.REMINDER_OPTION, 0);
-            }
-        });
-        img_cancel.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        btn_save.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        dialog.setContentView(view);
-        dialog.show();
-    }
-
-    public void openSoundMenuPicker() {
-        loadSounds();
-        final Dialog dialog = new Dialog(this.act);
-        dialog.requestWindowFeature(1);
-        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setSoftInputMode(16);
-        View view = LayoutInflater.from(this.act).inflate(R.layout.dialog_sound_pick, (ViewGroup) null, false);
-        ((RelativeLayout) view.findViewById(R.id.btn_cancel)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        ((RelativeLayout) view.findViewById(R.id.btn_save)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                int k = 0;
-                while (true) {
-                    if (k >= Screen_Dashboard.this.lst_sounds.size()) {
-                        break;
-                    } else if (Screen_Dashboard.this.lst_sounds.get(k).isSelected()) {
-                        Screen_Dashboard.this.ph.savePreferences(URLFactory.REMINDER_SOUND, k);
-                        break;
-                    } else {
-                        k++;
-                    }
-                }
-                dialog.dismiss();
-            }
-        });
-        RecyclerView soundRecyclerView = (RecyclerView) view.findViewById(R.id.soundRecyclerView);
-        this.soundAdapter = new SoundAdapter(this.act, this.lst_sounds, new SoundAdapter.CallBack() {
-            public void onClickSelect(SoundModel time, int position) {
-                for (int k = 0; k < Screen_Dashboard.this.lst_sounds.size(); k++) {
-                    Screen_Dashboard.this.lst_sounds.get(k).isSelected(false);
-                }
-                Screen_Dashboard.this.lst_sounds.get(position).isSelected(true);
-                Screen_Dashboard.this.soundAdapter.notifyDataSetChanged();
-                Screen_Dashboard.this.playSound(position);
-            }
-        });
-        soundRecyclerView.setLayoutManager(new LinearLayoutManager(this.act, RecyclerView.VERTICAL, false));
-        soundRecyclerView.setAdapter(this.soundAdapter);
-        dialog.setContentView(view);
-        dialog.show();
-    }
-
-    public void loadSounds() {
-        this.lst_sounds.clear();
-        this.lst_sounds.add(getSoundModel(0, "Default"));
-        this.lst_sounds.add(getSoundModel(1, "Bell"));
-        this.lst_sounds.add(getSoundModel(2, "Blop"));
-        this.lst_sounds.add(getSoundModel(3, "Bong"));
-        this.lst_sounds.add(getSoundModel(4, "Click"));
-        this.lst_sounds.add(getSoundModel(5, "Echo droplet"));
-        this.lst_sounds.add(getSoundModel(6, "Mario droplet"));
-        this.lst_sounds.add(getSoundModel(7, "Ship bell"));
-        this.lst_sounds.add(getSoundModel(8, "Simple droplet"));
-        this.lst_sounds.add(getSoundModel(9, "Tiny droplet"));
-    }
-
-    public SoundModel getSoundModel(int index, String name) {
-        SoundModel soundModel = new SoundModel();
-        soundModel.setId(index);
-        soundModel.setName(name);
-        soundModel.isSelected(this.ph.getInt(URLFactory.REMINDER_SOUND) == index);
-        return soundModel;
-    }
-
-    public void playSound(int idx) {
-        MediaPlayer mp = null;
-        if (idx == 0) {
-            mp = MediaPlayer.create(this, Settings.System.DEFAULT_NOTIFICATION_URI);
-        } else if (idx == 1) {
-            mp = MediaPlayer.create(this, R.raw.bell);
-        } else if (idx == 2) {
-            mp = MediaPlayer.create(this, R.raw.blop);
-        } else if (idx == 3) {
-            mp = MediaPlayer.create(this, R.raw.bong);
-        } else if (idx == 4) {
-            mp = MediaPlayer.create(this, R.raw.click);
-        } else if (idx == 5) {
-            mp = MediaPlayer.create(this, R.raw.echo_droplet);
-        } else if (idx == 6) {
-            mp = MediaPlayer.create(this, R.raw.mario_droplet);
-        } else if (idx == 7) {
-            mp = MediaPlayer.create(this, R.raw.ship_bell);
-        } else if (idx == 8) {
-            mp = MediaPlayer.create(this, R.raw.simple_droplet);
-        } else if (idx == 9) {
-            mp = MediaPlayer.create(this, R.raw.tiny_droplet);
-        }
-        mp.start();
-    }
-
+    @Override
     public void onBackPressed() {
-        try {
-            if (this.mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
-                this.mDrawerLayout.closeDrawer(android.view.Gravity.LEFT);
-            } else {
-                finish();
-            }
-        } catch (Exception e) {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (reminderHandler != null) reminderHandler.removeCallbacks(reminderRunnable);
+        if (animationHandler != null) animationHandler.removeCallbacks(animationRunnable);
+        super.onDestroy();
     }
 }

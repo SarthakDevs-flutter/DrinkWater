@@ -9,266 +9,289 @@ import java.util.List;
 public class BackupRestore {
     @SerializedName("AlarmDetails")
     @Expose
-    private List<AlarmDetails> alarmDetailsList = new ArrayList();
+    private List<AlarmDetails> alarmDetailsList = new ArrayList<>();
+    
     @SerializedName("auto_backup")
     @Expose
-    private boolean auto_backup = false;
+    private boolean autoBackup = false;
+    
     @SerializedName("auto_backup_id")
     @Expose
-    private Integer auto_backup_id = 0;
+    private Integer autoBackupId = 0;
+    
     @SerializedName("auto_backup_type")
     @Expose
-    private Integer auto_backup_type = 0;
+    private Integer autoBackupType = 0;
+    
     @SerializedName("ContainerDetails")
     @Expose
-    private List<ContainerDetails> containerDetailsList = new ArrayList();
+    private List<ContainerDetails> containerDetailsList = new ArrayList<>();
+    
     @SerializedName("disable_notification")
     @Expose
-    private boolean disable_notification = false;
+    private boolean disableNotification = false;
+    
     @SerializedName("disable_sound")
     @Expose
-    private boolean disable_sound = false;
+    private boolean disableSound = false;
+    
     @SerializedName("DrinkDetails")
     @Expose
-    private List<DrinkDetails> drinkDetailsList = new ArrayList();
+    private List<DrinkDetails> drinkDetailsList = new ArrayList<>();
+    
     @SerializedName("isCMUnit")
     @Expose
     private boolean isCMUnit = true;
+    
     @SerializedName("isKgUnit")
     @Expose
     private boolean isKgUnit = true;
+    
     @SerializedName("isMlUnit")
     @Expose
     private boolean isMlUnit = true;
+    
     @SerializedName("is_active")
     @Expose
-    private boolean is_active = false;
+    private boolean isActive = false;
+    
     @SerializedName("is_breastfeeding")
     @Expose
-    private boolean is_breastfeeding = false;
+    private boolean isBreastfeeding = false;
+    
     @SerializedName("is_pregnant")
     @Expose
-    private boolean is_pregnant = false;
+    private boolean isPregnant = false;
+    
     @SerializedName("manual_reminder_active")
     @Expose
-    private boolean manual_reminder_active = true;
+    private boolean manualReminderActive = true;
+    
     @SerializedName("reminder_option")
     @Expose
-    private Integer reminder_option;
+    private Integer reminderOption;
+    
     @SerializedName("reminder_sound")
     @Expose
-    private Integer reminder_sound;
+    private Integer reminderSound;
+    
     @SerializedName("reminder_vibrate")
     @Expose
-    private boolean reminder_vibrate = true;
+    private boolean reminderVibrate = true;
+    
     @SerializedName("total_drink")
     @Expose
-    private float total_drink;
+    private float totalDrink;
+    
     @SerializedName("total_height")
     @Expose
-    private String total_height;
+    private String totalHeight;
+    
     @SerializedName("total_weight")
     @Expose
-    private String total_weight;
+    private String totalWeight;
+    
     @SerializedName("user_gender")
     @Expose
-    private boolean user_gender = true;
+    private boolean userGender = true;
+    
     @SerializedName("user_name")
     @Expose
-    private String user_name;
+    private String userName;
+    
     @SerializedName("weather_conditions")
     @Expose
-    private Integer weather_conditions = 0;
+    private Integer weatherConditions = 0;
 
     public List<AlarmDetails> getAlarmDetails() {
         return this.alarmDetailsList;
     }
 
-    public void setAlarmDetails(List<AlarmDetails> alarmDetailsList2) {
-        this.alarmDetailsList = alarmDetailsList2;
+    public void setAlarmDetails(List<AlarmDetails> alarmDetailsList) {
+        this.alarmDetailsList = alarmDetailsList;
     }
 
     public List<ContainerDetails> getContainerDetails() {
         return this.containerDetailsList;
     }
 
-    public void setContainerDetails(List<ContainerDetails> containerDetailsList2) {
-        this.containerDetailsList = containerDetailsList2;
+    public void setContainerDetails(List<ContainerDetails> containerDetailsList) {
+        this.containerDetailsList = containerDetailsList;
     }
 
     public List<DrinkDetails> getDrinkDetails() {
         return this.drinkDetailsList;
     }
 
-    public void setDrinkDetails(List<DrinkDetails> drinkDetailsList2) {
-        this.drinkDetailsList = drinkDetailsList2;
+    public void setDrinkDetails(List<DrinkDetails> drinkDetailsList) {
+        this.drinkDetailsList = drinkDetailsList;
     }
 
     public String getTotalWeight() {
-        return this.total_weight;
+        return this.totalWeight;
     }
 
-    public void setTotalWeight(String total_weight2) {
-        this.total_weight = total_weight2;
+    public void setTotalWeight(String totalWeight) {
+        this.totalWeight = totalWeight;
     }
 
     public float getTotalDrink() {
-        return this.total_drink;
+        return this.totalDrink;
     }
 
-    public void setTotalDrink(float total_drink2) {
-        this.total_drink = total_drink2;
+    public void setTotalDrink(float totalDrink) {
+        this.totalDrink = totalDrink;
     }
 
     public boolean isKgUnit() {
         return this.isKgUnit;
     }
 
-    public void isKgUnit(boolean isKgUnit2) {
-        this.isKgUnit = isKgUnit2;
+    public void setKgUnit(boolean kgUnit) {
+        this.isKgUnit = kgUnit;
     }
 
     public boolean isMlUnit() {
         return this.isMlUnit;
     }
 
-    public void isMlUnit(boolean isMlUnit2) {
-        this.isMlUnit = isMlUnit2;
+    public void setMlUnit(boolean mlUnit) {
+        this.isMlUnit = mlUnit;
     }
 
     public String getTotalHeight() {
-        return this.total_height;
+        return this.totalHeight;
     }
 
-    public void setTotalHeight(String total_height2) {
-        this.total_height = total_height2;
+    public void setTotalHeight(String totalHeight) {
+        this.totalHeight = totalHeight;
     }
 
     public String getUserName() {
-        return this.user_name;
+        return this.userName;
     }
 
-    public void setUserName(String user_name2) {
-        this.user_name = user_name2;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public boolean getUserGender() {
-        return this.user_gender;
+        return this.userGender;
     }
 
-    public void setUserGender(boolean user_gender2) {
-        this.user_gender = user_gender2;
+    public void setUserGender(boolean userGender) {
+        this.userGender = userGender;
     }
 
     public boolean isCMUnit() {
         return this.isCMUnit;
     }
 
-    public void isCMUnit(boolean isCMUnit2) {
-        this.isCMUnit = isCMUnit2;
+    public void setCMUnit(boolean CMUnit) {
+        this.isCMUnit = CMUnit;
     }
 
     public Integer getReminderOption() {
-        return this.reminder_option;
+        return this.reminderOption;
     }
 
-    public void setReminderOption(Integer reminder_option2) {
-        this.reminder_option = reminder_option2;
+    public void setReminderOption(Integer reminderOption) {
+        this.reminderOption = reminderOption;
     }
 
     public Integer getReminderSound() {
-        return this.reminder_sound;
+        return this.reminderSound;
     }
 
-    public void setReminderSound(Integer reminder_sound2) {
-        this.reminder_sound = reminder_sound2;
+    public void setReminderSound(Integer reminderSound) {
+        this.reminderSound = reminderSound;
     }
 
     public boolean isReminderVibrate() {
-        return this.reminder_vibrate;
+        return this.reminderVibrate;
     }
 
-    public void isReminderVibrate(boolean reminder_vibrate2) {
-        this.reminder_vibrate = reminder_vibrate2;
+    public void setReminderVibrate(boolean reminderVibrate) {
+        this.reminderVibrate = reminderVibrate;
     }
 
-    public boolean isDisableNotifiction() {
-        return this.disable_notification;
+    public boolean isDisableNotification() {
+        return this.disableNotification;
     }
 
-    public void isDisableNotifiction(boolean disable_notification2) {
-        this.disable_notification = disable_notification2;
+    public void setDisableNotification(boolean disableNotification) {
+        this.disableNotification = disableNotification;
     }
 
     public boolean isManualReminderActive() {
-        return this.manual_reminder_active;
+        return this.manualReminderActive;
     }
 
-    public void isManualReminderActive(boolean manual_reminder_active2) {
-        this.manual_reminder_active = manual_reminder_active2;
+    public void setManualReminderActive(boolean manualReminderActive) {
+        this.manualReminderActive = manualReminderActive;
     }
 
     public boolean isDisableSound() {
-        return this.disable_sound;
+        return this.disableSound;
     }
 
-    public void isDisableSound(boolean disable_sound2) {
-        this.disable_sound = disable_sound2;
+    public void setDisableSound(boolean disableSound) {
+        this.disableSound = disableSound;
     }
 
     public boolean isAutoBackup() {
-        return this.auto_backup;
+        return this.autoBackup;
     }
 
-    public void isAutoBackup(boolean auto_backup2) {
-        this.auto_backup = auto_backup2;
+    public void setAutoBackup(boolean autoBackup) {
+        this.autoBackup = autoBackup;
     }
 
     public Integer getAutoBackupType() {
-        return this.auto_backup_type;
+        return this.autoBackupType;
     }
 
-    public void setAutoBackupType(Integer auto_backup_type2) {
-        this.auto_backup_type = auto_backup_type2;
+    public void setAutoBackupType(Integer autoBackupType) {
+        this.autoBackupType = autoBackupType;
     }
 
     public Integer getAutoBackupId() {
-        return this.auto_backup_id;
+        return this.autoBackupId;
     }
 
-    public void setAutoBackupID(Integer auto_backup_id2) {
-        this.auto_backup_id = auto_backup_id2;
+    public void setAutoBackupId(Integer autoBackupId) {
+        this.autoBackupId = autoBackupId;
     }
 
     public boolean isActive() {
-        return this.is_active;
+        return this.isActive;
     }
 
-    public void isActive(boolean is_active2) {
-        this.is_active = is_active2;
+    public void setActive(boolean active) {
+        this.isActive = active;
     }
 
     public boolean isPregnant() {
-        return this.is_pregnant;
+        return this.isPregnant;
     }
 
-    public void isPregnant(boolean is_pregnant2) {
-        this.is_pregnant = is_pregnant2;
+    public void setPregnant(boolean pregnant) {
+        this.isPregnant = pregnant;
     }
 
     public boolean isBreastfeeding() {
-        return this.is_breastfeeding;
+        return this.isBreastfeeding;
     }
 
-    public void isBreastfeeding(boolean is_breastfeeding2) {
-        this.is_breastfeeding = is_breastfeeding2;
+    public void setBreastfeeding(boolean breastfeeding) {
+        this.isBreastfeeding = breastfeeding;
     }
 
     public Integer getWeatherConditions() {
-        return this.weather_conditions;
+        return this.weatherConditions;
     }
 
-    public void setWeatherConditions(Integer weather_conditions2) {
-        this.weather_conditions = weather_conditions2;
+    public void setWeatherConditions(Integer weatherConditions) {
+        this.weatherConditions = weatherConditions;
     }
 }

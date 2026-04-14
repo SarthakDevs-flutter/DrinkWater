@@ -1,8 +1,8 @@
 package com.trending.water.drinking.reminder.model;
 
 public class BackUpFileModel {
-    boolean isSelected = false;
-    private long lastmodify;
+    private boolean isSelected = false;
+    private long lastModify;
     private String name = "";
     private String path = "";
 
@@ -10,31 +10,31 @@ public class BackUpFileModel {
         return this.name;
     }
 
-    public void setName(String name2) {
-        this.name = name2;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPath() {
         return this.path;
     }
 
-    public void setPath(String path2) {
-        this.path = path2;
+    public void setPath(String path) {
+        this.path = path;
     }
 
-    public long getLastmodify() {
-        return this.lastmodify;
+    public long getLastModify() {
+        return this.lastModify;
     }
 
-    public void setLastmodify(long lastmodify2) {
-        this.lastmodify = lastmodify2;
+    public void setLastModify(long lastModify) {
+        this.lastModify = lastModify;
     }
 
     public boolean isSelected() {
         return this.isSelected;
     }
 
-    public void isSelected(boolean isSelected2) {
-        this.isSelected = isSelected2;
+    public void setSelected(boolean isSelected) {
+        this.isSelected = isSelected;
     }
 }

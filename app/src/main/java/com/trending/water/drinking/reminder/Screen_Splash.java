@@ -5,59 +5,92 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.widget.ImageView;
 
-import com.trending.water.drinking.reminder.appbasiclibs.utils.String_Helper;
+import androidx.annotation.Nullable;
+
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.mywidgets.NewAppWidget;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
 public class Screen_Splash extends MasterBaseAppCompatActivity {
-    Handler handler;
-    ImageView img_splash_logo;
-    int millisecond = 1000;
-    Runnable runnable;
+    
+    private static final int SPLASH_DELAY = 1000;
+    
+    private ImageView imgSplashLogo;
+    private Handler splashHandler;
+    private Runnable splashRunnable;
 
-    /* access modifiers changed from: protected */
-    public void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView((int) R.layout.screen_splash);
-        this.img_splash_logo = (ImageView) findViewById(R.id.img_splash_logo);
-        Intent intent = new Intent(this.act, NewAppWidget.class);
-        intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
-        intent.putExtra("appWidgetIds", AppWidgetManager.getInstance(this.act).getAppWidgetIds(new ComponentName(this.act, NewAppWidget.class)));
-        this.act.sendBroadcast(intent);
+        setContentView(R.layout.screen_splash);
+        
+        findViewByIds();
+        updateWidgets();
     }
 
-    /* access modifiers changed from: protected */
-    public void onResume() {
+    private void findViewByIds() {
+        imgSplashLogo = findViewById(R.id.img_splash_logo);
+    }
+
+    private void updateWidgets() {
+        Intent intent = new Intent(this, NewAppWidget.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        int[] ids = AppWidgetManager.getInstance(this).getAppWidgetIds(new ComponentName(this, NewAppWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        sendBroadcast(intent);
+    }
+
+    @Override
+    protected void onResume() {
         super.onResume();
-        if (this.ph.getFloat(URLFactory.DAILY_WATER) == 0.0f) {
-            URLFactory.DAILY_WATER_VALUE = 2500.0f;
+        initAppData();
+        startSplashScreen();
+    }
+
+    private void initAppData() {
+        float dailyWaterGoal = preferencesHelper.getFloat(URLFactory.KEY_DAILY_WATER_GOAL, 0.0f);
+        if (dailyWaterGoal == 0.0f) {
+            URLFactory.dailyWaterValue = 2500.0f;
         } else {
-            URLFactory.DAILY_WATER_VALUE = this.ph.getFloat(URLFactory.DAILY_WATER);
+            URLFactory.dailyWaterValue = dailyWaterGoal;
         }
-        String_Helper string_Helper = this.sh;
-        if (string_Helper.check_blank_data("" + this.ph.getString(URLFactory.WATER_UNIT))) {
-            URLFactory.WATER_UNIT_VALUE = "ml";
+
+        String unit = preferencesHelper.getString(URLFactory.KEY_WATER_UNIT, "");
+        if (stringHelper.check_blank_data(unit)) {
+            URLFactory.waterUnitValue = "ML";
         } else {
-            URLFactory.WATER_UNIT_VALUE = this.ph.getString(URLFactory.WATER_UNIT);
+            URLFactory.waterUnitValue = unit;
         }
-        this.runnable = new Runnable() {
-            public void run() {
-                if (Screen_Splash.this.ph.getBoolean(URLFactory.HIDE_WELCOME_SCREEN)) {
-                    Screen_Splash.this.intent = new Intent(Screen_Splash.this, Screen_Dashboard.class);
-                } else {
-                    Screen_Splash.this.ph.savePreferences(URLFactory.PERSON_WEIGHT_UNIT, true);
-                    Screen_Splash.this.ph.savePreferences(URLFactory.PERSON_WEIGHT, "80");
-                    Screen_Splash.this.ph.savePreferences(URLFactory.USER_NAME, "");
-                    Screen_Splash.this.intent = new Intent(Screen_Splash.this, Screen_OnBoarding.class);
-                }
-                Screen_Splash.this.startActivity(Screen_Splash.this.intent);
-                Screen_Splash.this.finish();
+    }
+
+    private void startSplashScreen() {
+        splashRunnable = () -> {
+            Intent nextIntent;
+            if (preferencesHelper.getBoolean(URLFactory.KEY_HIDE_WELCOME_SCREEN, false)) {
+                nextIntent = new Intent(this, Screen_Dashboard.class);
+            } else {
+                // Initial setup for first-time users
+                preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
+                preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT, "80");
+                preferencesHelper.savePreferences(URLFactory.KEY_USER_NAME, "");
+                nextIntent = new Intent(this, Screen_OnBoarding.class);
             }
+            startActivity(nextIntent);
+            finish();
         };
-        this.handler = new Handler();
-        this.handler.postDelayed(this.runnable, (long) this.millisecond);
+
+        splashHandler = new Handler(Looper.getMainLooper());
+        splashHandler.postDelayed(splashRunnable, SPLASH_DELAY);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (splashHandler != null && splashRunnable != null) {
+            splashHandler.removeCallbacks(splashRunnable);
+        }
     }
 }

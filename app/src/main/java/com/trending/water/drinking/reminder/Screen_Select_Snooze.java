@@ -6,64 +6,75 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
 import com.trending.water.drinking.reminder.receiver.AlarmReceiver;
 
 import java.util.Calendar;
+import java.util.Locale;
 
+/**
+ * Headless-style activity to handle snooze action from notification.
+ * Provides options for 5, 10, and 15 minutes.
+ */
 public class Screen_Select_Snooze extends MasterBaseActivity {
-    AppCompatTextView one;
-    AppCompatTextView three;
-    AppCompatTextView two;
 
-    /* access modifiers changed from: protected */
-    public void onCreate(Bundle savedInstanceState) {
+    private AppCompatTextView lblSnooze5;
+    private AppCompatTextView lblSnooze10;
+    private AppCompatTextView lblSnooze15;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_select_snooze);
-        getWindow().setLayout(-1, -1);
-        ((NotificationManager) this.act.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(0);
-        FindViewById();
-        Body();
+
+        if (getWindow() != null) {
+            getWindow().setLayout(-1, -1);
+        }
+
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null) nm.cancel(0);
+
+        findViewByIds();
+        initView();
+        setupListeners();
     }
 
-    private void FindViewById() {
-        this.one = (AppCompatTextView) findViewById(R.id.one);
-        this.two = (AppCompatTextView) findViewById(R.id.two);
-        this.three = (AppCompatTextView) findViewById(R.id.three);
+    private void findViewByIds() {
+        lblSnooze5 = findViewById(R.id.one);
+        lblSnooze10 = findViewById(R.id.two);
+        lblSnooze15 = findViewById(R.id.three);
     }
 
-    private void Body() {
-        AppCompatTextView appCompatTextView = this.one;
-        appCompatTextView.setText("5 " + this.sh.get_string(R.string.str_minutes));
-        AppCompatTextView appCompatTextView2 = this.two;
-        appCompatTextView2.setText("10 " + this.sh.get_string(R.string.str_minutes));
-        AppCompatTextView appCompatTextView3 = this.three;
-        appCompatTextView3.setText("15 " + this.sh.get_string(R.string.str_minutes));
-        this.one.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Screen_Select_Snooze.this.setSnooze(5);
-                Screen_Select_Snooze.this.finish();
-            }
-        });
-        this.two.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Screen_Select_Snooze.this.setSnooze(10);
-                Screen_Select_Snooze.this.finish();
-            }
-        });
-        this.three.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Screen_Select_Snooze.this.setSnooze(15);
-                Screen_Select_Snooze.this.finish();
-            }
-        });
+    private void initView() {
+        String minStr = stringHelper.getString(R.string.str_minutes);
+        lblSnooze5.setText(String.format(Locale.getDefault(), "5 %s", minStr));
+        lblSnooze10.setText(String.format(Locale.getDefault(), "10 %s", minStr));
+        lblSnooze15.setText(String.format(Locale.getDefault(), "15 %s", minStr));
     }
 
-    public void setSnooze(int minutes) {
-        ((AlarmManager) this.act.getSystemService(Context.ALARM_SERVICE)).setExact(AlarmManager.RTC_WAKEUP, Calendar.getInstance().getTimeInMillis() + ((long) (60000 * minutes)), PendingIntent.getBroadcast(this.act, 0, new Intent(this.act, AlarmReceiver.class), PendingIntent.FLAG_IMMUTABLE));
+    private void setupListeners() {
+        lblSnooze5.setOnClickListener(v -> handleSnooze(5));
+        lblSnooze10.setOnClickListener(v -> handleSnooze(10));
+        lblSnooze15.setOnClickListener(v -> handleSnooze(15));
+    }
+
+    private void handleSnooze(int minutes) {
+        setSnoozeAlarm(minutes);
+        finish();
+    }
+
+    private void setSnoozeAlarm(int minutes) {
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (am == null) return;
+
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pi = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        
+        long triggerAtMillis = Calendar.getInstance().getTimeInMillis() + ((long) minutes * 60 * 1000);
+        am.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi);
     }
 }

@@ -1,7 +1,7 @@
 package com.trending.water.drinking.reminder.model;
 
 public class LanguageModel {
-    boolean isSelected = false;
+    private boolean isSelected = false;
     private String code = "";
     private String name = "";
     private String title = "";
@@ -10,31 +10,31 @@ public class LanguageModel {
         return this.name;
     }
 
-    public void setName(String name2) {
-        this.name = name2;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getCode() {
         return this.code;
     }
 
-    public void setCode(String code2) {
-        this.code = code2;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getTitle() {
         return this.title;
     }
 
-    public void setTitle(String title2) {
-        this.title = title2;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public boolean isSelected() {
         return this.isSelected;
     }
 
-    public void isSelected(boolean isSelected2) {
-        this.isSelected = isSelected2;
+    public void setSelected(boolean isSelected) {
+        this.isSelected = isSelected;
     }
 }

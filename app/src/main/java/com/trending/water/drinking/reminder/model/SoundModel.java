@@ -9,23 +9,23 @@ public class SoundModel {
         return this.name;
     }
 
-    public void setName(String name2) {
-        this.name = name2;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getId() {
         return this.id;
     }
 
-    public void setId(int id2) {
-        this.id = id2;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public boolean isSelected() {
         return this.isSelected;
     }
 
-    public void isSelected(boolean isSelected2) {
-        this.isSelected = isSelected2;
+    public void setSelected(boolean isSelected) {
+        this.isSelected = isSelected;
     }
 }

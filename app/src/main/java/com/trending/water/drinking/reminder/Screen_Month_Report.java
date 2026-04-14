@@ -1,10 +1,7 @@
 package com.trending.water.drinking.reminder;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.graphics.DashPathEffect;
-import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,11 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
@@ -30,588 +26,335 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.github.mikephil.charting.utils.Utils;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.gson.Gson;
-import com.trending.water.drinking.reminder.adapter.HistoryAdapter;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Database_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Date_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.String_Helper;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
-import com.trending.water.drinking.reminder.model.History;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
+import java.util.Locale;
 
 public class Screen_Month_Report extends MasterBaseFragment {
-    private final RectF onValueSelectedRectF = new RectF();
-    HistoryAdapter adapter;
-    BottomSheetDialog bottomSheetDialog;
-    BarChart chart;
-    LineChart chartNew;
-    Calendar current_end_calendar;
-    Calendar current_start_calendar;
-    Calendar end_calendarN;
-    ArrayList<History> histories = new ArrayList<>();
-    ImageView img_next;
-    ImageView img_pre;
-    View item_view;
-    AppCompatTextView lbl_title;
-    List<String> lst_date = new ArrayList();
-    List<Integer> lst_date_goal_val = new ArrayList();
-    List<Integer> lst_date_goal_val_2 = new ArrayList();
-    List<Integer> lst_date_val = new ArrayList();
-    Calendar start_calendarN;
-    AppCompatTextView txt_avg_intake;
-    AppCompatTextView txt_drink_com;
-    AppCompatTextView txt_drink_fre;
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        this.item_view = inflater.inflate(R.layout.screen_month_report, container, false);
-        FindViewById();
-        setCurrentMonthInfo();
-        Body();
-        return this.item_view;
+    private static final String TAG = "Screen_Month_Report";
+
+    private BarChart barChart;
+    private LineChart lineChart;
+    private AppCompatTextView lblTitle;
+    private AppCompatTextView txtAvgIntake;
+    private AppCompatTextView txtDrinkFrequency;
+    private AppCompatTextView txtDrinkCompletion;
+    private ImageView imgPre;
+    private ImageView imgNext;
+
+    private Calendar currentStartCalendar;
+    private Calendar currentEndCalendar;
+    private Calendar startCalendarRef;
+    private Calendar endCalendarRef;
+
+    private final List<String> dateList = new ArrayList<>();
+    private final List<Integer> intakeValueList = new ArrayList<>();
+    private final List<Integer> goalValueList = new ArrayList<>();
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.screen_month_report, container, false);
+
+        findViewByIds(view);
+        initCalendars();
+        setupListeners();
+
+        refreshData();
+
+        return view;
     }
 
-    private void FindViewById() {
-        this.lbl_title = (AppCompatTextView) this.item_view.findViewById(R.id.lbl_title);
-        this.img_pre = (ImageView) this.item_view.findViewById(R.id.img_pre);
-        this.img_next = (ImageView) this.item_view.findViewById(R.id.img_next);
-        this.chartNew = (LineChart) this.item_view.findViewById(R.id.chartNew);
-        this.chart = (BarChart) this.item_view.findViewById(R.id.chart1);
-        this.txt_avg_intake = (AppCompatTextView) this.item_view.findViewById(R.id.txt_avg_intake);
-        this.txt_drink_fre = (AppCompatTextView) this.item_view.findViewById(R.id.txt_drink_fre);
-        this.txt_drink_com = (AppCompatTextView) this.item_view.findViewById(R.id.txt_drink_com);
+    private void findViewByIds(View view) {
+        lineChart = view.findViewById(R.id.chartNew);
+        barChart = view.findViewById(R.id.chart1);
+        lblTitle = view.findViewById(R.id.lbl_title);
+        imgPre = view.findViewById(R.id.img_pre);
+        imgNext = view.findViewById(R.id.img_next);
+        txtAvgIntake = view.findViewById(R.id.txt_avg_intake);
+        txtDrinkFrequency = view.findViewById(R.id.txt_drink_fre);
+        txtDrinkCompletion = view.findViewById(R.id.txt_drink_com);
     }
 
-    public void setCurrentMonthInfo() {
-        this.current_start_calendar = Calendar.getInstance();
-        this.current_start_calendar.set(5, this.current_start_calendar.getActualMinimum(5));
-        this.current_start_calendar.set(11, 0);
-        this.current_start_calendar.set(12, 0);
-        this.current_start_calendar.set(13, 0);
-        this.current_start_calendar.set(14, 0);
-        this.current_end_calendar = Calendar.getInstance();
-        this.current_end_calendar.set(5, this.current_end_calendar.getActualMaximum(5));
-        this.current_end_calendar.set(11, 23);
-        this.current_end_calendar.set(12, 59);
-        this.current_end_calendar.set(13, 59);
-        this.current_end_calendar.set(14, 999);
+    private void initCalendars() {
+        currentStartCalendar = Calendar.getInstance();
+        currentStartCalendar.set(Calendar.DAY_OF_MONTH, currentStartCalendar.getActualMinimum(Calendar.DAY_OF_MONTH));
+        resetTime(currentStartCalendar, true);
+
+        currentEndCalendar = Calendar.getInstance();
+        currentEndCalendar.set(Calendar.DAY_OF_MONTH, currentEndCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        resetTime(currentEndCalendar, false);
+
+        startCalendarRef = (Calendar) currentStartCalendar.clone();
+        endCalendarRef = (Calendar) currentEndCalendar.clone();
     }
 
-    private void Body() {
-        this.start_calendarN = Calendar.getInstance();
-        this.start_calendarN.set(5, this.start_calendarN.getActualMinimum(5));
-        this.start_calendarN.set(11, 0);
-        this.start_calendarN.set(12, 0);
-        this.start_calendarN.set(13, 0);
-        this.start_calendarN.set(14, 0);
-        this.end_calendarN = Calendar.getInstance();
-        this.end_calendarN.set(5, this.end_calendarN.getActualMaximum(5));
-        this.end_calendarN.set(11, 23);
-        this.end_calendarN.set(12, 59);
-        this.end_calendarN.set(13, 59);
-        this.end_calendarN.set(14, 999);
-        Log.d("MIN_MAX_DATE : ", "" + this.start_calendarN.getTimeInMillis() + " @@@ " + this.end_calendarN.getTimeInMillis());
-        loadData(this.start_calendarN, this.end_calendarN);
-        this.img_pre.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Month_Report.this.start_calendarN.add(2, -1);
-                Screen_Month_Report.this.start_calendarN.set(5, Screen_Month_Report.this.start_calendarN.getActualMinimum(5));
-                Screen_Month_Report.this.end_calendarN.add(2, -1);
-                Screen_Month_Report.this.end_calendarN.set(5, Screen_Month_Report.this.end_calendarN.getActualMaximum(5));
-                Screen_Month_Report.this.loadData(Screen_Month_Report.this.start_calendarN, Screen_Month_Report.this.end_calendarN);
-                Screen_Month_Report.this.generateBarDataNew();
-            }
-        });
-        this.img_next.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Month_Report.this.start_calendarN.add(2, 1);
-                Screen_Month_Report.this.start_calendarN.set(5, Screen_Month_Report.this.start_calendarN.getActualMinimum(5));
-                Screen_Month_Report.this.end_calendarN.add(2, 1);
-                Screen_Month_Report.this.end_calendarN.set(5, Screen_Month_Report.this.end_calendarN.getActualMaximum(5));
-                Log.d("MIN_MAX_DATE 2.1 : ", "" + Screen_Month_Report.this.start_calendarN.getTimeInMillis() + " @@@ " + Screen_Month_Report.this.end_calendarN.getTimeInMillis());
-                if (Screen_Month_Report.this.start_calendarN.getTimeInMillis() >= Screen_Month_Report.this.current_end_calendar.getTimeInMillis()) {
-                    Screen_Month_Report.this.start_calendarN.add(2, -1);
-                    Screen_Month_Report.this.end_calendarN.add(2, -1);
-                    return;
-                }
-                Screen_Month_Report.this.loadData(Screen_Month_Report.this.start_calendarN, Screen_Month_Report.this.end_calendarN);
-                Screen_Month_Report.this.generateBarDataNew();
-            }
-        });
-        generateDataNew();
-        generateBarDataNew();
-    }
-
-    public void loadData(Calendar start_calendar2, Calendar end_calendar2) {
-        Calendar start_calendar;
-        Calendar end_calendar;
-        float tot;
-        String last_goal;
-        Calendar start_calendar3 = Calendar.getInstance();
-        start_calendar3.setTimeInMillis(start_calendar2.getTimeInMillis());
-        Calendar end_calendar3 = Calendar.getInstance();
-        end_calendar3.setTimeInMillis(end_calendar2.getTimeInMillis());
-        AppCompatTextView appCompatTextView = this.lbl_title;
-        Date_Helper date_Helper = this.dth;
-        appCompatTextView.setText(Date_Helper.getDate(start_calendar3.getTimeInMillis(), "MMM yyyy"));
-        this.lst_date.clear();
-        this.lst_date_goal_val.clear();
-        this.lst_date_val.clear();
-        this.lst_date_goal_val_2.clear();
-        do {
-            StringBuilder sb = new StringBuilder();
-            sb.append("");
-            sb.append(this.sh.get_2_point("" + start_calendar3.get(5)));
-            sb.append("-");
-            sb.append(this.sh.get_2_point("" + (start_calendar3.get(2) + 1)));
-            sb.append("-");
-            sb.append(start_calendar3.get(1));
-            Log.d("DATE2 : ", sb.toString());
-            List<String> list = this.lst_date;
-            StringBuilder sb2 = new StringBuilder();
-            sb2.append("");
-            sb2.append(this.sh.get_2_point("" + start_calendar3.get(5)));
-            sb2.append("-");
-            sb2.append(this.sh.get_2_point("" + (start_calendar3.get(2) + 1)));
-            sb2.append("-");
-            sb2.append(start_calendar3.get(1));
-            list.add(sb2.toString());
-            start_calendar3.add(5, 1);
-        } while (start_calendar3.getTimeInMillis() <= end_calendar3.getTimeInMillis());
-        double total_drink = Utils.DOUBLE_EPSILON;
-        double total_goal = 0.0d;
-        int frequency_counter = 0;
-        int day_counter = 0;
-        int i = 0;
-        while (i < this.lst_date.size()) {
-            ArrayList<HashMap<String, String>> arr_data = this.dh.getdata("tbl_drink_details", "DrinkDate ='" + this.lst_date.get(i) + "'");
-            float tot2 = 0.0f;
-            String last_goal2 = "0";
-            int frequency_counter2 = frequency_counter;
-            int j = 0;
-            while (j < arr_data.size()) {
-                if (URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml")) {
-                    start_calendar = start_calendar3;
-                    end_calendar = end_calendar3;
-                    tot = (float) (((double) tot2) + Double.parseDouble((String) arr_data.get(j).get("ContainerValue")));
-                    last_goal = (String) arr_data.get(j).get("TodayGoal");
-                    if (Double.parseDouble((String) arr_data.get(j).get("ContainerValue")) > Utils.DOUBLE_EPSILON) {
-                        frequency_counter2++;
-                    }
-                } else {
-                    start_calendar = start_calendar3;
-                    end_calendar = end_calendar3;
-                    tot = (float) (((double) tot2) + Double.parseDouble((String) arr_data.get(j).get("ContainerValueOZ")));
-                    last_goal = (String) arr_data.get(j).get("TodayGoalOZ");
-                    if (Double.parseDouble((String) arr_data.get(j).get("ContainerValueOZ")) > Utils.DOUBLE_EPSILON) {
-                        frequency_counter2++;
-                    }
-                }
-                tot2 = tot;
-                last_goal2 = last_goal;
-                j++;
-                start_calendar3 = start_calendar;
-                end_calendar3 = end_calendar;
-            }
-            Calendar start_calendar4 = start_calendar3;
-            Calendar end_calendar4 = end_calendar3;
-            this.lst_date_val.add(Integer.valueOf((int) tot2));
-            if (tot2 > 0.0f) {
-                day_counter++;
-                total_goal += (double) Float.parseFloat(last_goal2);
-            }
-            total_drink += (double) tot2;
-            if (tot2 == 0.0f && Math.round(Float.parseFloat(last_goal2)) == 0) {
-                int ii = (int) this.ph.getFloat(URLFactory.DAILY_WATER);
-                this.lst_date_goal_val.add(Integer.valueOf(ii));
-                this.lst_date_goal_val_2.add(Integer.valueOf(ii));
-            } else if (tot2 > ((float) Math.round(Float.parseFloat(last_goal2)))) {
-                this.lst_date_goal_val.add(0);
-                this.lst_date_goal_val_2.add(Integer.valueOf(Math.round(Float.parseFloat(last_goal2))));
-            } else {
-                this.lst_date_goal_val.add(Integer.valueOf(Math.round(Float.parseFloat(last_goal2)) - ((int) tot2)));
-                this.lst_date_goal_val_2.add(Integer.valueOf(Math.round(Float.parseFloat(last_goal2))));
-            }
-            i++;
-            frequency_counter = frequency_counter2;
-            start_calendar3 = start_calendar4;
-            end_calendar3 = end_calendar4;
-        }
-        Calendar calendar = end_calendar3;
-        try {
-            int avg = (int) Math.round(total_drink / ((double) day_counter));
-            int avg_fre = Math.round(Float.parseFloat("" + frequency_counter) / Float.parseFloat("" + day_counter));
-            String str = avg_fre > 1 ? this.sh.get_string(R.string.times) : this.sh.get_string(R.string.time);
-            this.txt_avg_intake.setText("" + avg + " " + URLFactory.WATER_UNIT_VALUE + "/" + this.sh.get_string(R.string.day));
-            this.txt_drink_fre.setText("" + avg_fre + " " + str + "/" + this.sh.get_string(R.string.day));
-        } catch (Exception e) {
-            this.txt_avg_intake.setText("0 " + URLFactory.WATER_UNIT_VALUE + "/" + this.sh.get_string(R.string.day));
-            this.txt_drink_fre.setText("0 " + this.sh.get_string(R.string.time) + "/" + this.sh.get_string(R.string.day));
-        }
-        try {
-            int avg_com = (int) Math.round((100.0d * total_drink) / total_goal);
-            this.txt_drink_com.setText("" + avg_com + "%");
-        } catch (Exception e2) {
-            this.txt_drink_com.setText("0%");
-        }
-        Log.d("lst_date_val : ", "" + new Gson().toJson((Object) this.lst_date_val));
-        Log.d("lst_date_val 2 : ", "" + new Gson().toJson((Object) this.lst_date_goal_val));
-    }
-
-    public void generateBarDataNew() {
-        this.chart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-            public void onValueSelected(Entry e, Highlight h) {
-                if (e != null) {
-                    try {
-                        if (Screen_Month_Report.this.lst_date_val.get((int) e.getX()).intValue() > 0) {
-                            Screen_Month_Report.this.showDayDetailsDialog((int) e.getX());
-                        }
-                    } catch (Exception e2) {
-                    }
-                }
-            }
-
-            public void onNothingSelected() {
-            }
-        });
-        this.chart.clear();
-        this.chart.getDescription().setEnabled(false);
-        this.chart.setMaxVisibleValueCount(40);
-        this.chart.setDrawGridBackground(false);
-        this.chart.setDrawBarShadow(false);
-        this.chart.setDrawValueAboveBar(false);
-        this.chart.setHighlightFullBarEnabled(false);
-        YAxis leftAxis = this.chart.getAxisLeft();
-        leftAxis.setTextColor(this.mContext.getResources().getColor(R.color.rdo_gender_select));
-        leftAxis.setAxisMaximum(getMaxBarGraphVal());
-        leftAxis.setAxisMinimum(0.0f);
-        this.chart.getAxisRight().setEnabled(false);
-        this.chart.setExtraBottomOffset(20.0f);
-        XAxis xLabels = this.chart.getXAxis();
-        xLabels.setDrawGridLines(false);
-        xLabels.setGranularityEnabled(false);
-        xLabels.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xLabels.setTextColor(this.mContext.getResources().getColor(R.color.rdo_gender_select));
-        xLabels.setValueFormatter(new ValueFormatter() {
-            public String getFormattedValue(float value) {
-                try {
-                    if (Screen_Month_Report.this.lst_date.size() <= ((int) value)) {
-                        return "N/A";
-                    }
-                    Date_Helper date_Helper = Screen_Month_Report.this.dth;
-                    return Date_Helper.FormateDateFromString("dd-MM-yyyy", "dd", Screen_Month_Report.this.lst_date.get((int) value));
-                } catch (Exception e) {
-                    return "N/A";
-                }
-            }
-        });
-        Legend l = this.chart.getLegend();
-        l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
-        l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-        l.setDrawInside(false);
-        l.setFormSize(8.0f);
-        l.setFormToTextSpace(4.0f);
-        l.setXEntrySpace(6.0f);
-        l.setEnabled(false);
-        ArrayList<BarEntry> values = new ArrayList<>();
-        for (int i = 0; i < this.lst_date.size(); i++) {
-            float val1 = (float) this.lst_date_val.get(i).intValue();
-            Log.d("========", "" + val1 + " @@@ " + ((float) this.lst_date_goal_val.get(i).intValue()));
-            values.add(new BarEntry((float) i, val1, getResources().getDrawable(R.drawable.ic_launcher_background)));
-        }
-        if (this.chart.getData() == null || ((BarData) this.chart.getData()).getDataSetCount() <= 0) {
-            BarDataSet set1 = new BarDataSet(values, "");
-            set1.setDrawIcons(false);
-            set1.setColors(getColors());
-            set1.setHighLightAlpha(50);
-            ArrayList<IBarDataSet> dataSets = new ArrayList<>();
-            dataSets.add(set1);
-            BarData data = new BarData((List<IBarDataSet>) dataSets);
-            data.setValueFormatter(new ValueFormatter() {
-                public String getFormattedValue(float value) {
-                    if (value == 0.0f) {
-                        return "";
-                    }
-                    int k = 0;
-                    while (k < Screen_Month_Report.this.lst_date_goal_val.size()) {
-                        try {
-                            if (Screen_Month_Report.this.lst_date_goal_val.get(k).intValue() == ((int) value)) {
-                                return "" + Screen_Month_Report.this.lst_date_goal_val_2.get(k);
-                            }
-                            k++;
-                        } catch (Exception e) {
-                        }
-                    }
-                    return "" + ((int) value);
-                }
-            });
-            data.setValueTextColor(this.mContext.getResources().getColor(R.color.btn_back));
-            set1.setDrawValues(false);
-            set1.setValueTextSize(10.0f);
-            this.chart.setData(data);
+    private void resetTime(Calendar cal, boolean isStart) {
+        if (isStart) {
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
         } else {
-            BarDataSet set12 = (BarDataSet) ((BarData) this.chart.getData()).getDataSetByIndex(0);
-            set12.setValues(values);
-            set12.setHighLightAlpha(50);
-            set12.setDrawValues(false);
-            ((BarData) this.chart.getData()).notifyDataChanged();
-            this.chart.notifyDataSetChanged();
+            cal.set(Calendar.HOUR_OF_DAY, 23);
+            cal.set(Calendar.MINUTE, 59);
+            cal.set(Calendar.SECOND, 59);
+            cal.set(Calendar.MILLISECOND, 999);
         }
-        this.chart.animateY(1500);
-        this.chart.setPinchZoom(false);
-        this.chart.setScaleEnabled(false);
-        this.chart.invalidate();
     }
 
-    public float getMaxBarGraphVal() {
-        float drink_val = 0.0f;
-        for (int k = 0; k < this.lst_date_val.size(); k++) {
-            if (k == 0) {
-                drink_val = Float.parseFloat("" + this.lst_date_val.get(k));
-            } else {
-                if (drink_val < Float.parseFloat("" + this.lst_date_val.get(k))) {
-                    drink_val = Float.parseFloat("" + this.lst_date_val.get(k));
+    private void setupListeners() {
+        imgPre.setOnClickListener(v -> {
+            startCalendarRef.add(Calendar.MONTH, -1);
+            startCalendarRef.set(Calendar.DAY_OF_MONTH, startCalendarRef.getActualMinimum(Calendar.DAY_OF_MONTH));
+            endCalendarRef.add(Calendar.MONTH, -1);
+            endCalendarRef.set(Calendar.DAY_OF_MONTH, endCalendarRef.getActualMaximum(Calendar.DAY_OF_MONTH));
+            refreshData();
+        });
+
+        imgNext.setOnClickListener(v -> {
+            startCalendarRef.add(Calendar.MONTH, 1);
+            startCalendarRef.set(Calendar.DAY_OF_MONTH, startCalendarRef.getActualMinimum(Calendar.DAY_OF_MONTH));
+            endCalendarRef.add(Calendar.MONTH, 1);
+            endCalendarRef.set(Calendar.DAY_OF_MONTH, endCalendarRef.getActualMaximum(Calendar.DAY_OF_MONTH));
+
+            if (startCalendarRef.getTimeInMillis() >= currentEndCalendar.getTimeInMillis()) {
+                startCalendarRef.add(Calendar.MONTH, -1);
+                startCalendarRef.set(Calendar.DAY_OF_MONTH, startCalendarRef.getActualMinimum(Calendar.DAY_OF_MONTH));
+                endCalendarRef.add(Calendar.MONTH, -1);
+                endCalendarRef.set(Calendar.DAY_OF_MONTH, endCalendarRef.getActualMaximum(Calendar.DAY_OF_MONTH));
+                return;
+            }
+            refreshData();
+        });
+    }
+
+    private void refreshData() {
+        calculateIntakeStats();
+        setupBarChart();
+        setupLineChart();
+    }
+
+    private void calculateIntakeStats() {
+        lblTitle.setText(dateHelper.getDate(startCalendarRef.getTimeInMillis(), "MMM yyyy"));
+
+        dateList.clear();
+        intakeValueList.clear();
+        goalValueList.clear();
+
+        Calendar tempCal = (Calendar) startCalendarRef.clone();
+        while (tempCal.getTimeInMillis() <= endCalendarRef.getTimeInMillis()) {
+            dateList.add(dateHelper.getDate(tempCal.getTimeInMillis(), URLFactory.DATE_FORMAT));
+            tempCal.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
+        double totalDrink = 0;
+        double totalGoal = 0;
+        int frequencyCounter = 0;
+        int activeDayCounter = 0;
+
+        boolean isMl = URLFactory.waterUnitValue.equalsIgnoreCase("ML");
+
+        for (String date : dateList) {
+            ArrayList<HashMap<String, String>> records = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + date + "'");
+            float dailyTotal = 0.0f;
+            float dailyGoal = preferencesHelper.getFloat(URLFactory.KEY_DAILY_WATER_GOAL, 2500.0f);
+
+            for (HashMap<String, String> record : records) {
+                float val = Float.parseFloat(isMl ? record.get("ContainerValue") : record.get("ContainerValueOZ"));
+                dailyTotal += val;
+                if (val > 0) frequencyCounter++;
+                dailyGoal = Float.parseFloat(isMl ? record.get("TodayGoal") : record.get("TodayGoalOZ"));
+            }
+
+            intakeValueList.add((int) dailyTotal);
+            goalValueList.add((int) dailyGoal);
+
+            if (dailyTotal > 0) {
+                activeDayCounter++;
+                totalGoal += dailyGoal;
+            }
+            totalDrink += dailyTotal;
+        }
+
+        updateStatsText(totalDrink, totalGoal, frequencyCounter, activeDayCounter);
+    }
+
+    private void updateStatsText(double totalDrink, double totalGoal, int frequency, int activeDays) {
+        String unit = URLFactory.waterUnitValue;
+        if (activeDays > 0) {
+            int avgIntake = (int) Math.round(totalDrink / activeDays);
+            int avgFreq = Math.round((float) frequency / activeDays);
+            String freqUnit = avgFreq > 1 ? stringHelper.getString(R.string.times) : stringHelper.getString(R.string.time);
+
+            txtAvgIntake.setText(String.format(Locale.US, "%d %s/%s", avgIntake, unit, stringHelper.getString(R.string.day)));
+            txtDrinkFrequency.setText(String.format(Locale.US, "%d %s/%s", avgFreq, freqUnit, stringHelper.getString(R.string.day)));
+
+            int completion = (int) Math.round((totalDrink * 100.0) / totalGoal);
+            txtDrinkCompletion.setText(String.format(Locale.US, "%d%%", completion));
+        } else {
+            txtAvgIntake.setText(String.format(Locale.US, "0 %s/%s", unit, stringHelper.getString(R.string.day)));
+            txtDrinkFrequency.setText(String.format(Locale.US, "0 %s/%s", stringHelper.getString(R.string.time), stringHelper.getString(R.string.day)));
+            txtDrinkCompletion.setText("0%");
+        }
+    }
+
+    private void setupBarChart() {
+        barChart.clear();
+        barChart.getDescription().setEnabled(false);
+        barChart.setDrawGridBackground(false);
+        barChart.setDrawBarShadow(false);
+        barChart.setDrawValueAboveBar(false);
+        barChart.setHighlightFullBarEnabled(false);
+        barChart.setPinchZoom(false);
+        barChart.setScaleEnabled(false);
+
+        YAxis leftAxis = barChart.getAxisLeft();
+        leftAxis.setTextColor(ContextCompat.getColor(mContext, R.color.rdo_gender_select));
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMaximum(getMaxChartValue(intakeValueList, goalValueList));
+
+        barChart.getAxisRight().setEnabled(false);
+
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setDrawGridLines(false);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setTextColor(ContextCompat.getColor(mContext, R.color.rdo_gender_select));
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                int idx = (int) value;
+                if (idx >= 0 && idx < dateList.size()) {
+                    return dateHelper.getFormatDateFromString("dd-MM-yyyy", "dd", dateList.get(idx));
+                }
+                return "";
+            }
+        });
+
+        barChart.getLegend().setEnabled(false);
+
+        ArrayList<BarEntry> entries = new ArrayList<>();
+        for (int i = 0; i < intakeValueList.size(); i++) {
+            entries.add(new BarEntry(i, (float) intakeValueList.get(i)));
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, "");
+        dataSet.setColor(ContextCompat.getColor(mContext, R.color.rdo_gender_select));
+        dataSet.setDrawValues(false);
+
+        BarData data = new BarData(dataSet);
+        barChart.setData(data);
+        barChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, Highlight h) {
+                int pos = (int) e.getX();
+                if (pos < intakeValueList.size() && intakeValueList.get(pos) > 0) {
+                    showDayDetailsDialog(pos);
                 }
             }
-        }
-        float goal_val = 0.0f;
-        for (int k2 = 0; k2 < this.lst_date_goal_val_2.size(); k2++) {
-            if (k2 == 0) {
-                goal_val = Float.parseFloat("" + this.lst_date_goal_val_2.get(k2));
-            } else {
-                if (goal_val < Float.parseFloat("" + this.lst_date_goal_val_2.get(k2))) {
-                    goal_val = Float.parseFloat("" + this.lst_date_goal_val_2.get(k2));
-                }
+
+            @Override
+            public void onNothingSelected() {}
+        });
+
+        barChart.animateY(1000);
+        barChart.invalidate();
+    }
+
+    private void setupLineChart() {
+        lineChart.clear();
+        lineChart.getDescription().setEnabled(false);
+        lineChart.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.white));
+
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setLabelRotationAngle(-45f);
+        xAxis.setLabelCount(Math.min(dateList.size(), 10), true);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                int idx = (int) value;
+                return (idx >= 0 && idx < dateList.size()) ? dateList.get(idx).substring(0, 2) : "";
             }
+        });
+
+        YAxis leftAxis = lineChart.getAxisLeft();
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMaximum(getMaxChartValue(intakeValueList, goalValueList) + 100);
+
+        lineChart.getAxisRight().setEnabled(false);
+
+        ArrayList<Entry> entries = new ArrayList<>();
+        for (int i = 0; i < intakeValueList.size(); i++) {
+            entries.add(new Entry(i, (float) intakeValueList.get(i)));
         }
-        int singleUnit = URLFactory.WATER_UNIT_VALUE.equalsIgnoreCase("ml") ? 1000 : 35;
-        float max_val = drink_val < goal_val ? goal_val : drink_val;
-        if (drink_val < 1.0f) {
-            max_val = (float) (singleUnit * 3);
-        }
-        return (float) ((((int) (max_val / ((float) singleUnit))) + 1) * singleUnit);
+
+        LineDataSet dataSet = new LineDataSet(entries, "");
+        dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        dataSet.setColor(MasterBaseAppCompatActivity.getThemeColor(mContext));
+        dataSet.setCircleColor(MasterBaseAppCompatActivity.getThemeColor(mContext));
+        dataSet.setLineWidth(1.5f);
+        dataSet.setCircleRadius(3f);
+        dataSet.setDrawCircleHole(false);
+        dataSet.setDrawFilled(true);
+        dataSet.setFillDrawable(new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, MasterBaseAppCompatActivity.getThemeColorArray(mActivity)));
+
+        LineData data = new LineData(dataSet);
+        data.setDrawValues(false);
+        lineChart.setData(data);
+        lineChart.animateY(1000);
+        lineChart.invalidate();
     }
 
-    private int[] getColors() {
-        return new int[]{this.mContext.getResources().getColor(R.color.rdo_gender_select)};
+    private float getMaxChartValue(List<Integer> intakes, List<Integer> goals) {
+        float max = 0;
+        for (int val : intakes) if (val > max) max = val;
+        for (int val : goals) if (val > max) max = val;
+
+        int unit = URLFactory.waterUnitValue.equalsIgnoreCase("ML") ? 1000 : 35;
+        if (max < 1) return (float) (unit * 3);
+
+        return (float) ((((int) (max / unit)) + 1) * unit);
     }
 
-    public void showDayDetailsDialog(final int position) {
-        String_Helper string_Helper;
-        int i;
-        final Dialog dialog = new Dialog(this.act);
+    private void showDayDetailsDialog(int position) {
+        Dialog dialog = new Dialog(mActivity);
         dialog.requestWindowFeature(1);
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setSoftInputMode(16);
-        View view = LayoutInflater.from(this.act).inflate(R.layout.dialog_day_info_chart, (ViewGroup) null, false);
-        AppCompatTextView txt_frequency = (AppCompatTextView) view.findViewById(R.id.txt_frequency);
-        ImageView img_cancel = (ImageView) view.findViewById(R.id.img_cancel);
-        Date_Helper date_Helper = this.dth;
-        ((AppCompatTextView) view.findViewById(R.id.txt_date)).setText(Date_Helper.FormateDateFromString("dd-MM-yyyy", "dd MMM", this.lst_date.get(position)));
-        ((AppCompatTextView) view.findViewById(R.id.txt_goal)).setText("" + this.lst_date_goal_val_2.get(position) + " " + URLFactory.WATER_UNIT_VALUE);
-        ((AppCompatTextView) view.findViewById(R.id.txt_consumed)).setText("" + this.lst_date_val.get(position) + " " + URLFactory.WATER_UNIT_VALUE);
-        Database_Helper database_Helper = this.dh;
-        ArrayList<HashMap<String, String>> arr_data = database_Helper.getdata("tbl_drink_details", "DrinkDate ='" + this.lst_date.get(position) + "'");
-        if (arr_data.size() > 1) {
-            string_Helper = this.sh;
-            i = R.string.times;
-        } else {
-            string_Helper = this.sh;
-            i = R.string.time;
-        }
-        String str = string_Helper.get_string(i);
-        txt_frequency.setText(arr_data.size() + " " + str);
-        img_cancel.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            public void onDismiss(DialogInterface dialog) {
-                Screen_Month_Report.this.chart.highlightValue((float) position, -1);
-            }
-        });
+
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_day_info_chart, null, false);
+        AppCompatTextView txtDate = view.findViewById(R.id.txt_date);
+        AppCompatTextView txtGoal = view.findViewById(R.id.txt_goal);
+        AppCompatTextView txtConsumed = view.findViewById(R.id.txt_consumed);
+        AppCompatTextView txtFreq = view.findViewById(R.id.txt_frequency);
+
+        String date = dateList.get(position);
+        txtDate.setText(dateHelper.getFormatDateFromString("dd-MM-yyyy", "dd MMM", date));
+        txtGoal.setText(String.format(Locale.US, "%d %s", goalValueList.get(position), URLFactory.waterUnitValue));
+        txtConsumed.setText(String.format(Locale.US, "%d %s", intakeValueList.get(position), URLFactory.waterUnitValue));
+
+        ArrayList<HashMap<String, String>> records = databaseHelper.getdata("tbl_drink_details", "DrinkDate ='" + date + "'");
+        String freqLabel = records.size() > 1 ? stringHelper.getString(R.string.times) : stringHelper.getString(R.string.time);
+        txtFreq.setText(String.format(Locale.US, "%d %s", records.size(), freqLabel));
+
+        view.findViewById(R.id.img_cancel).setOnClickListener(v -> dialog.dismiss());
+        dialog.setOnDismissListener(d -> barChart.highlightValue(null));
+
         dialog.setContentView(view);
         dialog.show();
-    }
-
-    private void generateDataNew() {
-        this.chartNew.setBackgroundColor(-1);
-        this.chartNew.clear();
-        this.chartNew.getDescription().setEnabled(false);
-        this.chartNew.setTouchEnabled(true);
-        this.chartNew.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-            public void onValueSelected(Entry e, Highlight h) {
-                Log.i("Entry selected", e.toString());
-                Log.i("LOW HIGH", "low: " + Screen_Month_Report.this.chartNew.getLowestVisibleX() + ", high: " + Screen_Month_Report.this.chartNew.getHighestVisibleX());
-                Log.i("MIN MAX", "xMin: " + Screen_Month_Report.this.chartNew.getXChartMin() + ", xMax: " + Screen_Month_Report.this.chartNew.getXChartMax() + ", yMin: " + Screen_Month_Report.this.chartNew.getYChartMin() + ", yMax: " + Screen_Month_Report.this.chartNew.getYChartMax());
-                Log.i("Entry selected", Screen_Month_Report.this.lst_date.get((int) e.getX()));
-                e.getY();
-            }
-
-            public void onNothingSelected() {
-            }
-        });
-        this.chartNew.setDrawGridBackground(false);
-        this.chartNew.setDragEnabled(true);
-        this.chartNew.setScaleEnabled(true);
-        this.chartNew.setPinchZoom(true);
-        XAxis xAxis = this.chartNew.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setLabelRotationAngle(-90.0f);
-        xAxis.setLabelCount(this.lst_date.size(), true);
-        xAxis.setValueFormatter(new ValueFormatter() {
-            public String getFormattedValue(float value) {
-                try {
-                    if (Screen_Month_Report.this.lst_date.size() > ((int) value)) {
-                        return Screen_Month_Report.this.lst_date.get((int) value);
-                    }
-                    return "N/A";
-                } catch (Exception e) {
-                    return "N/A";
-                }
-            }
-        });
-        xAxis.enableGridDashedLine(10.0f, 0.0f, 0.0f);
-        YAxis yAxis = this.chartNew.getAxisLeft();
-        this.chartNew.getAxisRight().setEnabled(false);
-        yAxis.enableGridDashedLine(10.0f, 0.0f, 0.0f);
-        yAxis.setAxisMaximum(getMaxGraphVal());
-        yAxis.setAxisMinimum(-50.0f);
-        setData(this.lst_date.size());
-        this.chartNew.animateY(1500);
-        this.chartNew.getLegend().setForm(Legend.LegendForm.LINE);
-        this.chartNew.setHorizontalScrollBarEnabled(true);
-    }
-
-    public float getMaxGraphVal() {
-        float val = 1.0f;
-        for (int k = 0; k < this.lst_date_val.size(); k++) {
-            if (k == 0) {
-                val = Float.parseFloat("" + this.lst_date_val.get(k));
-            } else {
-                if (val < Float.parseFloat("" + this.lst_date_val.get(k))) {
-                    val = Float.parseFloat("" + this.lst_date_val.get(k));
-                }
-            }
-        }
-        return 100.0f + val;
-    }
-
-    private void setData(int count) {
-        ArrayList<Entry> values = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            int nextInt = new Random().nextInt(90) + 10;
-            int i1 = this.lst_date_val.get(i).intValue();
-            values.add(new Entry((float) i, Float.parseFloat("" + i1), getResources().getDrawable(R.drawable.ic_add)));
-        }
-        if (this.chartNew.getData() == null || ((LineData) this.chartNew.getData()).getDataSetCount() <= 0) {
-            LineDataSet set1 = new LineDataSet(values, "");
-            set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-            set1.setDrawIcons(false);
-            set1.enableDashedLine(10.0f, 0.0f, 0.0f);
-            set1.setColor(MasterBaseAppCompatActivity.getThemeColor(this.act));
-            set1.setCircleColor(MasterBaseAppCompatActivity.getThemeColor(this.act));
-            set1.setLineWidth(2.0f);
-            set1.setCircleRadius(5.0f);
-            set1.setDrawCircleHole(false);
-            set1.setFormLineWidth(0.0f);
-            set1.setFormLineDashEffect(new DashPathEffect(new float[]{10.0f, 0.0f}, 0.0f));
-            set1.setFormSize(15.0f);
-            set1.setValueTextSize(9.0f);
-            set1.enableDashedHighlightLine(10.0f, 5.0f, 0.0f);
-            set1.setDrawFilled(true);
-            set1.setFillFormatter(new IFillFormatter() {
-                public float getFillLinePosition(ILineDataSet dataSet, LineDataProvider dataProvider) {
-                    return Screen_Month_Report.this.chartNew.getAxisLeft().getAxisMinimum();
-                }
-            });
-            if (Utils.getSDKInt() >= 18) {
-                Drawable drawable = ContextCompat.getDrawable(getActivity(), R.drawable.line_chart_fade_back);
-                set1.setFillDrawable(new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, MasterBaseAppCompatActivity.getThemeColorArray(this.act)));
-            } else {
-                set1.setFillColor(ViewCompat.MEASURED_STATE_MASK);
-            }
-            ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-            dataSets.add(set1);
-            this.chartNew.setData(new LineData((List<ILineDataSet>) dataSets));
-            LineDataSet lineDataSet = set1;
-            return;
-        }
-        LineDataSet set12 = (LineDataSet) ((LineData) this.chartNew.getData()).getDataSetByIndex(0);
-        set12.setValues(values);
-        set12.notifyDataSetChanged();
-        set12.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        ((LineData) this.chartNew.getData()).notifyDataChanged();
-        this.chartNew.notifyDataSetChanged();
-    }
-
-    public void openMenuPicker(String selected_date) {
-        this.bottomSheetDialog = new BottomSheetDialog(this.act);
-        View view = LayoutInflater.from(this.act).inflate(R.layout.screen_history, (ViewGroup) null, false);
-        RecyclerView historyRecyclerView = (RecyclerView) view.findViewById(R.id.historyRecyclerView);
-        load_history(selected_date);
-        this.adapter = new HistoryAdapter(this.act, this.histories, new HistoryAdapter.CallBack() {
-            public void onClickSelect(History history, int position) {
-            }
-
-            public void onClickRemove(History history, int position) {
-            }
-        });
-        historyRecyclerView.setLayoutManager(new LinearLayoutManager(this.act, RecyclerView.VERTICAL, false));
-        historyRecyclerView.setAdapter(this.adapter);
-        this.bottomSheetDialog.setContentView(view);
-        this.bottomSheetDialog.show();
-    }
-
-    public void load_history(String selected_date) {
-        double d;
-        double d2;
-        this.histories.clear();
-        Database_Helper database_Helper = this.dh;
-        ArrayList<HashMap<String, String>> arr_data = database_Helper.getdata("tbl_drink_details", "DrinkDate ='" + selected_date + "'");
-        String mes_unit = URLFactory.WATER_UNIT_VALUE;
-        for (int k = 0; k < arr_data.size(); k++) {
-            History history = new History();
-            history.setId((String) arr_data.get(k).get("id"));
-            history.setContainerMeasure(mes_unit);
-            history.setContainerValue(URLFactory.decimalFormat.format(Double.parseDouble((String) arr_data.get(k).get("ContainerValue"))) + " " + mes_unit);
-            history.setContainerValueOZ(URLFactory.decimalFormat.format(Double.parseDouble((String) arr_data.get(k).get("ContainerValueOZ"))) + " " + mes_unit);
-            history.setDrinkDate((String) arr_data.get(k).get("DrinkDate"));
-            Date_Helper date_Helper = this.dth;
-            history.setDrinkTime(Date_Helper.FormateDateFromString("HH:mm", "hh:mm a", (String) arr_data.get(k).get("DrinkTime")));
-            Database_Helper database_Helper2 = this.dh;
-            ArrayList<HashMap<String, String>> arr_data2 = database_Helper2.getdata("tbl_drink_details", "DrinkDate ='" + ((String) arr_data.get(k).get("DrinkDate")) + "'");
-            float tot = 0.0f;
-            for (int j = 0; j < arr_data2.size(); j++) {
-                if (mes_unit.equalsIgnoreCase("ml")) {
-                    d2 = (double) tot;
-                    d = Double.parseDouble((String) arr_data2.get(j).get("ContainerValue"));
-                } else {
-                    d2 = (double) tot;
-                    d = Double.parseDouble((String) arr_data2.get(j).get("ContainerValueOZ"));
-                }
-                tot = (float) (d2 + d);
-            }
-            history.setTotalML(URLFactory.decimalFormat.format((double) tot) + " " + mes_unit);
-            this.histories.add(history);
-        }
     }
 }

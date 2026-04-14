@@ -7,27 +7,35 @@ public class DrinkDetails {
     @SerializedName("ContainerMeasure")
     @Expose
     private String containerMeasure;
+    
     @SerializedName("ContainerValue")
     @Expose
     private String containerValue;
+    
     @SerializedName("ContainerValueOZ")
     @Expose
     private String containerValueOZ;
+    
     @SerializedName("DrinkDate")
     @Expose
     private String drinkDate;
+    
     @SerializedName("DrinkDateTime")
     @Expose
     private String drinkDateTime;
+    
     @SerializedName("DrinkTime")
     @Expose
     private String drinkTime;
+    
     @SerializedName("id")
     @Expose
     private String id;
+    
     @SerializedName("TodayGoal")
     @Expose
     private String todayGoal;
+    
     @SerializedName("TodayGoalOZ")
     @Expose
     private String todayGoalOZ;
@@ -36,71 +44,71 @@ public class DrinkDetails {
         return this.drinkDateTime;
     }
 
-    public void setDrinkDateTime(String drinkDateTime2) {
-        this.drinkDateTime = drinkDateTime2;
+    public void setDrinkDateTime(String drinkDateTime) {
+        this.drinkDateTime = drinkDateTime;
     }
 
     public String getDrinkTime() {
         return this.drinkTime;
     }
 
-    public void setDrinkTime(String drinkTime2) {
-        this.drinkTime = drinkTime2;
+    public void setDrinkTime(String drinkTime) {
+        this.drinkTime = drinkTime;
     }
 
     public String getId() {
         return this.id;
     }
 
-    public void setId(String id2) {
-        this.id = id2;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getDrinkDate() {
         return this.drinkDate;
     }
 
-    public void setDrinkDate(String drinkDate2) {
-        this.drinkDate = drinkDate2;
+    public void setDrinkDate(String drinkDate) {
+        this.drinkDate = drinkDate;
     }
 
     public String getContainerMeasure() {
         return this.containerMeasure;
     }
 
-    public void setContainerMeasure(String containerMeasure2) {
-        this.containerMeasure = containerMeasure2;
+    public void setContainerMeasure(String containerMeasure) {
+        this.containerMeasure = containerMeasure;
     }
 
     public String getContainerValue() {
         return this.containerValue;
     }
 
-    public void setContainerValue(String containerValue2) {
-        this.containerValue = containerValue2;
+    public void setContainerValue(String containerValue) {
+        this.containerValue = containerValue;
     }
 
     public String getContainerValueOZ() {
         return this.containerValueOZ;
     }
 
-    public void setContainerValueOZ(String containerValueOZ2) {
-        this.containerValueOZ = containerValueOZ2;
+    public void setContainerValueOZ(String containerValueOZ) {
+        this.containerValueOZ = containerValueOZ;
     }
 
     public String getTodayGoal() {
         return this.todayGoal;
     }
 
-    public void setTodayGoal(String todayGoal2) {
-        this.todayGoal = todayGoal2;
+    public void setTodayGoal(String todayGoal) {
+        this.todayGoal = todayGoal;
     }
 
     public String getTodayGoalOZ() {
         return this.todayGoalOZ;
     }
 
-    public void setTodayGoalOZ(String todayGoalOZ2) {
-        this.todayGoalOZ = todayGoalOZ2;
+    public void setTodayGoalOZ(String todayGoalOZ) {
+        this.todayGoalOZ = todayGoalOZ;
     }
 }

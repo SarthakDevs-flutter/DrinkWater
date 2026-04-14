@@ -4,28 +4,32 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
 
 public class CustomViewPager extends ViewPager {
-    private boolean enabled = true;
+    private boolean isPagingEnabled = true;
 
-    public CustomViewPager(Context context, AttributeSet attrs) {
+    public CustomViewPager(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return this.enabled && super.onTouchEvent(event);
+        return this.isPagingEnabled && super.onTouchEvent(event);
     }
 
+    @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        return this.enabled && super.onInterceptTouchEvent(event);
+        return this.isPagingEnabled && super.onInterceptTouchEvent(event);
     }
 
     public boolean isPagingEnabled() {
-        return this.enabled;
+        return this.isPagingEnabled;
     }
 
-    public void setPagingEnabled(boolean enabled2) {
-        this.enabled = enabled2;
+    public void setPagingEnabled(boolean enabled) {
+        this.isPagingEnabled = enabled;
     }
 }

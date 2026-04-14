@@ -1,48 +1,73 @@
 package com.trending.water.drinking.reminder.custom;
 
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
 public class AnimationUtils {
-    public static void expand(final View v) {
-        v.measure(View.MeasureSpec.makeMeasureSpec(((View) v.getParent()).getWidth(), View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-        final int targetHeight = v.getMeasuredHeight();
-        v.getLayoutParams().height = 1;
-        v.setVisibility(View.VISIBLE);
-        Animation a = new Animation() {
-            /* access modifiers changed from: protected */
-            public void applyTransformation(float interpolatedTime, Transformation t) {
-                v.getLayoutParams().height = interpolatedTime == 1.0f ? -2 : (int) (((float) targetHeight) * interpolatedTime);
-                v.requestLayout();
+    
+    /**
+     * Expands a view from height 0 to its measured height.
+     * @param view The view to expand.
+     */
+    public static void expand(final View view) {
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(((View) view.getParent()).getWidth(), View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        );
+        final int targetHeight = view.getMeasuredHeight();
+
+        // Older versions of android (pre API 21) cancel animations for views with a height of 0.
+        view.getLayoutParams().height = 1;
+        view.setVisibility(View.VISIBLE);
+        
+        Animation animation = new Animation() {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                view.getLayoutParams().height = interpolatedTime == 1.0f 
+                        ? ViewGroup.LayoutParams.WRAP_CONTENT 
+                        : (int) (targetHeight * interpolatedTime);
+                view.requestLayout();
             }
 
+            @Override
             public boolean willChangeBounds() {
                 return true;
             }
         };
-        a.setDuration((long) ((int) (((float) targetHeight) / v.getContext().getResources().getDisplayMetrics().density)));
-        v.startAnimation(a);
+
+        // 1dp/ms
+        animation.setDuration((long) (targetHeight / view.getContext().getResources().getDisplayMetrics().density));
+        view.startAnimation(animation);
     }
 
-    public static void collapse(final View v) {
-        final int initialHeight = v.getMeasuredHeight();
-        Animation a = new Animation() {
-            /* access modifiers changed from: protected */
-            public void applyTransformation(float interpolatedTime, Transformation t) {
+    /**
+     * Collapses a view from its current height to 0.
+     * @param view The view to collapse.
+     */
+    public static void collapse(final View view) {
+        final int initialHeight = view.getMeasuredHeight();
+
+        Animation animation = new Animation() {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
                 if (interpolatedTime == 1.0f) {
-                    v.setVisibility(View.GONE);
-                    return;
+                    view.setVisibility(View.GONE);
+                } else {
+                    view.getLayoutParams().height = initialHeight - (int) (initialHeight * interpolatedTime);
+                    view.requestLayout();
                 }
-                v.getLayoutParams().height = initialHeight - ((int) (((float) initialHeight) * interpolatedTime));
-                v.requestLayout();
             }
 
+            @Override
             public boolean willChangeBounds() {
                 return true;
             }
         };
-        a.setDuration((long) ((int) (((float) initialHeight) / v.getContext().getResources().getDisplayMetrics().density)));
-        v.startAnimation(a);
+
+        // 1dp/ms
+        animation.setDuration((long) (initialHeight / view.getContext().getResources().getDisplayMetrics().density));
+        view.startAnimation(animation);
     }
 }

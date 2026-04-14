@@ -2,6 +2,7 @@ package com.trending.water.drinking.reminder.adapter;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -15,42 +16,37 @@ import com.trending.water.drinking.reminder.Screen_OnBoarding_Three;
 import com.trending.water.drinking.reminder.Screen_OnBoarding_Two;
 
 public class OnBoardingPagerAdapter extends FragmentStatePagerAdapter {
-    Context mContext;
-    Screen_OnBoarding_Two tab2Fragment = new Screen_OnBoarding_Two();
-    Screen_OnBoarding_Three tab3Fragment = new Screen_OnBoarding_Three();
-    Screen_OnBoarding_Four tab4Fragment = new Screen_OnBoarding_Four();
-    Screen_OnBoarding_Five tab5Fragment = new Screen_OnBoarding_Five();
-    Screen_OnBoarding_Six tab6Fragment = new Screen_OnBoarding_Six();
-    Screen_OnBoarding_Seven tab7Fragment = new Screen_OnBoarding_Seven();
-    Screen_OnBoarding_Eight tab8Fragment = new Screen_OnBoarding_Eight();
+    
+    private final Context context;
 
-    public OnBoardingPagerAdapter(FragmentManager fm, Context context) {
-        super(fm);
-        this.mContext = context;
+    public OnBoardingPagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Context context) {
+        super(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        this.context = context;
     }
 
+    @NonNull
+    @Override
     public Fragment getItem(int position) {
-        if (position == 1) {
-            return this.tab3Fragment;
+        switch (position) {
+            case 1:
+                return new Screen_OnBoarding_Three();
+            case 2:
+                return new Screen_OnBoarding_Seven();
+            case 3:
+                return new Screen_OnBoarding_Eight();
+            case 4:
+                return new Screen_OnBoarding_Four();
+            case 5:
+                return new Screen_OnBoarding_Six();
+            case 6:
+                return new Screen_OnBoarding_Five();
+            case 0:
+            default:
+                return new Screen_OnBoarding_Two();
         }
-        if (position == 2) {
-            return this.tab7Fragment;
-        }
-        if (position == 3) {
-            return this.tab8Fragment;
-        }
-        if (position == 4) {
-            return this.tab4Fragment;
-        }
-        if (position == 5) {
-            return this.tab6Fragment;
-        }
-        if (position == 6) {
-            return this.tab5Fragment;
-        }
-        return this.tab2Fragment;
     }
 
+    @Override
     public int getCount() {
         return 7;
     }

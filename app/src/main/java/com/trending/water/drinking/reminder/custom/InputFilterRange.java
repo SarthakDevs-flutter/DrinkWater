@@ -3,17 +3,20 @@ package com.trending.water.drinking.reminder.custom;
 import android.text.InputFilter;
 import android.text.Spanned;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
 public class InputFilterRange implements InputFilter {
-    List<Double> elements;
-    private double min;
+    private final List<Double> allowedElements;
+    private final double min;
 
-    public InputFilterRange(double min2, List<Double> elements2) {
-        this.min = min2;
-        this.elements = elements2;
+    public InputFilterRange(double min, List<Double> allowedElements) {
+        this.min = min;
+        this.allowedElements = allowedElements;
     }
 
+    @Override
     public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
         try {
             String replacement = source.subSequence(start, end).toString();
@@ -23,8 +26,13 @@ public class InputFilterRange implements InputFilter {
                 return null;
             }
 
+            // The original logic had a length limit of 4
+            if (newVal.length() > 4) {
+                return "";
+            }
+
             double input = Double.parseDouble(newVal);
-            if (isInRange(this.min, this.elements, input, newVal)) {
+            if (isAllowed(input)) {
                 return null;
             }
             return "";
@@ -33,12 +41,11 @@ public class InputFilterRange implements InputFilter {
         }
     }
 
-    private boolean isInRange(double a, List<Double> b, double c, String cc) {
-        if (cc.length() > 4) {
-            return false;
-        }
-        for (int k = 0; k < b.size(); k++) {
-            if (b.get(k).doubleValue() == c) {
+    private boolean isAllowed(double input) {
+        // The original logic checked against the elements list.
+        // It didn't use the 'min' value, but we preserve it for now if needed.
+        for (Double element : allowedElements) {
+            if (element != null && element == input) {
                 return true;
             }
         }

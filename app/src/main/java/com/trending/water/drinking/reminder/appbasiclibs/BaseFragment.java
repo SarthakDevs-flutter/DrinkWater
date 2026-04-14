@@ -2,50 +2,55 @@ package com.trending.water.drinking.reminder.appbasiclibs;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Alert_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Bitmap_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Database_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Date_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Intent_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Map_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Preferences_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.String_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Utility_Function;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Zip_Helper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.AlertHelper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.BitmapHelper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.DatabaseHelper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.DateHelper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.IntentHelper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.MapHelper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.PreferenceHelper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.StringHelper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.UtilityFunction;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.ZipHelper;
 
 public class BaseFragment extends Fragment {
-    public Activity act;
-    public Alert_Helper ah;
-    public Bitmap_Helper bh;
-    public Database_Helper dh;
-    public Date_Helper dth;
-    public Intent_Helper ih;
-    public Intent intent;
-    public Context mContext;
-    public Map_Helper mah;
-    public Preferences_Helper ph;
-    public String_Helper sh;
-    public Utility_Function uf;
-    public Zip_Helper zh;
+    protected Activity mActivity;
+    protected Context mContext;
+    
+    protected AlertHelper alertHelper;
+    protected BitmapHelper bitmapHelper;
+    protected DatabaseHelper databaseHelper;
+    protected DateHelper dateHelper;
+    protected IntentHelper intentHelper;
+    protected MapHelper mapHelper;
+    protected PreferenceHelper preferencesHelper;
+    protected StringHelper stringHelper;
+    protected UtilityFunction utilityFunction;
+    protected ZipHelper zipHelper;
 
-    public void onAttach(Context context) {
+    @Override
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        this.mContext = getActivity();
-        this.act = getActivity();
-        this.uf = new Utility_Function(this.mContext, this.act);
-        this.ah = new Alert_Helper(this.mContext);
-        this.bh = new Bitmap_Helper(this.mContext);
-        this.dth = new Date_Helper();
-        this.dh = new Database_Helper(this.mContext, this.act);
-        this.ih = new Intent_Helper(this.mContext, this.act);
-        this.mah = new Map_Helper();
-        this.sh = new String_Helper(this.mContext, this.act);
-        this.ph = new Preferences_Helper(this.mContext, this.act);
-        this.zh = new Zip_Helper(this.mContext);
-        this.uf.permission_StrictMode();
+        this.mContext = context;
+        this.mActivity = getActivity();
+        
+        if (this.mActivity != null) {
+            this.utilityFunction = new UtilityFunction(this.mContext, this.mActivity);
+            this.alertHelper = new AlertHelper(this.mContext);
+            this.bitmapHelper = new BitmapHelper(this.mContext);
+            this.dateHelper = new DateHelper();
+            this.databaseHelper = new DatabaseHelper(this.mContext, this.mActivity);
+            this.intentHelper = new IntentHelper(this.mContext, this.mActivity);
+            this.mapHelper = new MapHelper();
+            this.stringHelper = new StringHelper(this.mContext, this.mActivity);
+            this.preferencesHelper = new PreferenceHelper(this.mContext, this.mActivity);
+            this.zipHelper = new ZipHelper(this.mContext);
+            
+            this.utilityFunction.permissionStrictMode();
+        }
     }
 }

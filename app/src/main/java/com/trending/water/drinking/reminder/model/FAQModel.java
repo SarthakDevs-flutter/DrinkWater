@@ -8,15 +8,15 @@ public class FAQModel {
         return this.question;
     }
 
-    public void setQuestion(String question2) {
-        this.question = question2;
+    public void setQuestion(String question) {
+        this.question = question;
     }
 
     public String getAnswer() {
         return this.answer;
     }
 
-    public void setAnswer(String answer2) {
-        this.answer = answer2;
+    public void setAnswer(String answer) {
+        this.answer = answer;
     }
 }

@@ -1,32 +1,31 @@
 package com.trending.water.drinking.reminder.model;
 
-public class NextReminderModel implements Comparable<NextReminderModel> {
-    private long millesecond;
-    private String time;
+import androidx.annotation.NonNull;
 
-    public NextReminderModel(long millesecond2, String time2) {
-        this.millesecond = millesecond2;
-        this.time = time2;
+public class NextReminderModel implements Comparable<NextReminderModel> {
+    private final long millisecond;
+    private final String time;
+
+    public NextReminderModel(long millisecond, String time) {
+        this.millisecond = millisecond;
+        this.time = time;
     }
 
-    public long getMillesecond() {
-        return this.millesecond;
+    public long getMillisecond() {
+        return this.millisecond;
     }
 
     public String getTime() {
         return this.time;
     }
 
-    public int compareTo(NextReminderModel f) {
-        if (this.millesecond > f.millesecond) {
-            return 1;
-        }
-        if (this.millesecond < f.millesecond) {
-            return -1;
-        }
-        return 0;
+    @Override
+    public int compareTo(NextReminderModel other) {
+        return Long.compare(this.millisecond, other.millisecond);
     }
 
+    @NonNull
+    @Override
     public String toString() {
         return this.time;
     }

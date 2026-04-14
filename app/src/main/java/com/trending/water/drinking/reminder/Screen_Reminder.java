@@ -4,34 +4,31 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.gson.Gson;
 import com.trending.water.drinking.reminder.adapter.AlarmAdapter;
 import com.trending.water.drinking.reminder.adapter.IntervalAdapter;
 import com.trending.water.drinking.reminder.adapter.SoundAdapter;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Database_Helper;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.Date_Helper;
+import com.trending.water.drinking.reminder.appbasiclibs.utils.DateHelper;
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.model.AlarmModel;
@@ -52,1148 +49,789 @@ import java.util.List;
 import java.util.Locale;
 
 public class Screen_Reminder extends MasterBaseActivity {
-    RelativeLayout add_reminder;
-    AlarmAdapter alarmAdapter;
-    ArrayList<AlarmModel> alarmModelList = new ArrayList<>();
-    RecyclerView alarmRecyclerView;
-    RelativeLayout auto_reminder_block;
-    BottomSheetDialog bottomSheetDialogSound;
-    int from_hour = 0;
-    int from_minute = 0;
-    int interval = 30;
-    IntervalAdapter intervalAdapter;
-    AppCompatTextView lbl_bed_time;
-    AppCompatTextView lbl_interval;
-    AppCompatTextView lbl_no_record_found;
-    AppCompatTextView lbl_wakeup_time;
-    AppCompatTextView lblbt;
-    AppCompatTextView lblwt;
-    LinearLayout left_icon_block;
-    List<String> lst_interval = new ArrayList();
-    List<IntervalModel> lst_intervals = new ArrayList();
-    List<SoundModel> lst_sounds = new ArrayList();
-    RelativeLayout manual_reminder_block;
-    RadioButton rdo_auto;
-    RadioButton rdo_auto_alarm;
-    RadioButton rdo_manual_alarm;
-    RadioButton rdo_off;
-    RadioButton rdo_silent;
-    LinearLayout right_icon_block;
-    RelativeLayout save_reminder;
-    SoundAdapter soundAdapter;
-    LinearLayout sound_block;
-    SwitchCompat switch_vibrate;
-    int to_hour = 0;
-    int to_minute = 0;
 
-    public static Timepoint[] generateTimepoints(double maxHour, int minutesInterval) {
-        int lastValue = (int) (60.0d * maxHour);
-        List<Timepoint> timepoints = new ArrayList<>();
-        int minute = 0;
-        while (minute <= lastValue) {
-            int currentHour = minute / 60;
-            int currentMinute = minute - (currentHour > 0 ? currentHour * 60 : 0);
-            if (currentHour != 24) {
-                timepoints.add(new Timepoint(currentHour, currentMinute));
-            }
-            minute += minutesInterval;
-        }
-        return (Timepoint[]) timepoints.toArray(new Timepoint[timepoints.size()]);
-    }
+    private static final String TAG = "Screen_Reminder";
 
-    /* access modifiers changed from: protected */
-    public void onCreate(Bundle savedInstanceState) {
+    private RecyclerView alarmRecyclerView;
+    private AppCompatTextView lblNoRecordFound;
+    private AppCompatTextView lblWakeupTime;
+    private AppCompatTextView lblBedTime;
+    private AppCompatTextView lblInterval;
+    private AppCompatTextView lblWakeupTitle;
+    private AppCompatTextView lblBedTitle;
+
+    private RadioButton rdoAutoMode;
+    private RadioButton rdoManualMode;
+    private RadioButton rdoReminderOn;
+    private RadioButton rdoReminderOff;
+    private RadioButton rdoReminderSilent;
+
+    private RelativeLayout autoReminderBlock;
+    private RelativeLayout manualReminderBlock;
+    private RelativeLayout btnAddReminder;
+    private RelativeLayout btnSaveAutoReminder;
+    
+    private LinearLayout soundBlock;
+    private SwitchCompat switchVibrate;
+    private LinearLayout leftIconBlock;
+    private LinearLayout rightIconBlock;
+
+    private AlarmAdapter alarmAdapter;
+    private final ArrayList<AlarmModel> alarmList = new ArrayList<>();
+    private final List<IntervalModel> intervalList = new ArrayList<>();
+    private final List<SoundModel> soundList = new ArrayList<>();
+
+    private BottomSheetDialog soundSheetDialog;
+    private IntervalAdapter intervalAdapter;
+    private SoundAdapter soundAdapter;
+
+    private int fromHour = 8;
+    private int fromMinute = 0;
+    private int toHour = 22;
+    private int toMinute = 0;
+    private int currentInterval = 30;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_reminder);
-        if (Build.VERSION.SDK_INT >= 21) {
-            getWindow().setNavigationBarColor(this.mContext.getResources().getColor(R.color.str_green_card));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setNavigationBarColor(ContextCompat.getColor(mContext, R.color.str_green_card));
         }
-        FindViewById();
-        Body();
-        this.lblwt = (AppCompatTextView) findViewById(R.id.lblwt);
-        this.lblbt = (AppCompatTextView) findViewById(R.id.lblbt);
-        String str = this.sh.get_string(R.string.str_bed_time);
-        this.lblbt.setText(str.substring(0, 1).toUpperCase() + "" + str.substring(1).toLowerCase());
-        String str2 = this.sh.get_string(R.string.str_wakeup_time);
-        this.lblwt.setText(str2.substring(0, 1).toUpperCase() + "" + str2.substring(1).toLowerCase());
-        ArrayList<HashMap<String, String>> arr_data = this.dh.getdata("tbl_alarm_details");
-        Log.d("setAutoAlarmAnd", "" + new Gson().toJson((Object) arr_data));
-        ArrayList<HashMap<String, String>> arr_data2 = this.dh.getdata("tbl_alarm_sub_details");
-        Log.d("setAutoAlarmAnd", "" + new Gson().toJson((Object) arr_data2));
+
+        findViewByIds();
+        initView();
+        setupListeners();
     }
 
-    private void FindViewById() {
-        this.right_icon_block = (LinearLayout) findViewById(R.id.right_icon_block);
-        this.left_icon_block = (LinearLayout) findViewById(R.id.left_icon_block);
-        this.alarmRecyclerView = (RecyclerView) findViewById(R.id.alarmRecyclerView);
-        this.lbl_no_record_found = (AppCompatTextView) findViewById(R.id.lbl_no_record_found);
-        this.rdo_auto = (RadioButton) findViewById(R.id.rdo_auto);
-        this.rdo_off = (RadioButton) findViewById(R.id.rdo_off);
-        this.rdo_silent = (RadioButton) findViewById(R.id.rdo_silent);
-        this.sound_block = (LinearLayout) findViewById(R.id.sound_block);
-        this.switch_vibrate = (SwitchCompat) findViewById(R.id.switch_vibrate);
-        this.lbl_wakeup_time = (AppCompatTextView) findViewById(R.id.lbl_wakeup_time);
-        this.lbl_bed_time = (AppCompatTextView) findViewById(R.id.lbl_bed_time);
-        this.lbl_interval = (AppCompatTextView) findViewById(R.id.lbl_interval);
-        this.manual_reminder_block = (RelativeLayout) findViewById(R.id.manual_reminder_block);
-        this.auto_reminder_block = (RelativeLayout) findViewById(R.id.auto_reminder_block);
-        this.rdo_auto_alarm = (RadioButton) findViewById(R.id.rdo_auto_alarm);
-        this.rdo_manual_alarm = (RadioButton) findViewById(R.id.rdo_manual_alarm);
-        this.add_reminder = (RelativeLayout) findViewById(R.id.add_reminder);
-        this.save_reminder = (RelativeLayout) findViewById(R.id.save_reminder);
+    private void findViewByIds() {
+        rightIconBlock = findViewById(R.id.right_icon_block);
+        leftIconBlock = findViewById(R.id.left_icon_block);
+        alarmRecyclerView = findViewById(R.id.alarmRecyclerView);
+        lblNoRecordFound = findViewById(R.id.lbl_no_record_found);
+        
+        rdoReminderOn = findViewById(R.id.rdo_auto);
+        rdoReminderOff = findViewById(R.id.rdo_off);
+        rdoReminderSilent = findViewById(R.id.rdo_silent);
+        
+        soundBlock = findViewById(R.id.sound_block);
+        switchVibrate = findViewById(R.id.switch_vibrate);
+        
+        lblWakeupTime = findViewById(R.id.lbl_wakeup_time);
+        lblBedTime = findViewById(R.id.lbl_bed_time);
+        lblInterval = findViewById(R.id.lbl_interval);
+        
+        manualReminderBlock = findViewById(R.id.manual_reminder_block);
+        autoReminderBlock = findViewById(R.id.auto_reminder_block);
+        
+        rdoAutoMode = findViewById(R.id.rdo_auto_alarm);
+        rdoManualMode = findViewById(R.id.rdo_manual_alarm);
+        
+        btnAddReminder = findViewById(R.id.add_reminder);
+        btnSaveAutoReminder = findViewById(R.id.save_reminder);
+
+        lblWakeupTitle = findViewById(R.id.lblwt);
+        lblBedTitle = findViewById(R.id.lblbt);
     }
 
-    public void setAutoAlarmAndRemoveAllManualAlarm() {
-        for (int k = 0; k < this.alarmModelList.size(); k++) {
-            AlarmModel time = this.alarmModelList.get(k);
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmSundayId()));
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmMondayId()));
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmTuesdayId()));
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmWednesdayId()));
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmThursdayId()));
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmFridayId()));
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmSaturdayId()));
-        }
-        setAutoAlarm(false);
-    }
+    private void initView() {
+        // Toolbar and Titles
+        lblWakeupTitle.setText(setFirstLetterLower(stringHelper.getString(R.string.str_wakeup_time)));
+        lblBedTitle.setText(setFirstLetterLower(stringHelper.getString(R.string.str_bed_time)));
 
-    public void setAllManualAlarmAndRemoveAutoAlarm() {
-        ArrayList<HashMap<String, String>> arr_data = this.dh.getdata("tbl_alarm_details", "AlarmType='R'");
-        for (int k = 0; k < arr_data.size(); k++) {
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt((String) arr_data.get(k).get("AlarmId")));
-            Database_Helper database_Helper = this.dh;
-            ArrayList<HashMap<String, String>> arr_data2 = database_Helper.getdata("tbl_alarm_sub_details", "SuperId=" + ((String) arr_data.get(k).get("id")));
-            for (int j = 0; j < arr_data2.size(); j++) {
-                MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt((String) arr_data2.get(j).get("AlarmId")));
-            }
-        }
-        for (int k2 = 0; k2 < this.alarmModelList.size(); k2++) {
-            AlarmModel time = this.alarmModelList.get(k2);
-            StringBuilder sb = new StringBuilder();
-            sb.append("");
-            Date_Helper date_Helper = this.dth;
-            sb.append(Date_Helper.FormateDateFromString("hh:mm a", "HH", time.getDrinkTime().trim()));
-            int hourOfDay = Integer.parseInt(sb.toString());
-            StringBuilder sb2 = new StringBuilder();
-            sb2.append("");
-            Date_Helper date_Helper2 = this.dth;
-            sb2.append(Date_Helper.FormateDateFromString("hh:mm a", "mm", time.getDrinkTime().trim()));
-            int minute = Integer.parseInt(sb2.toString());
-            Log.d("setAllManualAlarm : ", "" + time.getSunday());
-            if (time.getSunday().intValue() == 1) {
-                Context context = this.mContext;
-                MyAlarmManager.scheduleManualRecurringAlarm(context, 1, hourOfDay, minute, Integer.parseInt("" + time.getAlarmSundayId()));
-            }
-            if (time.getMonday().intValue() == 1) {
-                Context context2 = this.mContext;
-                MyAlarmManager.scheduleManualRecurringAlarm(context2, 2, hourOfDay, minute, Integer.parseInt("" + time.getAlarmMondayId()));
-            }
-            if (time.getTuesday().intValue() == 1) {
-                Context context3 = this.mContext;
-                MyAlarmManager.scheduleManualRecurringAlarm(context3, 3, hourOfDay, minute, Integer.parseInt("" + time.getAlarmTuesdayId()));
-            }
-            if (time.getWednesday().intValue() == 1) {
-                Context context4 = this.mContext;
-                MyAlarmManager.scheduleManualRecurringAlarm(context4, 4, hourOfDay, minute, Integer.parseInt("" + time.getAlarmWednesdayId()));
-            }
-            if (time.getThursday().intValue() == 1) {
-                Context context5 = this.mContext;
-                MyAlarmManager.scheduleManualRecurringAlarm(context5, 5, hourOfDay, minute, Integer.parseInt("" + time.getAlarmThursdayId()));
-            }
-            if (time.getFriday().intValue() == 1) {
-                Context context6 = this.mContext;
-                MyAlarmManager.scheduleManualRecurringAlarm(context6, 6, hourOfDay, minute, Integer.parseInt("" + time.getAlarmFridayId()));
-            }
-            if (time.getSaturday().intValue() == 1) {
-                Context context7 = this.mContext;
-                MyAlarmManager.scheduleManualRecurringAlarm(context7, 7, hourOfDay, minute, Integer.parseInt("" + time.getAlarmSaturdayId()));
-            }
-        }
-    }
-
-    public void load_AutoDataFromDB() {
-        ArrayList<HashMap<String, String>> arr_data = this.dh.getdata("tbl_alarm_details", "AlarmType='R'");
-        if (arr_data.size() > 0) {
-            String[] str_date = ((String) arr_data.get(0).get("AlarmTime")).split("-");
-            if (str_date.length > 1) {
-                this.lbl_wakeup_time.setText(str_date[0].trim());
-                this.lbl_bed_time.setText(str_date[1].trim());
-            }
-            StringBuilder sb = new StringBuilder();
-            sb.append("");
-            Date_Helper date_Helper = this.dth;
-            sb.append(Date_Helper.FormateDateFromString("hh:mm a", "HH", str_date[0].trim()));
-            this.from_hour = Integer.parseInt(sb.toString());
-            StringBuilder sb2 = new StringBuilder();
-            sb2.append("");
-            Date_Helper date_Helper2 = this.dth;
-            sb2.append(Date_Helper.FormateDateFromString("hh:mm a", "mm", str_date[0].trim()));
-            this.from_minute = Integer.parseInt(sb2.toString());
-            StringBuilder sb3 = new StringBuilder();
-            sb3.append("");
-            Date_Helper date_Helper3 = this.dth;
-            sb3.append(Date_Helper.FormateDateFromString("hh:mm a", "HH", str_date[1].trim()));
-            this.to_hour = Integer.parseInt(sb3.toString());
-            StringBuilder sb4 = new StringBuilder();
-            sb4.append("");
-            Date_Helper date_Helper4 = this.dth;
-            sb4.append(Date_Helper.FormateDateFromString("hh:mm a", "mm", str_date[1].trim()));
-            this.to_minute = Integer.parseInt(sb4.toString());
-            this.interval = Integer.parseInt("" + ((String) arr_data.get(0).get("AlarmInterval")));
-            if (((String) arr_data.get(0).get("AlarmInterval")).equalsIgnoreCase("60")) {
-                AppCompatTextView appCompatTextView = this.lbl_interval;
-                appCompatTextView.setText("1 " + this.sh.get_string(R.string.str_hour));
-                return;
-            }
-            AppCompatTextView appCompatTextView2 = this.lbl_interval;
-            appCompatTextView2.setText(((String) arr_data.get(0).get("AlarmInterval")) + " " + this.sh.get_string(R.string.str_min));
-        }
-    }
-
-    private void Body() {
-        load_AutoDataFromDB();
-        this.lbl_wakeup_time.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Reminder.this.openAutoTimePicker2(Screen_Reminder.this.lbl_wakeup_time, true);
-            }
-        });
-        this.lbl_bed_time.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Reminder.this.openAutoTimePicker2(Screen_Reminder.this.lbl_bed_time, false);
-            }
-        });
-        this.lbl_interval.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Reminder.this.openIntervalPicker();
-            }
-        });
-        if (this.ph.getBoolean(URLFactory.IS_MANUAL_REMINDER)) {
-            this.rdo_manual_alarm.setChecked(true);
-            this.manual_reminder_block.setVisibility(View.VISIBLE);
-            this.auto_reminder_block.setVisibility(View.GONE);
-        } else {
-            this.rdo_auto_alarm.setChecked(true);
-            this.manual_reminder_block.setVisibility(View.GONE);
-            this.auto_reminder_block.setVisibility(View.VISIBLE);
-        }
-        this.rdo_auto_alarm.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Reminder.this.manual_reminder_block.setVisibility(View.GONE);
-                Screen_Reminder.this.auto_reminder_block.setVisibility(View.VISIBLE);
-                Screen_Reminder.this.ph.savePreferences(URLFactory.IS_MANUAL_REMINDER, false);
-            }
-        });
-        this.rdo_manual_alarm.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Reminder.this.manual_reminder_block.setVisibility(View.VISIBLE);
-                Screen_Reminder.this.auto_reminder_block.setVisibility(View.GONE);
-                Screen_Reminder.this.ph.savePreferences(URLFactory.IS_MANUAL_REMINDER, true);
-                if (Screen_Reminder.this.alarmModelList.size() > 0) {
-                    Screen_Reminder.this.lbl_no_record_found.setVisibility(View.GONE);
-                } else {
-                    Screen_Reminder.this.lbl_no_record_found.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-        this.rdo_auto_alarm.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    Screen_Reminder.this.setAutoAlarmAndRemoveAllManualAlarm();
-                }
-            }
-        });
-        this.rdo_manual_alarm.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    Screen_Reminder.this.setAllManualAlarmAndRemoveAutoAlarm();
-                }
-            }
-        });
-        this.save_reminder.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (Screen_Reminder.this.isValidDate()) {
-                    Screen_Reminder.this.setAutoAlarm(true);
-                } else {
-                    Screen_Reminder.this.ah.customAlert(Screen_Reminder.this.sh.get_string(R.string.str_from_to_invalid_validation));
-                }
-            }
-        });
-        this.add_reminder.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Reminder.this.openTimePicker();
-            }
-        });
-        this.lst_interval.clear();
-        List<String> list = this.lst_interval;
-        list.add("30 " + this.sh.get_string(R.string.str_minutes));
-        List<String> list2 = this.lst_interval;
-        list2.add("45 " + this.sh.get_string(R.string.str_minutes));
-        List<String> list3 = this.lst_interval;
-        list3.add("60 " + this.sh.get_string(R.string.str_minutes));
-        List<String> list4 = this.lst_interval;
-        list4.add("90 " + this.sh.get_string(R.string.str_minutes));
-        List<String> list5 = this.lst_interval;
-        list5.add("120 " + this.sh.get_string(R.string.str_minutes));
-        this.left_icon_block.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Screen_Reminder.this.finish();
-            }
-        });
-        this.right_icon_block.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Screen_Reminder.this.showMenu(view);
-            }
-        });
-        load_alarm();
-        this.switch_vibrate.setChecked(!this.ph.getBoolean(URLFactory.REMINDER_VIBRATE));
-        this.switch_vibrate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Screen_Reminder.this.ph.savePreferences(URLFactory.REMINDER_VIBRATE, !isChecked);
-            }
-        });
-        this.alarmAdapter = new AlarmAdapter(this.act, this.alarmModelList, new AlarmAdapter.CallBack() {
-            public void onClickSelect(AlarmModel time, int position) {
-            }
-
-            public void onClickRemove(final AlarmModel time, final int position) {
-                new AlertDialog.Builder(Screen_Reminder.this.act).setMessage(Screen_Reminder.this.sh.get_string(R.string.str_reminder_remove_confirm_message)).setPositiveButton(Screen_Reminder.this.sh.get_string(R.string.str_yes), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmSundayId()));
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmMondayId()));
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmTuesdayId()));
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmWednesdayId()));
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmThursdayId()));
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmFridayId()));
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmSaturdayId()));
-                        Screen_Reminder.this.alarmModelList.remove(position);
-                        Database_Helper database_Helper = Screen_Reminder.this.dh;
-                        database_Helper.REMOVE("tbl_alarm_details", "id=" + time.getId());
-                        Screen_Reminder.this.alarmAdapter.notifyDataSetChanged();
-                        if (Screen_Reminder.this.alarmModelList.size() > 0) {
-                            Screen_Reminder.this.lbl_no_record_found.setVisibility(View.GONE);
-                        } else {
-                            Screen_Reminder.this.lbl_no_record_found.setVisibility(View.VISIBLE);
-                        }
-                        dialog.dismiss();
-                    }
-                }).setNegativeButton(Screen_Reminder.this.sh.get_string(R.string.str_no), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        dialog.dismiss();
-                    }
-                }).show();
-            }
-
-            public void onClickEdit(AlarmModel time, int position) {
-                if (time.getIsOff().intValue() != 1) {
-                    Screen_Reminder.this.openEditTimePicker(time);
-                }
-            }
-
-            public void onClickSwitch(AlarmModel time, int position, boolean isOn) {
-                int i = position;
-                ContentValues initialValues = new ContentValues();
-                initialValues.put("IsOff", Integer.valueOf(isOn ^ true ? 1 : 0));
-                Database_Helper database_Helper = Screen_Reminder.this.dh;
-                database_Helper.UPDATE("tbl_alarm_details", initialValues, "id=" + time.getId());
-                Screen_Reminder.this.alarmModelList.get(i).setIsOff(Integer.valueOf(isOn ^ true ? 1 : 0));
-                if (isOn) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("");
-                    Date_Helper date_Helper = Screen_Reminder.this.dth;
-                    sb.append(Date_Helper.FormateDateFromString("hh:mm a", "HH", time.getDrinkTime().trim()));
-                    int hourOfDay = Integer.parseInt(sb.toString());
-                    StringBuilder sb2 = new StringBuilder();
-                    sb2.append("");
-                    Date_Helper date_Helper2 = Screen_Reminder.this.dth;
-                    sb2.append(Date_Helper.FormateDateFromString("hh:mm a", "mm", time.getDrinkTime().trim()));
-                    int minute = Integer.parseInt(sb2.toString());
-                    if (time.getSunday().intValue() == 1) {
-                        Context context = Screen_Reminder.this.mContext;
-                        MyAlarmManager.scheduleManualRecurringAlarm(context, 1, hourOfDay, minute, Integer.parseInt("" + time.getAlarmSundayId()));
-                    }
-                    if (time.getMonday().intValue() == 1) {
-                        Context context2 = Screen_Reminder.this.mContext;
-                        MyAlarmManager.scheduleManualRecurringAlarm(context2, 2, hourOfDay, minute, Integer.parseInt("" + time.getAlarmMondayId()));
-                    }
-                    if (time.getTuesday().intValue() == 1) {
-                        Context context3 = Screen_Reminder.this.mContext;
-                        MyAlarmManager.scheduleManualRecurringAlarm(context3, 3, hourOfDay, minute, Integer.parseInt("" + time.getAlarmTuesdayId()));
-                    }
-                    if (time.getWednesday().intValue() == 1) {
-                        Context context4 = Screen_Reminder.this.mContext;
-                        MyAlarmManager.scheduleManualRecurringAlarm(context4, 4, hourOfDay, minute, Integer.parseInt("" + time.getAlarmWednesdayId()));
-                    }
-                    if (time.getThursday().intValue() == 1) {
-                        Context context5 = Screen_Reminder.this.mContext;
-                        MyAlarmManager.scheduleManualRecurringAlarm(context5, 5, hourOfDay, minute, Integer.parseInt("" + time.getAlarmThursdayId()));
-                    }
-                    if (time.getFriday().intValue() == 1) {
-                        Context context6 = Screen_Reminder.this.mContext;
-                        MyAlarmManager.scheduleManualRecurringAlarm(context6, 6, hourOfDay, minute, Integer.parseInt("" + time.getAlarmFridayId()));
-                    }
-                    if (time.getSaturday().intValue() == 1) {
-                        Context context7 = Screen_Reminder.this.mContext;
-                        MyAlarmManager.scheduleManualRecurringAlarm(context7, 7, hourOfDay, minute, Integer.parseInt("" + time.getAlarmSaturdayId()));
-                    }
-                    if (Screen_Reminder.this.alarmModelList.get(i).getSunday().intValue() == 0 && Screen_Reminder.this.alarmModelList.get(i).getMonday().intValue() == 0 && Screen_Reminder.this.alarmModelList.get(i).getTuesday().intValue() == 0 && Screen_Reminder.this.alarmModelList.get(i).getThursday().intValue() == 0 && Screen_Reminder.this.alarmModelList.get(i).getWednesday().intValue() == 0 && Screen_Reminder.this.alarmModelList.get(i).getFriday().intValue() == 0 && Screen_Reminder.this.alarmModelList.get(i).getSunday().intValue() == 0) {
-                        StringBuilder sb3 = new StringBuilder();
-                        sb3.append("");
-                        Date_Helper date_Helper3 = Screen_Reminder.this.dth;
-                        sb3.append(Date_Helper.FormateDateFromString("hh:mm a", "HH", time.getDrinkTime().trim()));
-                        int tmp_from_hour = Integer.parseInt(sb3.toString());
-                        StringBuilder sb4 = new StringBuilder();
-                        sb4.append("");
-                        Date_Helper date_Helper4 = Screen_Reminder.this.dth;
-                        sb4.append(Date_Helper.FormateDateFromString("hh:mm a", "mm", time.getDrinkTime().trim()));
-                        int tmp_from_minute = Integer.parseInt(sb4.toString());
-                        int week_pos = Calendar.getInstance().get(7);
-                        ContentValues initialValues4 = new ContentValues();
-                        if (week_pos == 1) {
-                            initialValues4.put("Sunday", 1);
-                            Screen_Reminder.this.alarmModelList.get(i).setSunday(1);
-                            MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 1, tmp_from_hour, tmp_from_minute, Integer.parseInt("" + time.getAlarmSundayId()));
-                        } else if (week_pos == 2) {
-                            initialValues4.put("Monday", 1);
-                            Screen_Reminder.this.alarmModelList.get(i).setMonday(1);
-                            MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 2, tmp_from_hour, tmp_from_minute, Integer.parseInt("" + time.getAlarmMondayId()));
-                        } else if (week_pos == 3) {
-                            initialValues4.put("Tuesday", 1);
-                            Screen_Reminder.this.alarmModelList.get(i).setTuesday(1);
-                            MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 3, tmp_from_hour, tmp_from_minute, Integer.parseInt("" + time.getAlarmTuesdayId()));
-                        } else if (week_pos == 4) {
-                            initialValues4.put("Wednesday", 1);
-                            Screen_Reminder.this.alarmModelList.get(i).setWednesday(1);
-                            MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 4, tmp_from_hour, tmp_from_minute, Integer.parseInt("" + time.getAlarmWednesdayId()));
-                        } else if (week_pos == 5) {
-                            initialValues4.put("Thursday", 1);
-                            Screen_Reminder.this.alarmModelList.get(i).setThursday(1);
-                            MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 5, tmp_from_hour, tmp_from_minute, Integer.parseInt("" + time.getAlarmThursdayId()));
-                        } else if (week_pos == 6) {
-                            initialValues4.put("Friday", 1);
-                            Screen_Reminder.this.alarmModelList.get(i).setFriday(1);
-                            MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 6, tmp_from_hour, tmp_from_minute, Integer.parseInt("" + time.getAlarmFridayId()));
-                        } else if (week_pos == 7) {
-                            initialValues4.put("Saturday", 1);
-                            Screen_Reminder.this.alarmModelList.get(i).setSaturday(1);
-                            MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 7, tmp_from_hour, tmp_from_minute, Integer.parseInt("" + time.getAlarmSaturdayId()));
-                        }
-                        Screen_Reminder.this.alarmRecyclerView.post(new Runnable() {
-                            public void run() {
-                                Screen_Reminder.this.alarmAdapter.notifyDataSetChanged();
-                            }
-                        });
-                        return;
-                    }
-                    return;
-                }
-                MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmSundayId()));
-                MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmMondayId()));
-                MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmTuesdayId()));
-                MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmWednesdayId()));
-                MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmThursdayId()));
-                MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmFridayId()));
-                MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, Integer.parseInt(time.getAlarmSaturdayId()));
-            }
-
-            public void onClickWeek(AlarmModel time, int position, int week_pos, boolean isOn) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("");
-                Date_Helper date_Helper = Screen_Reminder.this.dth;
-                sb.append(Date_Helper.FormateDateFromString("hh:mm a", "HH", time.getDrinkTime().trim()));
-                int tmp_from_hour = Integer.parseInt(sb.toString());
-                StringBuilder sb2 = new StringBuilder();
-                sb2.append("");
-                Date_Helper date_Helper2 = Screen_Reminder.this.dth;
-                sb2.append(Date_Helper.FormateDateFromString("hh:mm a", "mm", time.getDrinkTime().trim()));
-                int tmp_from_minute = Integer.parseInt(sb2.toString());
-                ContentValues initialValues = new ContentValues();
-                if (isOn) {
-                    initialValues.put("IsOff", "0");
-                    Screen_Reminder.this.alarmModelList.get(position).setIsOff(Integer.valueOf(isOn ^ true ? 1 : 0));
-                }
-                if (week_pos == 0) {
-                    initialValues.put("Sunday", Integer.valueOf(isOn ? 1 : 0));
-                    Screen_Reminder.this.alarmModelList.get(position).setSunday(Integer.valueOf(isOn ? 1 : 0));
-                    int _id = Integer.parseInt("" + time.getAlarmSundayId());
-                    if (isOn) {
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 1, tmp_from_hour, tmp_from_minute, _id);
-                    } else {
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id);
-                    }
-                } else if (week_pos == 1) {
-                    initialValues.put("Monday", Integer.valueOf(isOn ? 1 : 0));
-                    Screen_Reminder.this.alarmModelList.get(position).setMonday(Integer.valueOf(isOn ? 1 : 0));
-                    int _id2 = Integer.parseInt("" + time.getAlarmMondayId());
-                    if (isOn) {
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 2, tmp_from_hour, tmp_from_minute, _id2);
-                    } else {
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id2);
-                    }
-                } else if (week_pos == 2) {
-                    initialValues.put("Tuesday", Integer.valueOf(isOn ? 1 : 0));
-                    Screen_Reminder.this.alarmModelList.get(position).setTuesday(Integer.valueOf(isOn ? 1 : 0));
-                    int _id3 = Integer.parseInt("" + time.getAlarmTuesdayId());
-                    if (isOn) {
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 3, tmp_from_hour, tmp_from_minute, _id3);
-                    } else {
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id3);
-                    }
-                } else if (week_pos == 3) {
-                    initialValues.put("Wednesday", Integer.valueOf(isOn ? 1 : 0));
-                    Screen_Reminder.this.alarmModelList.get(position).setWednesday(Integer.valueOf(isOn ? 1 : 0));
-                    int _id4 = Integer.parseInt("" + time.getAlarmWednesdayId());
-                    if (isOn) {
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 4, tmp_from_hour, tmp_from_minute, _id4);
-                    } else {
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id4);
-                    }
-                } else if (week_pos == 4) {
-                    initialValues.put("Thursday", Integer.valueOf(isOn ? 1 : 0));
-                    Screen_Reminder.this.alarmModelList.get(position).setThursday(Integer.valueOf(isOn ? 1 : 0));
-                    int _id5 = Integer.parseInt("" + time.getAlarmThursdayId());
-                    if (isOn) {
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 5, tmp_from_hour, tmp_from_minute, _id5);
-                    } else {
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id5);
-                    }
-                } else if (week_pos == 5) {
-                    initialValues.put("Friday", Integer.valueOf(isOn ? 1 : 0));
-                    Screen_Reminder.this.alarmModelList.get(position).setFriday(Integer.valueOf(isOn ? 1 : 0));
-                    int _id6 = Integer.parseInt("" + time.getAlarmFridayId());
-                    if (isOn) {
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 6, tmp_from_hour, tmp_from_minute, _id6);
-                    } else {
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id6);
-                    }
-                } else if (week_pos == 6) {
-                    initialValues.put("Saturday", Integer.valueOf(isOn ? 1 : 0));
-                    Screen_Reminder.this.alarmModelList.get(position).setSaturday(Integer.valueOf(isOn ? 1 : 0));
-                    int _id7 = Integer.parseInt("" + time.getAlarmSaturdayId());
-                    if (isOn) {
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 7, tmp_from_hour, tmp_from_minute, _id7);
-                    } else {
-                        MyAlarmManager.cancelRecurringAlarm(Screen_Reminder.this.mContext, _id7);
-                    }
-                }
-                Database_Helper database_Helper = Screen_Reminder.this.dh;
-                database_Helper.UPDATE("tbl_alarm_details", initialValues, "id=" + time.getId());
-                if (Screen_Reminder.this.alarmModelList.get(position).getSunday().intValue() == 0 && Screen_Reminder.this.alarmModelList.get(position).getMonday().intValue() == 0 && Screen_Reminder.this.alarmModelList.get(position).getTuesday().intValue() == 0 && Screen_Reminder.this.alarmModelList.get(position).getThursday().intValue() == 0 && Screen_Reminder.this.alarmModelList.get(position).getWednesday().intValue() == 0 && Screen_Reminder.this.alarmModelList.get(position).getFriday().intValue() == 0 && Screen_Reminder.this.alarmModelList.get(position).getSunday().intValue() == 0) {
-                    ContentValues initialValues2 = new ContentValues();
-                    initialValues2.put("IsOff", "1");
-                    Database_Helper database_Helper2 = Screen_Reminder.this.dh;
-                    database_Helper2.UPDATE("tbl_alarm_details", initialValues2, "id=" + time.getId());
-                    Screen_Reminder.this.alarmModelList.get(position).setIsOff(1);
-                }
-                Screen_Reminder.this.alarmAdapter.notifyDataSetChanged();
-            }
-        });
-        this.alarmRecyclerView.setLayoutManager(new LinearLayoutManager(this.act, RecyclerView.VERTICAL, false));
-        this.alarmRecyclerView.setAdapter(this.alarmAdapter);
-        if (this.ph.getInt(URLFactory.REMINDER_OPTION) == 1) {
-            this.rdo_off.setChecked(true);
-        } else if (this.ph.getInt(URLFactory.REMINDER_OPTION) == 2) {
-            this.rdo_silent.setChecked(true);
-        } else {
-            this.rdo_auto.setChecked(true);
-        }
-        this.rdo_auto.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Reminder.this.ph.savePreferences(URLFactory.REMINDER_OPTION, 0);
-            }
-        });
-        this.rdo_off.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Reminder.this.ph.savePreferences(URLFactory.REMINDER_OPTION, 1);
-            }
-        });
-        this.rdo_silent.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Reminder.this.ph.savePreferences(URLFactory.REMINDER_OPTION, 2);
-            }
-        });
+        loadAutoSettingsFromDb();
+        updateRemindersModeView();
+        updateVibrateToggle();
+        updateReminderOptionView();
+        
+        setupAlarmList();
         loadSounds();
-        this.sound_block.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Screen_Reminder.this.openSoundMenuPicker();
-            }
-        });
     }
 
-    public void showMenu(View v) {
-        PopupMenu popup = new PopupMenu(this, v);
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                if (menuItem.getItemId() != R.id.delete_item) {
-                    return false;
+    private String setFirstLetterLower(String str) {
+        if (str == null || str.isEmpty()) return "";
+        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+    }
+
+    private void setupListeners() {
+        leftIconBlock.setOnClickListener(v -> finish());
+        rightIconBlock.setOnClickListener(v -> showDeleteAllMenu(v));
+
+        lblWakeupTime.setOnClickListener(v -> openTimePickerForAuto(lblWakeupTime, true));
+        lblBedTime.setOnClickListener(v -> openTimePickerForAuto(lblBedTime, false));
+        lblInterval.setOnClickListener(v -> openIntervalPicker());
+
+        rdoAutoMode.setOnClickListener(v -> switchToAutoMode());
+        rdoManualMode.setOnClickListener(v -> switchToManualMode());
+
+        rdoAutoMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) setAutoAlarmMode();
+        });
+
+        rdoManualMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) setManualAlarmMode();
+        });
+
+        btnSaveAutoReminder.setOnClickListener(v -> {
+            if (isValidTimeRange()) {
+                applyAutoAlarm(true);
+            } else {
+                alertHelper.customAlert(stringHelper.getString(R.string.str_from_to_invalid_validation));
+            }
+        });
+
+        btnAddReminder.setOnClickListener(v -> openTimePickerForManual());
+
+        rdoReminderOn.setOnClickListener(v -> preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, 0));
+        rdoReminderOff.setOnClickListener(v -> preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, 1));
+        rdoReminderSilent.setOnClickListener(v -> preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, 2));
+
+        switchVibrate.setOnCheckedChangeListener((buttonView, isChecked) -> 
+            preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_VIBRATE, !isChecked));
+
+        soundBlock.setOnClickListener(v -> openSoundPicker());
+    }
+
+    private void switchToAutoMode() {
+        manualReminderBlock.setVisibility(View.GONE);
+        autoReminderBlock.setVisibility(View.VISIBLE);
+        preferencesHelper.savePreferences(URLFactory.KEY_IS_MANUAL_REMINDER, false);
+    }
+
+    private void switchToManualMode() {
+        manualReminderBlock.setVisibility(View.VISIBLE);
+        autoReminderBlock.setVisibility(View.GONE);
+        preferencesHelper.savePreferences(URLFactory.KEY_IS_MANUAL_REMINDER, true);
+        lblNoRecordFound.setVisibility(alarmList.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void updateRemindersModeView() {
+        boolean isManual = preferencesHelper.getBoolean(URLFactory.KEY_IS_MANUAL_REMINDER, false);
+        if (isManual) {
+            rdoManualMode.setChecked(true);
+            switchToManualMode();
+        } else {
+            rdoAutoMode.setChecked(true);
+            switchToAutoMode();
+        }
+    }
+
+    private void updateVibrateToggle() {
+        switchVibrate.setChecked(!preferencesHelper.getBoolean(URLFactory.KEY_REMINDER_VIBRATE, false));
+    }
+
+    private void updateReminderOptionView() {
+        int option = preferencesHelper.getInt(URLFactory.KEY_REMINDER_OPTION, 0);
+        if (option == 1) rdoReminderOff.setChecked(true);
+        else if (option == 2) rdoReminderSilent.setChecked(true);
+        else rdoReminderOn.setChecked(true);
+    }
+
+    private void setupAlarmList() {
+        alarmAdapter = new AlarmAdapter(mActivity, alarmList, new AlarmAdapter.CallBack() {
+            @Override
+            public void onClickSelect(AlarmModel time, int position) {}
+
+            @Override
+            public void onClickRemove(AlarmModel time, int position) {
+                confirmDeleteReminder(time, position);
+            }
+
+            @Override
+            public void onClickEdit(AlarmModel time, int position) {
+                if (time.getIsOff() != 1) openEditTimePicker(time);
+            }
+
+            @Override
+            public void onClickSwitch(AlarmModel time, int position, boolean isOn) {
+                toggleManualAlarm(time, position, isOn);
+            }
+
+            @Override
+            public void onClickWeek(AlarmModel time, int position, int weekPos, boolean isOn) {
+                toggleManualAlarmWeekDay(time, position, weekPos, isOn);
+            }
+        });
+
+        alarmRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
+        alarmRecyclerView.setAdapter(alarmAdapter);
+        loadManualAlarmsFromDb();
+    }
+
+    private void loadAutoSettingsFromDb() {
+        ArrayList<HashMap<String, String>> data = databaseHelper.getdata("tbl_alarm_details", "AlarmType='R'");
+        if (!data.isEmpty()) {
+            String timeRange = data.get(0).get("AlarmTime");
+            if (timeRange != null && timeRange.contains("-")) {
+                String[] times = timeRange.split("-");
+                if (times.length > 1) {
+                    lblWakeupTime.setText(times[0].trim());
+                    lblBedTime.setText(times[1].trim());
+                    
+                    fromHour = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "HH", times[0].trim()));
+                    fromMinute = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "mm", times[0].trim()));
+                    toHour = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "HH", times[1].trim()));
+                    toMinute = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "mm", times[1].trim()));
                 }
-                new AlertDialog.Builder(Screen_Reminder.this.act).setMessage(Screen_Reminder.this.sh.get_string(R.string.str_reminder_remove_all_confirm_message)).setPositiveButton(Screen_Reminder.this.sh.get_string(R.string.str_yes), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        Screen_Reminder.this.deleteAllManualAlarm(true);
-                        Screen_Reminder.this.rdo_auto_alarm.setChecked(true);
-                        dialog.dismiss();
-                    }
-                }).setNegativeButton(Screen_Reminder.this.sh.get_string(R.string.str_no), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        dialog.dismiss();
-                    }
-                }).show();
-                return true;
             }
-        });
-        popup.inflate(R.menu.delete_all_menu);
-        popup.show();
+            currentInterval = Integer.parseInt(data.get(0).get("AlarmInterval"));
+            updateIntervalLabel();
+        }
     }
 
-    public void deleteAllManualAlarm(boolean alsoData) {
-        for (int k = 0; k < this.alarmModelList.size(); k++) {
-            AlarmModel time = this.alarmModelList.get(k);
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmSundayId()));
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmMondayId()));
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmTuesdayId()));
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmWednesdayId()));
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmThursdayId()));
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmFridayId()));
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt(time.getAlarmSaturdayId()));
-            if (alsoData) {
-                Database_Helper database_Helper = this.dh;
-                database_Helper.REMOVE("tbl_alarm_details", "id=" + time.getId());
+    private void updateIntervalLabel() {
+        if (currentInterval == 60) {
+            lblInterval.setText(String.format(Locale.getDefault(), "1 %s", stringHelper.getString(R.string.str_hour)));
+        } else {
+            lblInterval.setText(String.format(Locale.getDefault(), "%d %s", currentInterval, stringHelper.getString(R.string.str_min)));
+        }
+    }
+
+    private void setAutoAlarmMode() {
+        cancelAllManualAlarms();
+        applyAutoAlarm(false);
+    }
+
+    private void setManualAlarmMode() {
+        cancelAllAutoAlarms();
+        reScheduleAllManualAlarms();
+    }
+
+    private void cancelAllManualAlarms() {
+        for (AlarmModel alarm : alarmList) {
+            cancelManualReminderAlarms(alarm);
+        }
+    }
+
+    private void cancelAllAutoAlarms() {
+        ArrayList<HashMap<String, String>> autoAlarms = databaseHelper.getdata("tbl_alarm_details", "AlarmType='R'");
+        for (HashMap<String, String> row : autoAlarms) {
+            String primaryId = row.get("id");
+            MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("AlarmId")));
+            
+            ArrayList<HashMap<String, String>> subAlarms = databaseHelper.getdata("tbl_alarm_sub_details", "SuperId=" + primaryId);
+            for (HashMap<String, String> subRow : subAlarms) {
+                MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(subRow.get("AlarmId")));
             }
         }
-        if (alsoData) {
-            this.alarmModelList.clear();
-            this.alarmAdapter.notifyDataSetChanged();
+    }
+
+    private void reScheduleAllManualAlarms() {
+        for (AlarmModel alarm : alarmList) {
+            if (alarm.getIsOff() == 0) {
+                scheduleManualReminderAlarms(alarm);
+            }
         }
-        this.ph.savePreferences(URLFactory.IS_MANUAL_REMINDER, false);
-        this.manual_reminder_block.setVisibility(View.GONE);
-        this.auto_reminder_block.setVisibility(View.VISIBLE);
-        setAutoAlarm(false);
     }
 
-    public void loadInterval() {
-        this.lst_intervals.clear();
-        List<IntervalModel> list = this.lst_intervals;
-        list.add(getIntervalModel(15, "15 " + this.sh.get_string(R.string.str_min)));
-        List<IntervalModel> list2 = this.lst_intervals;
-        list2.add(getIntervalModel(30, "30 " + this.sh.get_string(R.string.str_min)));
-        List<IntervalModel> list3 = this.lst_intervals;
-        list3.add(getIntervalModel(45, "45 " + this.sh.get_string(R.string.str_min)));
-        List<IntervalModel> list4 = this.lst_intervals;
-        list4.add(getIntervalModel(60, "1 " + this.sh.get_string(R.string.str_hour)));
+    private void scheduleManualReminderAlarms(AlarmModel alarm) {
+        int hour = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "HH", alarm.getDrinkTime().trim()));
+        int min = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "mm", alarm.getDrinkTime().trim()));
+
+        if (alarm.getSunday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 1, hour, min, Integer.parseInt(alarm.getAlarmSundayId()));
+        if (alarm.getMonday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 2, hour, min, Integer.parseInt(alarm.getAlarmMondayId()));
+        if (alarm.getTuesday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 3, hour, min, Integer.parseInt(alarm.getAlarmTuesdayId()));
+        if (alarm.getWednesday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 4, hour, min, Integer.parseInt(alarm.getAlarmWednesdayId()));
+        if (alarm.getThursday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 5, hour, min, Integer.parseInt(alarm.getAlarmThursdayId()));
+        if (alarm.getFriday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 6, hour, min, Integer.parseInt(alarm.getAlarmFridayId()));
+        if (alarm.getSaturday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 7, hour, min, Integer.parseInt(alarm.getAlarmSaturdayId()));
     }
 
-    public IntervalModel getIntervalModel(int index, String name) {
-        IntervalModel intervalModel = new IntervalModel();
-        intervalModel.setId(index);
-        intervalModel.setName(name);
-        intervalModel.isSelected(this.interval == index);
-        return intervalModel;
+    private void cancelManualReminderAlarms(AlarmModel alarm) {
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(alarm.getAlarmSundayId()));
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(alarm.getAlarmMondayId()));
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(alarm.getAlarmTuesdayId()));
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(alarm.getAlarmWednesdayId()));
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(alarm.getAlarmThursdayId()));
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(alarm.getAlarmFridayId()));
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(alarm.getAlarmSaturdayId()));
     }
 
-    public void openIntervalPicker() {
-        loadInterval();
-        final Dialog dialog = new Dialog(this.act);
-        dialog.requestWindowFeature(1);
-        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setSoftInputMode(16);
-        View view = LayoutInflater.from(this.act).inflate(R.layout.dialog_pick_interval, (ViewGroup) null, false);
-        RecyclerView intervalRecyclerView = (RecyclerView) view.findViewById(R.id.intervalRecyclerView);
-        this.intervalAdapter = new IntervalAdapter(this.act, this.lst_intervals, new IntervalAdapter.CallBack() {
-            public void onClickSelect(IntervalModel time, int position) {
-                for (int k = 0; k < Screen_Reminder.this.lst_intervals.size(); k++) {
-                    Screen_Reminder.this.lst_intervals.get(k).isSelected(false);
-                }
-                Screen_Reminder.this.lst_intervals.get(position).isSelected(true);
-                Screen_Reminder.this.intervalAdapter.notifyDataSetChanged();
-            }
-        });
-        intervalRecyclerView.setLayoutManager(new LinearLayoutManager(this.act, RecyclerView.VERTICAL, false));
-        intervalRecyclerView.setAdapter(this.intervalAdapter);
-        ((RelativeLayout) view.findViewById(R.id.btn_cancel)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        ((RelativeLayout) view.findViewById(R.id.btn_save)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                int k = 0;
-                while (true) {
-                    if (k >= Screen_Reminder.this.lst_intervals.size()) {
-                        break;
-                    } else if (Screen_Reminder.this.lst_intervals.get(k).isSelected()) {
-                        Screen_Reminder.this.interval = Screen_Reminder.this.lst_intervals.get(k).getId();
-                        Screen_Reminder.this.lbl_interval.setText(Screen_Reminder.this.lst_intervals.get(k).getName());
-                        break;
-                    } else {
-                        k++;
-                    }
-                }
-                dialog.dismiss();
-            }
-        });
-        dialog.setContentView(view);
-        dialog.show();
-    }
+    private void applyAutoAlarm(boolean moveBack) {
+        if (!moveBack) loadAutoSettingsFromDb();
 
-    public void openAutoTimePicker2(final AppCompatTextView appCompatTextView, final boolean isFrom) {
-        TimePickerDialog tpd;
-        TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
-            public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
-                SimpleDateFormat sdfs = new SimpleDateFormat("hh:mm a", Locale.US);
+        Calendar start = Calendar.getInstance();
+        start.set(Calendar.HOUR_OF_DAY, fromHour);
+        start.set(Calendar.MINUTE, fromMinute);
+        start.set(Calendar.SECOND, 0);
+
+        Calendar end = Calendar.getInstance();
+        end.set(Calendar.HOUR_OF_DAY, toHour);
+        end.set(Calendar.MINUTE, toMinute);
+        end.set(Calendar.SECOND, 0);
+
+        if (isNextDayEnd()) end.add(Calendar.DAY_OF_YEAR, 1);
+
+        if (start.getTimeInMillis() < end.getTimeInMillis()) {
+            clearAutoAlarmsFromDisk();
+            
+            int masterId = (int) System.currentTimeMillis();
+            ContentValues masterValues = new ContentValues();
+            masterValues.put("AlarmTime", lblWakeupTime.getText().toString() + " - " + lblBedTime.getText().toString());
+            masterValues.put("AlarmId", String.valueOf(masterId));
+            masterValues.put("AlarmType", "R");
+            masterValues.put("AlarmInterval", String.valueOf(currentInterval));
+            databaseHelper.INSERT("tbl_alarm_details", masterValues);
+            
+            String lastInsertedId = databaseHelper.GET_LAST_ID("tbl_alarm_details");
+
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
+            SimpleDateFormat displaySdf = new SimpleDateFormat("hh:mm a", Locale.US);
+
+            while (start.getTimeInMillis() <= end.getTimeInMillis()) {
                 try {
-                    if (isFrom) {
-                        Screen_Reminder.this.from_hour = hourOfDay;
-                        Screen_Reminder.this.from_minute = minute;
-                    } else {
-                        Screen_Reminder.this.to_hour = hourOfDay;
-                        Screen_Reminder.this.to_minute = minute;
-                    }
-                    Log.d("openAutoTimePicker : ", "" + Screen_Reminder.this.from_hour + "  @@@@  " + Screen_Reminder.this.from_minute);
-                    String formatedDate = sdfs.format(sdf.parse("" + hourOfDay + ":" + minute + ":00"));
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("");
-                    sb.append(formatedDate);
-                    appCompatTextView.setText(sb.toString());
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                    int subId = (int) System.currentTimeMillis();
+                    String timeStr = displaySdf.format(sdf.parse(start.get(Calendar.HOUR_OF_DAY) + ":" + start.get(Calendar.MINUTE) + ":00"));
+                    
+                    MyAlarmManager.scheduleAutoRecurringAlarm(mContext, start, subId);
+                    
+                    ContentValues subValues = new ContentValues();
+                    subValues.put("AlarmTime", timeStr);
+                    subValues.put("AlarmId", String.valueOf(subId));
+                    subValues.put("SuperId", lastInsertedId);
+                    databaseHelper.INSERT("tbl_alarm_sub_details", subValues);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error scheduling auto alarm", e);
                 }
+                start.add(Calendar.MINUTE, currentInterval);
+                try { Thread.sleep(5); } catch (InterruptedException ignore) {} // Small delay to avoid same millis for ID
             }
-        };
-        Calendar now = Calendar.getInstance();
-        if (isFrom) {
-            now.set(11, this.from_hour);
-            now.set(12, this.from_minute);
+
+            if (moveBack) finish();
         } else {
-            now.set(11, this.to_hour);
-            now.set(12, this.to_minute);
+            alertHelper.customAlert(stringHelper.getString(R.string.str_from_to_invalid_validation));
         }
-        if (!DateFormat.is24HourFormat(this.act)) {
-            tpd = TimePickerDialog.newInstance(onTimeSetListener, now.get(11), now.get(12), false);
-            tpd.setSelectableTimes(generateTimepoints(23.5d, 30));
-            tpd.setMaxTime(23, 30, 0);
-        } else {
-            tpd = TimePickerDialog.newInstance(onTimeSetListener, now.get(11), now.get(12), true);
-            tpd.setSelectableTimes(generateTimepoints(23.5d, 30));
-            tpd.setMaxTime(23, 30, 0);
-        }
-        tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(this.mContext));
-        tpd.show(getSupportFragmentManager(), "Datepickerdialog");
-        tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(this.mContext));
     }
 
-    public boolean isValidDate() {
-        Calendar startTime = Calendar.getInstance();
-        startTime.set(11, this.from_hour);
-        startTime.set(12, this.from_minute);
-        startTime.set(13, 0);
-        Calendar endTime = Calendar.getInstance();
-        endTime.set(11, this.to_hour);
-        endTime.set(12, this.to_minute);
-        endTime.set(13, 0);
-        if (isNextDayEnd()) {
-            endTime.add(5, 1);
-        }
-        Log.d("isValidDate", "" + startTime.getTimeInMillis() + " @@@ " + endTime.getTimeInMillis());
-        long mills = endTime.getTimeInMillis() - startTime.getTimeInMillis();
-        int hours = (int) (mills / 3600000);
-        int mins = (int) ((mills / 60000) % 60);
-        if (((float) this.interval) <= ((float) ((hours * 60) + mins))) {
-            return true;
-        }
-        return false;
-    }
-
-    public void deleteAutoAlarm(boolean alsoData) {
-        ArrayList<HashMap<String, String>> arr_data = this.dh.getdata("tbl_alarm_details", "AlarmType='R'");
-        for (int k = 0; k < arr_data.size(); k++) {
-            MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt((String) arr_data.get(k).get("AlarmId")));
-            Database_Helper database_Helper = this.dh;
-            ArrayList<HashMap<String, String>> arr_data2 = database_Helper.getdata("tbl_alarm_sub_details", "SuperId=" + ((String) arr_data.get(k).get("id")));
-            for (int j = 0; j < arr_data2.size(); j++) {
-                MyAlarmManager.cancelRecurringAlarm(this.mContext, Integer.parseInt((String) arr_data2.get(j).get("AlarmId")));
+    private void clearAutoAlarmsFromDisk() {
+        ArrayList<HashMap<String, String>> autoRows = databaseHelper.getdata("tbl_alarm_details", "AlarmType='R'");
+        for (HashMap<String, String> row : autoRows) {
+            String id = row.get("id");
+            MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("AlarmId")));
+            
+            ArrayList<HashMap<String, String>> subs = databaseHelper.getdata("tbl_alarm_sub_details", "SuperId=" + id);
+            for (HashMap<String, String> sub : subs) {
+                MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(sub.get("AlarmId")));
             }
-            if (alsoData) {
-                Database_Helper database_Helper2 = this.dh;
-                database_Helper2.REMOVE("tbl_alarm_details", "id=" + ((String) arr_data.get(k).get("id")));
-                Database_Helper database_Helper3 = this.dh;
-                database_Helper3.REMOVE("tbl_alarm_sub_details", "SuperId=" + ((String) arr_data.get(k).get("id")));
-            }
+            databaseHelper.remove("tbl_alarm_details", "id=" + id);
+            databaseHelper.remove("tbl_alarm_sub_details", "SuperId=" + id);
         }
     }
 
-    public boolean isNextDayEnd() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a", Locale.US);
+    private boolean isNextDayEnd() {
         try {
-            if (simpleDateFormat.parse(this.lbl_wakeup_time.getText().toString().trim()).getTime() > simpleDateFormat.parse(this.lbl_bed_time.getText().toString().trim()).getTime()) {
-                return true;
-            }
-            return false;
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.US);
+            return sdf.parse(lblWakeupTime.getText().toString().trim()).getTime() > 
+                   sdf.parse(lblBedTime.getText().toString().trim()).getTime();
         } catch (Exception e) {
             return false;
         }
     }
 
-    public void setAutoAlarm(boolean moveScreen) {
-        ContentValues initialValues;
-        int minute_interval = this.interval;
-        if (this.sh.check_blank_data(this.lbl_wakeup_time.getText().toString()) || this.sh.check_blank_data(this.lbl_bed_time.getText().toString())) {
-            this.ah.customAlert(this.sh.get_string(R.string.str_from_to_invalid_validation));
-            return;
-        }
-        if (!moveScreen) {
-            load_AutoDataFromDB();
-        }
-        Log.d("setAutoAlarm :", "" + this.from_hour + ":" + this.from_minute + "  @@@  " + this.to_hour + ":" + this.to_minute);
-        Calendar startTime = Calendar.getInstance();
-        int i = 11;
-        startTime.set(11, this.from_hour);
-        int i2 = 12;
-        startTime.set(12, this.from_minute);
-        int i3 = 13;
-        startTime.set(13, 0);
-        Calendar endTime = Calendar.getInstance();
-        endTime.set(11, this.to_hour);
-        endTime.set(12, this.to_minute);
-        endTime.set(13, 0);
-        if (isNextDayEnd()) {
-            endTime.add(5, 1);
-        }
-        if (startTime.getTimeInMillis() < endTime.getTimeInMillis()) {
-            deleteAutoAlarm(true);
-            int _id = (int) System.currentTimeMillis();
-            ContentValues initialValues2 = new ContentValues();
-            initialValues2.put("AlarmTime", "" + this.lbl_wakeup_time.getText().toString() + " - " + this.lbl_bed_time.getText().toString());
-            StringBuilder sb = new StringBuilder();
-            sb.append("");
-            sb.append(_id);
-            initialValues2.put("AlarmId", sb.toString());
-            initialValues2.put("AlarmType", "R");
-            initialValues2.put("AlarmInterval", "" + minute_interval);
-            this.dh.INSERT("tbl_alarm_details", initialValues2);
-            String getLastId = this.dh.GET_LAST_ID("tbl_alarm_details");
-            int i4 = _id;
-            while (startTime.getTimeInMillis() <= endTime.getTimeInMillis()) {
-                Log.d("ALARMTIME  : ", "" + startTime.get(i) + ":" + startTime.get(i2) + ":" + startTime.get(i3));
-                try {
-                    int _id2 = (int) System.currentTimeMillis();
-                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
-                    SimpleDateFormat sdfs = new SimpleDateFormat("hh:mm a", Locale.US);
-                    String formatedDate = sdfs.format(sdf.parse(startTime.get(i) + ":" + startTime.get(i2) + ":" + startTime.get(13)));
-                    MyAlarmManager.scheduleAutoRecurringAlarm(this.mContext, startTime, _id2);
-                    ContentValues initialValues22 = new ContentValues();
-                    StringBuilder sb2 = new StringBuilder();
-                    initialValues = initialValues2;
-                    try {
-                        sb2.append("");
-                        sb2.append(formatedDate);
-                        initialValues22.put("AlarmTime", sb2.toString());
-                        initialValues22.put("AlarmId", "" + _id2);
-                        initialValues22.put("SuperId", "" + getLastId);
-                        this.dh.INSERT("tbl_alarm_sub_details", initialValues22);
-                    } catch (Exception e) {
-                        e = e;
-                    }
-                } catch (Exception e2) {
-                    initialValues = initialValues2;
-                    e2.printStackTrace();
-                    startTime.add(12, minute_interval);
-                    initialValues2 = initialValues;
-                    i = 11;
-                    i2 = 12;
-                    i3 = 13;
-                }
-                startTime.add(12, minute_interval);
-                initialValues2 = initialValues;
-                i = 11;
-                i2 = 12;
-                i3 = 13;
-            }
-            if (moveScreen) {
-                finish();
-                return;
-            }
-            return;
-        }
-        this.ah.customAlert(this.sh.get_string(R.string.str_from_to_invalid_validation));
+    private boolean isValidTimeRange() {
+        Calendar start = Calendar.getInstance();
+        start.set(Calendar.HOUR_OF_DAY, fromHour);
+        start.set(Calendar.MINUTE, fromMinute);
+        
+        Calendar end = Calendar.getInstance();
+        end.set(Calendar.HOUR_OF_DAY, toHour);
+        end.set(Calendar.MINUTE, toMinute);
+        
+        if (isNextDayEnd()) end.add(Calendar.DAY_OF_YEAR, 1);
+        
+        long diffMinutes = (end.getTimeInMillis() - start.getTimeInMillis()) / (60 * 1000);
+        return currentInterval <= diffMinutes;
     }
 
-    public void openEditTimePicker(final AlarmModel alarmtime) {
-        TimePickerDialog tpd;
-        StringBuilder sb = new StringBuilder();
-        sb.append("");
-        Date_Helper date_Helper = this.dth;
-        sb.append(Date_Helper.FormateDateFromString("hh:mm a", "HH", alarmtime.getDrinkTime().trim()));
-        int tmp_from_hour = Integer.parseInt(sb.toString());
-        StringBuilder sb2 = new StringBuilder();
-        sb2.append("");
-        Date_Helper date_Helper2 = this.dth;
-        sb2.append(Date_Helper.FormateDateFromString("hh:mm a", "mm", alarmtime.getDrinkTime().trim()));
-        int tmp_from_minute = Integer.parseInt(sb2.toString());
-        TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
-            public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-                int i = hourOfDay;
-                int i2 = minute;
-                String formatedDate = "";
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
-                SimpleDateFormat sdfs = new SimpleDateFormat("hh:mm a", Locale.US);
-                Object obj = "";
-                try {
-                    Date dt = sdf.parse("" + i + ":" + i2 + ":00");
-                    formatedDate = sdfs.format(dt);
-                    try {
-                        Database_Helper database_Helper = Screen_Reminder.this.dh;
-                        if (!database_Helper.IS_EXISTS("tbl_alarm_details", "AlarmTime='" + formatedDate + "'")) {
-                            ContentValues initialValues = new ContentValues();
-                            initialValues.put("AlarmTime", "" + formatedDate);
-                            Database_Helper database_Helper2 = Screen_Reminder.this.dh;
-                            database_Helper2.UPDATE("tbl_alarm_details", initialValues, "id=" + alarmtime.getId());
-                            int _id_sunday = Integer.parseInt("" + alarmtime.getAlarmSundayId());
-                            int _id_monday = Integer.parseInt("" + alarmtime.getAlarmMondayId());
-                            int _id_tuesday = Integer.parseInt("" + alarmtime.getAlarmTuesdayId());
-                            int _id_wednesday = Integer.parseInt("" + alarmtime.getAlarmWednesdayId());
-                            int _id_thursday = Integer.parseInt("" + alarmtime.getAlarmThursdayId());
-                            int _id_friday = Integer.parseInt("" + alarmtime.getAlarmFridayId());
-                            StringBuilder sb = new StringBuilder();
-                            Date date = dt;
-                            sb.append("");
-                            sb.append(alarmtime.getAlarmSaturdayId());
-                            int _id_saturday = Integer.parseInt(sb.toString());
-                            String formatedDate2 = formatedDate;
-                            if (alarmtime.getSunday().intValue() == 1) {
-                                MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 1, i, i2, _id_sunday);
-                            }
-                            if (alarmtime.getMonday().intValue() == 1) {
-                                MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 2, i, i2, _id_monday);
-                            }
-                            if (alarmtime.getTuesday().intValue() == 1) {
-                                MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 3, i, i2, _id_tuesday);
-                            }
-                            if (alarmtime.getWednesday().intValue() == 1) {
-                                MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 4, i, i2, _id_wednesday);
-                            }
-                            if (alarmtime.getThursday().intValue() == 1) {
-                                MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 5, i, i2, _id_thursday);
-                            }
-                            if (alarmtime.getFriday().intValue() == 1) {
-                                MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 6, i, i2, _id_friday);
-                            }
-                            if (alarmtime.getSaturday().intValue() == 1) {
-                                MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 7, i, i2, _id_saturday);
-                            }
-                            Screen_Reminder.this.load_alarm();
-                            Screen_Reminder.this.alarmAdapter.notifyDataSetChanged();
-                            return;
-                        }
-                        String str2 = formatedDate;
-                        Screen_Reminder.this.ah.customAlert(Screen_Reminder.this.sh.get_string(R.string.str_set_alarm_validation));
-                    } catch (Exception e2) {
-                        e2.printStackTrace();
-                    }
-                } catch (ParseException e3) {
-                    e3.printStackTrace();
-                }
+    private void toggleManualAlarm(AlarmModel alarm, int position, boolean isOn) {
+        databaseHelper.UPDATE("tbl_alarm_details", createValue("IsOff", isOn ? 0 : 1), "id=" + alarm.getId());
+        alarmList.get(position).setIsOff(isOn ? 0 : 1);
+        
+        if (isOn) {
+            scheduleManualReminderAlarms(alarm);
+            // Auto enable a day if none selected
+            if (!hasAnyDaySelected(alarm)) {
+                autoAssignCurrentDay(alarm, position);
             }
-        };
-        Calendar now = Calendar.getInstance();
-        now.set(11, tmp_from_hour);
-        now.set(12, tmp_from_minute);
-        if (!DateFormat.is24HourFormat(this.act)) {
-            tpd = TimePickerDialog.newInstance(onTimeSetListener, now.get(11), now.get(12), false);
-            tpd.setSelectableTimes(generateTimepoints(23.5d, 15));
-            tpd.setMaxTime(23, 30, 0);
         } else {
-            tpd = TimePickerDialog.newInstance(onTimeSetListener, now.get(11), now.get(12), true);
-            tpd.setSelectableTimes(generateTimepoints(23.5d, 15));
-            tpd.setMaxTime(23, 30, 0);
+            cancelManualReminderAlarms(alarm);
         }
-        tpd.show(getSupportFragmentManager(), "Datepickerdialog");
-        tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(this.mContext));
     }
 
-    public void loadSounds() {
-        this.lst_sounds.clear();
-        this.lst_sounds.add(getSoundModel(0, "Default"));
-        this.lst_sounds.add(getSoundModel(1, "Bell"));
-        this.lst_sounds.add(getSoundModel(2, "Blop"));
-        this.lst_sounds.add(getSoundModel(3, "Bong"));
-        this.lst_sounds.add(getSoundModel(4, "Click"));
-        this.lst_sounds.add(getSoundModel(5, "Echo droplet"));
-        this.lst_sounds.add(getSoundModel(6, "Mario droplet"));
-        this.lst_sounds.add(getSoundModel(7, "Ship bell"));
-        this.lst_sounds.add(getSoundModel(8, "Simple droplet"));
-        this.lst_sounds.add(getSoundModel(9, "Tiny droplet"));
+    private boolean hasAnyDaySelected(AlarmModel alarm) {
+        return alarm.getSunday() == 1 || alarm.getMonday() == 1 || alarm.getTuesday() == 1 || 
+               alarm.getWednesday() == 1 || alarm.getThursday() == 1 || alarm.getFriday() == 1 || 
+               alarm.getSaturday() == 1;
     }
 
-    public SoundModel getSoundModel(int index, String name) {
-        SoundModel soundModel = new SoundModel();
-        soundModel.setId(index);
-        soundModel.setName(name);
-        soundModel.isSelected(this.ph.getInt(URLFactory.REMINDER_SOUND) == index);
-        return soundModel;
+    private void autoAssignCurrentDay(AlarmModel alarm, int pos) {
+        int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+        int hour = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "HH", alarm.getDrinkTime().trim()));
+        int min = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "mm", alarm.getDrinkTime().trim()));
+        
+        ContentValues values = new ContentValues();
+        String field = "";
+        int alarmId = 0;
+        
+        switch (day) {
+            case Calendar.SUNDAY: field = "Sunday"; alarmId = Integer.parseInt(alarm.getAlarmSundayId()); alarmList.get(pos).setSunday(1); break;
+            case Calendar.MONDAY: field = "Monday"; alarmId = Integer.parseInt(alarm.getAlarmMondayId()); alarmList.get(pos).setMonday(1); break;
+            case Calendar.TUESDAY: field = "Tuesday"; alarmId = Integer.parseInt(alarm.getAlarmTuesdayId()); alarmList.get(pos).setTuesday(1); break;
+            case Calendar.WEDNESDAY: field = "Wednesday"; alarmId = Integer.parseInt(alarm.getAlarmWednesdayId()); alarmList.get(pos).setWednesday(1); break;
+            case Calendar.THURSDAY: field = "Thursday"; alarmId = Integer.parseInt(alarm.getAlarmThursdayId()); alarmList.get(pos).setThursday(1); break;
+            case Calendar.FRIDAY: field = "Friday"; alarmId = Integer.parseInt(alarm.getAlarmFridayId()); alarmList.get(pos).setFriday(1); break;
+            case Calendar.SATURDAY: field = "Saturday"; alarmId = Integer.parseInt(alarm.getAlarmSaturdayId()); alarmList.get(pos).setSaturday(1); break;
+        }
+        
+        if (!field.isEmpty()) {
+            values.put(field, 1);
+            databaseHelper.UPDATE("tbl_alarm_details", values, "id=" + alarm.getId());
+            MyAlarmManager.scheduleManualRecurringAlarm(mContext, day, hour, min, alarmId);
+            alarmAdapter.notifyDataSetChanged();
+        }
     }
 
-    public void openSoundMenuPicker() {
-        this.bottomSheetDialogSound = new BottomSheetDialog(this.act);
-        View view = LayoutInflater.from(this.act).inflate(R.layout.dialog_sound_pick, (ViewGroup) null, false);
-        RecyclerView soundRecyclerView = (RecyclerView) view.findViewById(R.id.soundRecyclerView);
-        this.soundAdapter = new SoundAdapter(this.act, this.lst_sounds, new SoundAdapter.CallBack() {
-            public void onClickSelect(SoundModel time, int position) {
-                for (int k = 0; k < Screen_Reminder.this.lst_sounds.size(); k++) {
-                    Screen_Reminder.this.lst_sounds.get(k).isSelected(false);
-                }
-                Screen_Reminder.this.lst_sounds.get(position).isSelected(true);
-                Screen_Reminder.this.soundAdapter.notifyDataSetChanged();
-                Screen_Reminder.this.ph.savePreferences(URLFactory.REMINDER_SOUND, position);
-                if (position > 0) {
-                    Screen_Reminder.this.playSound(position);
-                }
+    private void toggleManualAlarmWeekDay(AlarmModel alarm, int pos, int weekIdx, boolean isOn) {
+        int hour = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "HH", alarm.getDrinkTime().trim()));
+        int min = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "mm", alarm.getDrinkTime().trim()));
+        
+        ContentValues values = new ContentValues();
+        if (isOn) {
+            values.put("IsOff", 0);
+            alarmList.get(pos).setIsOff(0);
+        }
+
+        String field = "";
+        int alarmId = 0;
+        int dayEnum = 0;
+        
+        switch (weekIdx) {
+            case 0: field = "Sunday"; alarmId = Integer.parseInt(alarm.getAlarmSundayId()); dayEnum = Calendar.SUNDAY; alarmList.get(pos).setSunday(isOn ? 1 : 0); break;
+            case 1: field = "Monday"; alarmId = Integer.parseInt(alarm.getAlarmMondayId()); dayEnum = Calendar.MONDAY; alarmList.get(pos).setMonday(isOn ? 1 : 0); break;
+            case 2: field = "Tuesday"; alarmId = Integer.parseInt(alarm.getAlarmTuesdayId()); dayEnum = Calendar.TUESDAY; alarmList.get(pos).setTuesday(isOn ? 1 : 0); break;
+            case 3: field = "Wednesday"; alarmId = Integer.parseInt(alarm.getAlarmWednesdayId()); dayEnum = Calendar.WEDNESDAY; alarmList.get(pos).setWednesday(isOn ? 1 : 0); break;
+            case 4: field = "Thursday"; alarmId = Integer.parseInt(alarm.getAlarmThursdayId()); dayEnum = Calendar.THURSDAY; alarmList.get(pos).setThursday(isOn ? 1 : 0); break;
+            case 5: field = "Friday"; alarmId = Integer.parseInt(alarm.getAlarmFridayId()); dayEnum = Calendar.FRIDAY; alarmList.get(pos).setFriday(isOn ? 1 : 0); break;
+            case 6: field = "Saturday"; alarmId = Integer.parseInt(alarm.getAlarmSaturdayId()); dayEnum = Calendar.SATURDAY; alarmList.get(pos).setSaturday(isOn ? 1 : 0); break;
+        }
+        
+        values.put(field, isOn ? 1 : 0);
+        databaseHelper.UPDATE("tbl_alarm_details", values, "id=" + alarm.getId());
+        
+        if (isOn) MyAlarmManager.scheduleManualRecurringAlarm(mContext, dayEnum, hour, min, alarmId);
+        else MyAlarmManager.cancelRecurringAlarm(mContext, alarmId);
+        
+        if (!hasAnyDaySelected(alarmList.get(pos))) {
+            databaseHelper.UPDATE("tbl_alarm_details", createValue("IsOff", 1), "id=" + alarm.getId());
+            alarmList.get(pos).setIsOff(1);
+        }
+        
+        alarmAdapter.notifyDataSetChanged();
+    }
+
+    private ContentValues createValue(String key, Object val) {
+        ContentValues cv = new ContentValues();
+        if (val instanceof Integer) cv.put(key, (Integer) val);
+        else if (val instanceof String) cv.put(key, (String) val);
+        return cv;
+    }
+
+    private void confirmDeleteReminder(AlarmModel alarm, int pos) {
+        new AlertDialog.Builder(mActivity)
+            .setMessage(stringHelper.getString(R.string.str_reminder_remove_confirm_message))
+            .setPositiveButton(R.string.str_yes, (d, w) -> {
+                cancelManualReminderAlarms(alarm);
+                databaseHelper.remove("tbl_alarm_details", "id=" + alarm.getId());
+                alarmList.remove(pos);
+                alarmAdapter.notifyDataSetChanged();
+                lblNoRecordFound.setVisibility(alarmList.isEmpty() ? View.VISIBLE : View.GONE);
+            })
+            .setNegativeButton(R.string.str_no, null)
+            .show();
+    }
+
+    private void showDeleteAllMenu(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        popup.getMenuInflater().inflate(R.menu.delete_all_menu, popup.getMenu());
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.delete_item) {
+                new AlertDialog.Builder(mActivity)
+                    .setMessage(stringHelper.getString(R.string.str_reminder_remove_all_confirm_message))
+                    .setPositiveButton(R.string.str_yes, (d, w) -> deleteAllManualAlarms())
+                    .setNegativeButton(R.string.str_no, null)
+                    .show();
+                return true;
             }
+            return false;
         });
-        soundRecyclerView.setLayoutManager(new LinearLayoutManager(this.act, RecyclerView.VERTICAL, false));
-        soundRecyclerView.setAdapter(this.soundAdapter);
-        view.findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Screen_Reminder.this.bottomSheetDialogSound.dismiss();
-            }
+        popup.show();
+    }
+
+    private void deleteAllManualAlarms() {
+        cancelAllManualAlarms();
+        databaseHelper.remove("tbl_alarm_details", "AlarmType='M'");
+        alarmList.clear();
+        alarmAdapter.notifyDataSetChanged();
+        switchToAutoMode();
+        rdoAutoMode.setChecked(true);
+        applyAutoAlarm(false);
+    }
+
+    private void loadManualAlarmsFromDb() {
+        alarmList.clear();
+        ArrayList<HashMap<String, String>> data = databaseHelper.getdata("tbl_alarm_details", "AlarmType='M'");
+        for (HashMap<String, String> row : data) {
+            AlarmModel model = new AlarmModel();
+            model.setId(row.get("id"));
+            model.setDrinkTime(row.get("AlarmTime"));
+            model.setAlarmId(row.get("AlarmId"));
+            model.setAlarmType(row.get("AlarmType"));
+            model.setAlarmInterval(row.get("AlarmInterval"));
+            model.setIsOff(Integer.parseInt(row.get("IsOff")));
+            model.setSunday(Integer.parseInt(row.get("Sunday")));
+            model.setMonday(Integer.parseInt(row.get("Monday")));
+            model.setTuesday(Integer.parseInt(row.get("Tuesday")));
+            model.setWednesday(Integer.parseInt(row.get("Wednesday")));
+            model.setThursday(Integer.parseInt(row.get("Thursday")));
+            model.setFriday(Integer.parseInt(row.get("Friday")));
+            model.setSaturday(Integer.parseInt(row.get("Saturday")));
+            model.setAlarmSundayId(row.get("SundayAlarmId"));
+            model.setAlarmMondayId(row.get("MondayAlarmId"));
+            model.setAlarmTuesdayId(row.get("TuesdayAlarmId"));
+            model.setAlarmWednesdayId(row.get("WednesdayAlarmId"));
+            model.setAlarmThursdayId(row.get("ThursdayAlarmId"));
+            model.setAlarmFridayId(row.get("FridayAlarmId"));
+            model.setAlarmSaturdayId(row.get("SaturdayAlarmId"));
+            alarmList.add(model);
+        }
+        lblNoRecordFound.setVisibility(alarmList.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void openIntervalPicker() {
+        loadIntervals();
+        Dialog dialog = new Dialog(mActivity);
+        dialog.requestWindowFeature(1);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_pick_interval, null);
+        RecyclerView rv = view.findViewById(R.id.intervalRecyclerView);
+        intervalAdapter = new IntervalAdapter(mActivity, intervalList, (item, pos) -> {
+            for (IntervalModel m : intervalList) m.isSelected(false);
+            intervalList.get(pos).isSelected(true);
+            intervalAdapter.notifyDataSetChanged();
         });
-        this.bottomSheetDialogSound.setContentView(view);
-        this.bottomSheetDialogSound.show();
-    }
+        rv.setLayoutManager(new LinearLayoutManager(mActivity));
+        rv.setAdapter(intervalAdapter);
 
-    public void playSound(int idx) {
-        MediaPlayer mp = null;
-        if (idx == 1) {
-            mp = MediaPlayer.create(this, R.raw.bell);
-        } else if (idx == 2) {
-            mp = MediaPlayer.create(this, R.raw.blop);
-        } else if (idx == 3) {
-            mp = MediaPlayer.create(this, R.raw.bong);
-        } else if (idx == 4) {
-            mp = MediaPlayer.create(this, R.raw.click);
-        } else if (idx == 5) {
-            mp = MediaPlayer.create(this, R.raw.echo_droplet);
-        } else if (idx == 6) {
-            mp = MediaPlayer.create(this, R.raw.mario_droplet);
-        } else if (idx == 7) {
-            mp = MediaPlayer.create(this, R.raw.ship_bell);
-        } else if (idx == 8) {
-            mp = MediaPlayer.create(this, R.raw.simple_droplet);
-        } else if (idx == 9) {
-            mp = MediaPlayer.create(this, R.raw.tiny_droplet);
-        }
-        mp.start();
-    }
-
-    public void load_alarm() {
-        this.alarmModelList.clear();
-        ArrayList<HashMap<String, String>> arr_data = this.dh.getdata("tbl_alarm_details", "AlarmType='M'");
-        for (int k = 0; k < arr_data.size(); k++) {
-            AlarmModel alarmModel = new AlarmModel();
-            alarmModel.setDrinkTime((String) arr_data.get(k).get("AlarmTime"));
-            alarmModel.setId((String) arr_data.get(k).get("id"));
-            alarmModel.setAlarmId((String) arr_data.get(k).get("AlarmId"));
-            alarmModel.setAlarmType((String) arr_data.get(k).get("AlarmType"));
-            alarmModel.setAlarmInterval((String) arr_data.get(k).get("AlarmInterval"));
-            alarmModel.setIsOff(Integer.valueOf(Integer.parseInt((String) arr_data.get(k).get("IsOff"))));
-            alarmModel.setSunday(Integer.valueOf(Integer.parseInt((String) arr_data.get(k).get("Sunday"))));
-            alarmModel.setMonday(Integer.valueOf(Integer.parseInt((String) arr_data.get(k).get("Monday"))));
-            alarmModel.setTuesday(Integer.valueOf(Integer.parseInt((String) arr_data.get(k).get("Tuesday"))));
-            alarmModel.setWednesday(Integer.valueOf(Integer.parseInt((String) arr_data.get(k).get("Wednesday"))));
-            alarmModel.setThursday(Integer.valueOf(Integer.parseInt((String) arr_data.get(k).get("Thursday"))));
-            alarmModel.setFriday(Integer.valueOf(Integer.parseInt((String) arr_data.get(k).get("Friday"))));
-            alarmModel.setSaturday(Integer.valueOf(Integer.parseInt((String) arr_data.get(k).get("Saturday"))));
-            alarmModel.setAlarmSundayId((String) arr_data.get(k).get("SundayAlarmId"));
-            alarmModel.setAlarmMondayId((String) arr_data.get(k).get("MondayAlarmId"));
-            alarmModel.setAlarmTuesdayId((String) arr_data.get(k).get("TuesdayAlarmId"));
-            alarmModel.setAlarmWednesdayId((String) arr_data.get(k).get("WednesdayAlarmId"));
-            alarmModel.setAlarmThursdayId((String) arr_data.get(k).get("ThursdayAlarmId"));
-            alarmModel.setAlarmFridayId((String) arr_data.get(k).get("FridayAlarmId"));
-            alarmModel.setAlarmSaturdayId((String) arr_data.get(k).get("SaturdayAlarmId"));
-            this.alarmModelList.add(alarmModel);
-        }
-        if (this.alarmModelList.size() > 0) {
-            this.lbl_no_record_found.setVisibility(View.GONE);
-        } else {
-            this.lbl_no_record_found.setVisibility(View.VISIBLE);
-        }
-    }
-
-    public void openTimePicker() {
-        TimePickerDialog tpd;
-        TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
-            public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-                int i = hourOfDay;
-                int i2 = minute;
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
-                SimpleDateFormat sdfs = new SimpleDateFormat("hh:mm a", Locale.US);
-                Object obj = "";
-                try {
-                    Date dt = sdf.parse("" + i + ":" + i2 + ":00");
-                    String formatedDate = sdfs.format(dt);
-                    Database_Helper database_Helper = Screen_Reminder.this.dh;
-                    if (!database_Helper.IS_EXISTS("tbl_alarm_details", "AlarmTime='" + formatedDate + "'")) {
-                        int _id = (int) System.currentTimeMillis();
-                        int _id_sunday = (int) System.currentTimeMillis();
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 1, i, i2, _id_sunday);
-                        int _id_monday = (int) System.currentTimeMillis();
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 2, i, i2, _id_monday);
-                        int _id_tuesday = (int) System.currentTimeMillis();
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 3, i, i2, _id_tuesday);
-                        int _id_wednesday = (int) System.currentTimeMillis();
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 4, i, i2, _id_wednesday);
-                        int _id_thursday = (int) System.currentTimeMillis();
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 5, i, i2, _id_thursday);
-                        int _id_friday = (int) System.currentTimeMillis();
-                        Date date = dt;
-                        MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 6, i, i2, _id_friday);
-                        SimpleDateFormat simpleDateFormat = sdf;
-                        SimpleDateFormat simpleDateFormat2 = sdfs;
-                        try {
-                            int _id_saturday = (int) System.currentTimeMillis();
-                            MyAlarmManager.scheduleManualRecurringAlarm(Screen_Reminder.this.mContext, 7, i, i2, _id_saturday);
-                            ContentValues initialValues = new ContentValues();
-                            initialValues.put("AlarmTime", "" + formatedDate);
-                            initialValues.put("AlarmId", "" + _id);
-                            initialValues.put("SundayAlarmId", "" + _id_sunday);
-                            initialValues.put("MondayAlarmId", "" + _id_monday);
-                            initialValues.put("TuesdayAlarmId", "" + _id_tuesday);
-                            initialValues.put("WednesdayAlarmId", "" + _id_wednesday);
-                            initialValues.put("ThursdayAlarmId", "" + _id_thursday);
-                            initialValues.put("FridayAlarmId", "" + _id_friday);
-                            initialValues.put("SaturdayAlarmId", "" + _id_saturday);
-                            initialValues.put("AlarmType", "M");
-                            initialValues.put("AlarmInterval", "0");
-                            Screen_Reminder.this.dh.INSERT("tbl_alarm_details", initialValues);
-                            Screen_Reminder.this.load_alarm();
-                            Screen_Reminder.this.alarmAdapter.notifyDataSetChanged();
-                            Screen_Reminder.this.ah.customAlert(Screen_Reminder.this.sh.get_string(R.string.str_successfully_set_alarm));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        SimpleDateFormat simpleDateFormat3 = sdf;
-                        SimpleDateFormat simpleDateFormat4 = sdfs;
-                        Screen_Reminder.this.ah.customAlert(Screen_Reminder.this.sh.get_string(R.string.str_set_alarm_validation));
-                    }
-                } catch (ParseException e2) {
-                    SimpleDateFormat simpleDateFormat5 = sdf;
-                    SimpleDateFormat simpleDateFormat6 = sdfs;
-                    e2.printStackTrace();
+        view.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
+        view.findViewById(R.id.btn_save).setOnClickListener(v -> {
+            for (IntervalModel m : intervalList) {
+                if (m.isSelected()) {
+                    currentInterval = m.getId();
+                    updateIntervalLabel();
+                    break;
                 }
             }
-        };
+            dialog.dismiss();
+        });
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private void loadIntervals() {
+        intervalList.clear();
+        intervalList.add(newInterval(15, "15 " + stringHelper.getString(R.string.str_min)));
+        intervalList.add(newInterval(30, "30 " + stringHelper.getString(R.string.str_min)));
+        intervalList.add(newInterval(45, "45 " + stringHelper.getString(R.string.str_min)));
+        intervalList.add(newInterval(60, "1 " + stringHelper.getString(R.string.str_hour)));
+    }
+
+    private IntervalModel newInterval(int id, String name) {
+        IntervalModel m = new IntervalModel();
+        m.setId(id);
+        m.setName(name);
+        m.isSelected(id == currentInterval);
+        return m;
+    }
+
+    private void openTimePickerForAuto(AppCompatTextView label, boolean isFrom) {
+        int h = isFrom ? fromHour : toHour;
+        int m = isFrom ? fromMinute : toMinute;
+
+        TimePickerDialog tpd = TimePickerDialog.newInstance((v, hourOfDay, minute, second) -> {
+            if (isFrom) { fromHour = hourOfDay; fromMinute = minute; }
+            else { toHour = hourOfDay; toMinute = minute; }
+            
+            try {
+                SimpleDateFormat hms = new SimpleDateFormat("HH:mm:ss", Locale.US);
+                SimpleDateFormat display = new SimpleDateFormat("hh:mm a", Locale.US);
+                label.setText(display.format(hms.parse(hourOfDay + ":" + minute + ":00")));
+            } catch (Exception ignored) {}
+        }, h, m, DateFormat.is24HourFormat(mActivity));
+
+        tpd.setSelectableTimes(generateTimepoints(23.5, 30));
+        tpd.setMaxTime(23, 30, 0);
+        tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(mContext));
+        tpd.show(getSupportFragmentManager(), "TimePickerAuto");
+    }
+
+    private void openTimePickerForManual() {
         Calendar now = Calendar.getInstance();
-        if (!DateFormat.is24HourFormat(this.act)) {
-            tpd = TimePickerDialog.newInstance(onTimeSetListener, now.get(11), now.get(12), false);
-            tpd.setSelectableTimes(generateTimepoints(23.5d, 15));
-            tpd.setMaxTime(23, 30, 0);
-        } else {
-            tpd = TimePickerDialog.newInstance(onTimeSetListener, now.get(11), now.get(12), true);
-            tpd.setSelectableTimes(generateTimepoints(23.5d, 15));
-            tpd.setMaxTime(23, 30, 0);
+        TimePickerDialog tpd = TimePickerDialog.newInstance((v, h, m, s) -> {
+            try {
+                SimpleDateFormat hms = new SimpleDateFormat("HH:mm:ss", Locale.US);
+                SimpleDateFormat display = new SimpleDateFormat("hh:mm a", Locale.US);
+                String timeStr = display.format(hms.parse(h + ":" + m + ":00"));
+
+                if (!databaseHelper.IS_EXISTS("tbl_alarm_details", "AlarmTime='" + timeStr + "'")) {
+                    saveNewManualAlarm(timeStr, h, m);
+                } else {
+                    alertHelper.customAlert(stringHelper.getString(R.string.str_set_alarm_validation));
+                }
+            } catch (Exception ignored) {}
+        }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), DateFormat.is24HourFormat(mActivity));
+
+        tpd.setSelectableTimes(generateTimepoints(23.5, 15));
+        tpd.setMaxTime(23, 30, 0);
+        tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(mContext));
+        tpd.show(getSupportFragmentManager(), "TimePickerManual");
+    }
+
+    private void saveNewManualAlarm(String timeStr, int h, int m) {
+        int masterId = (int) System.currentTimeMillis();
+        int[] dayIds = new int[7];
+        for (int i = 0; i < 7; i++) {
+            dayIds[i] = (int) System.currentTimeMillis() + i + 1;
+            MyAlarmManager.scheduleManualRecurringAlarm(mContext, i + 1, h, m, dayIds[i]);
+            try { Thread.sleep(2); } catch (Exception ignore) {}
         }
-        tpd.show(getSupportFragmentManager(), "Datepickerdialog");
-        tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(this.mContext));
+
+        ContentValues cv = new ContentValues();
+        cv.put("AlarmTime", timeStr);
+        cv.put("AlarmId", String.valueOf(masterId));
+        cv.put("SundayAlarmId", String.valueOf(dayIds[0]));
+        cv.put("MondayAlarmId", String.valueOf(dayIds[1]));
+        cv.put("TuesdayAlarmId", String.valueOf(dayIds[2]));
+        cv.put("WednesdayAlarmId", String.valueOf(dayIds[3]));
+        cv.put("ThursdayAlarmId", String.valueOf(dayIds[4]));
+        cv.put("FridayAlarmId", String.valueOf(dayIds[5]));
+        cv.put("SaturdayAlarmId", String.valueOf(dayIds[6]));
+        cv.put("AlarmType", "M");
+        cv.put("AlarmInterval", "0");
+        cv.put("IsOff", 0);
+        cv.put("Sunday", 1); cv.put("Monday", 1); cv.put("Tuesday", 1); cv.put("Wednesday", 1);
+        cv.put("Thursday", 1); cv.put("Friday", 1); cv.put("Saturday", 1);
+        
+        databaseHelper.INSERT("tbl_alarm_details", cv);
+        loadManualAlarmsFromDb();
+        alarmAdapter.notifyDataSetChanged();
+        alertHelper.customAlert(stringHelper.getString(R.string.str_successfully_set_alarm));
+    }
+
+    private void openEditTimePicker(AlarmModel alarm) {
+        int h = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "HH", alarm.getDrinkTime().trim()));
+        int m = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "mm", alarm.getDrinkTime().trim()));
+
+        TimePickerDialog tpd = TimePickerDialog.newInstance((v, selectedH, selectedM, s) -> {
+            try {
+                SimpleDateFormat hms = new SimpleDateFormat("HH:mm:ss", Locale.US);
+                SimpleDateFormat display = new SimpleDateFormat("hh:mm a", Locale.US);
+                String timeStr = display.format(hms.parse(selectedH + ":" + selectedM + ":00"));
+
+                if (!databaseHelper.IS_EXISTS("tbl_alarm_details", "AlarmTime='" + timeStr + "'")) {
+                    updateManualAlarm(alarm, timeStr, selectedH, selectedM);
+                } else {
+                    alertHelper.customAlert(stringHelper.getString(R.string.str_set_alarm_validation));
+                }
+            } catch (Exception ignored) {}
+        }, h, m, DateFormat.is24HourFormat(mActivity));
+
+        tpd.setSelectableTimes(generateTimepoints(23.5, 15));
+        tpd.setMaxTime(23, 30, 0);
+        tpd.setAccentColor(MasterBaseAppCompatActivity.getThemeColor(mContext));
+        tpd.show(getSupportFragmentManager(), "TimePickerEdit");
+    }
+
+    private void updateManualAlarm(AlarmModel alarm, String timeStr, int h, int m) {
+        databaseHelper.UPDATE("tbl_alarm_details", createValue("AlarmTime", timeStr), "id=" + alarm.getId());
+        
+        if (alarm.getSunday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 1, h, m, Integer.parseInt(alarm.getAlarmSundayId()));
+        if (alarm.getMonday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 2, h, m, Integer.parseInt(alarm.getAlarmMondayId()));
+        if (alarm.getTuesday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 3, h, m, Integer.parseInt(alarm.getAlarmTuesdayId()));
+        if (alarm.getWednesday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 4, h, m, Integer.parseInt(alarm.getAlarmWednesdayId()));
+        if (alarm.getThursday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 5, h, m, Integer.parseInt(alarm.getAlarmThursdayId()));
+        if (alarm.getFriday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 6, h, m, Integer.parseInt(alarm.getAlarmFridayId()));
+        if (alarm.getSaturday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 7, h, m, Integer.parseInt(alarm.getAlarmSaturdayId()));
+        
+        loadManualAlarmsFromDb();
+        alarmAdapter.notifyDataSetChanged();
+    }
+
+    private void openSoundPicker() {
+        soundSheetDialog = new BottomSheetDialog(mActivity);
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_sound_pick, null);
+        RecyclerView rv = view.findViewById(R.id.soundRecyclerView);
+        
+        soundAdapter = new SoundAdapter(mActivity, soundList, (item, pos) -> {
+            for (SoundModel s : soundList) s.isSelected(false);
+            soundList.get(pos).isSelected(true);
+            soundAdapter.notifyDataSetChanged();
+            preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_SOUND, pos);
+            if (pos > 0) playPreviewSound(pos);
+        });
+        
+        rv.setLayoutManager(new LinearLayoutManager(mActivity));
+        rv.setAdapter(soundAdapter);
+        
+        view.findViewById(R.id.btn_cancel).setOnClickListener(v -> soundSheetDialog.dismiss());
+        soundSheetDialog.setContentView(view);
+        soundSheetDialog.show();
+    }
+
+    private void loadSounds() {
+        soundList.clear();
+        String[] names = {"Default", "Bell", "Blop", "Bong", "Click", "Echo droplet", "Mario droplet", "Ship bell", "Simple droplet", "Tiny droplet"};
+        int selected = preferencesHelper.getInt(URLFactory.KEY_REMINDER_SOUND, 0);
+        for (int i = 0; i < names.length; i++) {
+            SoundModel m = new SoundModel();
+            m.setId(i);
+            m.setName(names[i]);
+            m.isSelected(i == selected);
+            soundList.add(m);
+        }
+    }
+
+    private void playPreviewSound(int idx) {
+        int resId = 0;
+        switch (idx) {
+            case 1: resId = R.raw.bell; break;
+            case 2: resId = R.raw.blop; break;
+            case 3: resId = R.raw.bong; break;
+            case 4: resId = R.raw.click; break;
+            case 5: resId = R.raw.echo_droplet; break;
+            case 6: resId = R.raw.mario_droplet; break;
+            case 7: resId = R.raw.ship_bell; break;
+            case 8: resId = R.raw.simple_droplet; break;
+            case 9: resId = R.raw.tiny_droplet; break;
+        }
+        if (resId != 0) {
+            MediaPlayer mp = MediaPlayer.create(this, resId);
+            mp.setOnCompletionListener(MediaPlayer::release);
+            mp.start();
+        }
+    }
+
+    public static Timepoint[] generateTimepoints(double maxHour, int minutesInterval) {
+        int lastValue = (int) (60 * maxHour);
+        List<Timepoint> points = new ArrayList<>();
+        for (int m = 0; m <= lastValue; m += minutesInterval) {
+            int h = m / 60;
+            int mm = m % 60;
+            if (h < 24) points.add(new Timepoint(h, mm));
+        }
+        return points.toArray(new Timepoint[0]);
     }
 }

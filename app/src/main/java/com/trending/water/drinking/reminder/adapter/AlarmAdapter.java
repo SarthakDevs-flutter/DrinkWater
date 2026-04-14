@@ -1,180 +1,125 @@
 package com.trending.water.drinking.reminder.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.trending.water.drinking.reminder.R;
+import com.trending.water.drinking.reminder.base.BaseAdapter;
 import com.trending.water.drinking.reminder.model.AlarmModel;
 
-import java.util.ArrayList;
+import java.util.List;
 
-@SuppressLint({"NewApi"})
-public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.ViewHolder> {
-    /* access modifiers changed from: private */
-    public final ArrayList<AlarmModel> alarmList;
-    CallBack callBack;
-    Context mContext;
+public class AlarmAdapter extends BaseAdapter<AlarmModel, AlarmAdapter.ViewHolder> {
 
-    public AlarmAdapter(Context c, ArrayList<AlarmModel> alarmList2, CallBack callBack2) {
-        this.mContext = c;
-        this.alarmList = alarmList2;
-        this.callBack = callBack2;
+    private final CallBack callBack;
+
+    public AlarmAdapter(@NonNull Context context, @NonNull List<AlarmModel> alarmList, @NonNull CallBack callBack) {
+        super(context, alarmList);
+        this.callBack = callBack;
     }
 
-    public long getItemId(int position) {
-        return 0;
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new ViewHolder(inflater.inflate(R.layout.row_item_alarm, parent, false));
     }
 
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(this.mContext).inflate(R.layout.row_item_alarm, parent, false));
-    }
+    @Override
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+        final AlarmModel alarm = getItem(position);
+        if (alarm == null) return;
 
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
-        holder.lbl_time.setText(this.alarmList.get(position).getDrinkTime());
-        if (this.alarmList.get(position).getAlarmType().equalsIgnoreCase("R")) {
-            TextView textView = holder.lbl_time;
-            textView.setText(holder.lbl_time.getText() + "\n" + this.mContext.getResources().getString(R.string.str_every) + " " + this.alarmList.get(position).getAlarmInterval() + " " + this.mContext.getResources().getString(R.string.str_minutes).toLowerCase());
+        holder.lblTime.setText(alarm.getDrinkTime());
+        if ("R".equalsIgnoreCase(alarm.getAlarmType())) {
+            String every = context.getString(R.string.str_every);
+            String minutes = context.getString(R.string.str_minutes).toLowerCase();
+            String timeText = alarm.getDrinkTime() + "\n" + every + " " + alarm.getAlarmInterval() + " " + minutes;
+            holder.lblTime.setText(timeText);
         }
-        holder.item_block.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                AlarmAdapter.this.callBack.onClickSelect((AlarmModel) AlarmAdapter.this.alarmList.get(position), position);
-            }
-        });
-        holder.img_remove.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                AlarmAdapter.this.showMenu(view, (AlarmModel) AlarmAdapter.this.alarmList.get(position), position);
-            }
-        });
-        boolean z = false;
-        holder.switch_reminder.setChecked(this.alarmList.get(position).getIsOff().intValue() != 1);
-        holder.switch_reminder.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                AlarmAdapter.this.callBack.onClickSwitch((AlarmModel) AlarmAdapter.this.alarmList.get(position), position, isChecked);
-            }
-        });
-        holder.chk_sunday.setChecked(this.alarmList.get(position).getSunday().intValue() == 1);
-        holder.chk_monday.setChecked(this.alarmList.get(position).getMonday().intValue() == 1);
-        holder.chk_tuesday.setChecked(this.alarmList.get(position).getTuesday().intValue() == 1);
-        holder.chk_wednesday.setChecked(this.alarmList.get(position).getWednesday().intValue() == 1);
-        holder.chk_thursday.setChecked(this.alarmList.get(position).getThursday().intValue() == 1);
-        holder.chk_friday.setChecked(this.alarmList.get(position).getFriday().intValue() == 1);
-        CheckBox checkBox = holder.chk_saturday;
-        if (this.alarmList.get(position).getSaturday().intValue() == 1) {
-            z = true;
-        }
-        checkBox.setChecked(z);
-        holder.chk_sunday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                AlarmAdapter.this.callBack.onClickWeek((AlarmModel) AlarmAdapter.this.alarmList.get(position), position, 0, holder.chk_sunday.isChecked());
-            }
-        });
-        holder.chk_monday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                AlarmAdapter.this.callBack.onClickWeek((AlarmModel) AlarmAdapter.this.alarmList.get(position), position, 1, holder.chk_monday.isChecked());
-            }
-        });
-        holder.chk_tuesday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                AlarmAdapter.this.callBack.onClickWeek((AlarmModel) AlarmAdapter.this.alarmList.get(position), position, 2, holder.chk_tuesday.isChecked());
-            }
-        });
-        holder.chk_wednesday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                AlarmAdapter.this.callBack.onClickWeek((AlarmModel) AlarmAdapter.this.alarmList.get(position), position, 3, holder.chk_wednesday.isChecked());
-            }
-        });
-        holder.chk_thursday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                AlarmAdapter.this.callBack.onClickWeek((AlarmModel) AlarmAdapter.this.alarmList.get(position), position, 4, holder.chk_thursday.isChecked());
-            }
-        });
-        holder.chk_friday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                AlarmAdapter.this.callBack.onClickWeek((AlarmModel) AlarmAdapter.this.alarmList.get(position), position, 5, holder.chk_friday.isChecked());
-            }
-        });
-        holder.chk_saturday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                AlarmAdapter.this.callBack.onClickWeek((AlarmModel) AlarmAdapter.this.alarmList.get(position), position, 6, holder.chk_saturday.isChecked());
-            }
-        });
+
+        holder.itemBlock.setOnClickListener(v -> callBack.onClickSelect(alarm, position));
+        holder.imgRemove.setOnClickListener(v -> showPopupMenu(v, alarm, position));
+
+        holder.switchReminder.setOnCheckedChangeListener(null);
+        holder.switchReminder.setChecked(alarm.getIsOff() != 1);
+        holder.switchReminder.setOnCheckedChangeListener((buttonView, isChecked) -> callBack.onClickSwitch(alarm, position, isChecked));
+
+        setupWeekCheckboxes(holder, alarm, position);
     }
 
-    public void showMenu(View v, final AlarmModel alarmModel, final int position) {
-        PopupMenu popup = new PopupMenu(this.mContext, v);
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                int itemId = menuItem.getItemId();
-                if (itemId == R.id.delete_item) {
-                    AlarmAdapter.this.callBack.onClickRemove(alarmModel, position);
-                    return true;
-                } else if (itemId != R.id.edit_item) {
-                    return false;
-                } else {
-                    AlarmAdapter.this.callBack.onClickEdit(alarmModel, position);
-                    return true;
-                }
+    private void setupWeekCheckboxes(@NonNull ViewHolder holder, @NonNull final AlarmModel alarm, final int position) {
+        holder.chkSunday.setChecked(alarm.getSunday() == 1);
+        holder.chkMonday.setChecked(alarm.getMonday() == 1);
+        holder.chkTuesday.setChecked(alarm.getTuesday() == 1);
+        holder.chkWednesday.setChecked(alarm.getWednesday() == 1);
+        holder.chkThursday.setChecked(alarm.getThursday() == 1);
+        holder.chkFriday.setChecked(alarm.getFriday() == 1);
+        holder.chkSaturday.setChecked(alarm.getSaturday() == 1);
+
+        holder.chkSunday.setOnClickListener(v -> callBack.onClickWeek(alarm, position, 0, holder.chkSunday.isChecked()));
+        holder.chkMonday.setOnClickListener(v -> callBack.onClickWeek(alarm, position, 1, holder.chkMonday.isChecked()));
+        holder.chkTuesday.setOnClickListener(v -> callBack.onClickWeek(alarm, position, 2, holder.chkTuesday.isChecked()));
+        holder.chkWednesday.setOnClickListener(v -> callBack.onClickWeek(alarm, position, 3, holder.chkWednesday.isChecked()));
+        holder.chkThursday.setOnClickListener(v -> callBack.onClickWeek(alarm, position, 4, holder.chkThursday.isChecked()));
+        holder.chkFriday.setOnClickListener(v -> callBack.onClickWeek(alarm, position, 5, holder.chkFriday.isChecked()));
+        holder.chkSaturday.setOnClickListener(v -> callBack.onClickWeek(alarm, position, 6, holder.chkSaturday.isChecked()));
+    }
+
+    private void showPopupMenu(View view, final AlarmModel alarm, final int position) {
+        PopupMenu popup = new PopupMenu(context, view);
+        popup.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.delete_item) {
+                callBack.onClickRemove(alarm, position);
+                return true;
+            } else if (itemId == R.id.edit_item) {
+                callBack.onClickEdit(alarm, position);
+                return true;
             }
+            return false;
         });
         popup.inflate(R.menu.manual_reminder_menu);
         popup.show();
     }
 
-    public int getItemCount() {
-        return this.alarmList.size();
-    }
-
     public interface CallBack {
-        void onClickEdit(AlarmModel alarmModel, int i);
-
-        void onClickRemove(AlarmModel alarmModel, int i);
-
-        void onClickSelect(AlarmModel alarmModel, int i);
-
-        void onClickSwitch(AlarmModel alarmModel, int i, boolean z);
-
-        void onClickWeek(AlarmModel alarmModel, int i, int i2, boolean z);
+        void onClickEdit(AlarmModel alarm, int position);
+        void onClickRemove(AlarmModel alarm, int position);
+        void onClickSelect(AlarmModel alarm, int position);
+        void onClickSwitch(AlarmModel alarm, int position, boolean isChecked);
+        void onClickWeek(AlarmModel alarm, int position, int dayIndex, boolean isChecked);
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        CheckBox chk_friday;
-        CheckBox chk_monday;
-        CheckBox chk_saturday;
-        CheckBox chk_sunday;
-        CheckBox chk_thursday;
-        CheckBox chk_tuesday;
-        CheckBox chk_wednesday;
-        ImageView img_remove;
-        LinearLayout item_block;
-        TextView lbl_time;
-        SwitchCompat switch_reminder;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        final CheckBox chkSunday, chkMonday, chkTuesday, chkWednesday, chkThursday, chkFriday, chkSaturday;
+        final ImageView imgRemove;
+        final LinearLayout itemBlock;
+        final TextView lblTime;
+        final SwitchCompat switchReminder;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.item_block = (LinearLayout) itemView.findViewById(R.id.item_block);
-            this.img_remove = (ImageView) itemView.findViewById(R.id.img_remove);
-            this.lbl_time = (TextView) itemView.findViewById(R.id.lbl_time);
-            this.switch_reminder = (SwitchCompat) itemView.findViewById(R.id.switch_reminder);
-            this.chk_sunday = (CheckBox) itemView.findViewById(R.id.chk_sunday);
-            this.chk_monday = (CheckBox) itemView.findViewById(R.id.chk_monday);
-            this.chk_tuesday = (CheckBox) itemView.findViewById(R.id.chk_tuesday);
-            this.chk_wednesday = (CheckBox) itemView.findViewById(R.id.chk_wednesday);
-            this.chk_thursday = (CheckBox) itemView.findViewById(R.id.chk_thursday);
-            this.chk_friday = (CheckBox) itemView.findViewById(R.id.chk_friday);
-            this.chk_saturday = (CheckBox) itemView.findViewById(R.id.chk_saturday);
+            itemBlock = itemView.findViewById(R.id.item_block);
+            imgRemove = itemView.findViewById(R.id.img_remove);
+            lblTime = itemView.findViewById(R.id.lbl_time);
+            switchReminder = itemView.findViewById(R.id.switch_reminder);
+            chkSunday = itemView.findViewById(R.id.chk_sunday);
+            chkMonday = itemView.findViewById(R.id.chk_monday);
+            chkTuesday = itemView.findViewById(R.id.chk_tuesday);
+            chkWednesday = itemView.findViewById(R.id.chk_wednesday);
+            chkThursday = itemView.findViewById(R.id.chk_thursday);
+            chkFriday = itemView.findViewById(R.id.chk_friday);
+            chkSaturday = itemView.findViewById(R.id.chk_saturday);
         }
     }
 }

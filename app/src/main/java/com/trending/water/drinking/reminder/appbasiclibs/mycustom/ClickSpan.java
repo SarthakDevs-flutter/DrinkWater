@@ -5,29 +5,33 @@ import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;
 
-public class ClickSpan extends ClickableSpan {
-    int text_color = -16776961;
-    private boolean isUnderline = false;
-    private OnClickListener mListener;
+import androidx.annotation.NonNull;
 
-    public ClickSpan(OnClickListener listener) {
-        this.mListener = listener;
+public class ClickSpan extends ClickableSpan {
+    private int textColor = Color.BLUE;
+    private final boolean isUnderline = false;
+    private final OnClickListener onClickListener;
+
+    public ClickSpan(@NonNull OnClickListener listener) {
+        this.onClickListener = listener;
     }
 
-    public void onClick(View widget) {
-        if (this.mListener != null) {
-            this.mListener.onClick();
+    @Override
+    public void onClick(@NonNull View widget) {
+        if (this.onClickListener != null) {
+            this.onClickListener.onClick();
         }
     }
 
     public void setTextColor(int color) {
-        this.text_color = color;
+        this.textColor = color;
     }
 
-    public void updateDrawState(TextPaint ds) {
-        ds.setUnderlineText(this.isUnderline);
-        ds.bgColor = Color.parseColor("#FAFAFA");
-        ds.setColor(this.text_color);
+    @Override
+    public void updateDrawState(@NonNull TextPaint textPaint) {
+        textPaint.setUnderlineText(this.isUnderline);
+        textPaint.bgColor = Color.parseColor("#FAFAFA");
+        textPaint.setColor(this.textColor);
     }
 
     public interface OnClickListener {
