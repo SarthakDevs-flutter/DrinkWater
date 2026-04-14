@@ -10,83 +10,83 @@ public class AlarmDetails {
     @SerializedName("FridayAlarmId")
     @Expose
     private String alarmFridayId;
-    
+
     @SerializedName("AlarmId")
     @Expose
     private String alarmId;
-    
+
     @SerializedName("AlarmInterval")
     @Expose
     private String alarmInterval;
-    
+
     @SerializedName("MondayAlarmId")
     @Expose
     private String alarmMondayId;
-    
+
     @SerializedName("SaturdayAlarmId")
     @Expose
     private String alarmSaturdayId;
-    
+
     @SerializedName("AlarmSubDetails")
     @Expose
     private List<AlarmSubDetails> alarmSubDetailsList = new ArrayList<>();
-    
+
     @SerializedName("SundayAlarmId")
     @Expose
     private String alarmSundayId;
-    
+
     @SerializedName("ThursdayAlarmId")
     @Expose
     private String alarmThursdayId;
-    
+
     @SerializedName("AlarmTime")
     @Expose
     private String alarmTime;
-    
+
     @SerializedName("TuesdayAlarmId")
     @Expose
     private String alarmTuesdayId;
-    
+
     @SerializedName("AlarmType")
     @Expose
     private String alarmType;
-    
+
     @SerializedName("WednesdayAlarmId")
     @Expose
     private String alarmWednesdayId;
-    
+
     @SerializedName("Friday")
     @Expose
     private Integer friday = 0;
-    
+
     @SerializedName("id")
     @Expose
     private String id;
-    
+
     @SerializedName("IsOff")
     @Expose
     private Integer isOff = 0;
-    
+
     @SerializedName("Monday")
     @Expose
     private Integer monday = 0;
-    
+
     @SerializedName("Saturday")
     @Expose
     private Integer saturday = 0;
-    
+
     @SerializedName("Sunday")
     @Expose
     private Integer sunday = 0;
-    
+
     @SerializedName("Thursday")
     @Expose
     private Integer thursday = 0;
-    
+
     @SerializedName("Tuesday")
     @Expose
     private Integer tuesday = 0;
-    
+
     @SerializedName("Wednesday")
     @Expose
     private Integer wednesday = 0;

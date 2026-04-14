@@ -29,7 +29,7 @@ public class NewAppWidget extends AppWidgetProvider {
         PreferenceHelper preferencesHelper = new PreferenceHelper(context);
         float dailyGoal = preferencesHelper.getFloat(URLFactory.DAILY_WATER);
         if (dailyGoal == 0.0f) dailyGoal = 2500.0f;
-        
+
         float drankAmount = getTodayDrunkAmount(context);
         String unit = preferencesHelper.getString(URLFactory.WATER_UNIT);
         if (unit == null || unit.isEmpty()) unit = "ML";
@@ -62,10 +62,10 @@ public class NewAppWidget extends AppWidgetProvider {
         DatabaseHelper databaseHelper = new DatabaseHelper(context, null);
         DateHelper dateHelper = new DateHelper();
         PreferenceHelper preferencesHelper = new PreferenceHelper(context);
-        
+
         String today = dateHelper.getCurrentDate("dd-MM-yyyy");
         ArrayList<HashMap<String, String>> drankData = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + today + "'");
-        
+
         float totalAmount = 0.0f;
         String unit = preferencesHelper.getString(URLFactory.WATER_UNIT);
         if (unit == null || unit.isEmpty()) unit = "ML";

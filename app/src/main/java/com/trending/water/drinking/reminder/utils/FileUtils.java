@@ -22,23 +22,19 @@ import java.text.DecimalFormat;
 import java.util.Comparator;
 
 public class FileUtils {
-    private static final String TAG = "FileUtils";
-    
     public static final String HIDDEN_PREFIX = ".";
     public static final String MIME_TYPE_APP = "application/*";
     public static final String MIME_TYPE_AUDIO = "audio/*";
     public static final String MIME_TYPE_IMAGE = "image/*";
     public static final String MIME_TYPE_TEXT = "text/*";
     public static final String MIME_TYPE_VIDEO = "video/*";
-
-    public static final Comparator<File> FILE_COMPARATOR = (f1, f2) -> 
+    public static final Comparator<File> FILE_COMPARATOR = (f1, f2) ->
             f1.getName().toLowerCase().compareTo(f2.getName().toLowerCase());
-
-    public static final FileFilter DIRECTORY_FILTER = file -> 
+    public static final FileFilter DIRECTORY_FILTER = file ->
             file.isDirectory() && !file.getName().startsWith(HIDDEN_PREFIX);
-
-    public static final FileFilter FILE_FILTER = file -> 
+    public static final FileFilter FILE_FILTER = file ->
             file.isFile() && !file.getName().startsWith(HIDDEN_PREFIX);
+    private static final String TAG = "FileUtils";
 
     private FileUtils() {
         // Private constructor to prevent instantiation
@@ -69,11 +65,11 @@ public class FileUtils {
     public static File getPathWithoutFilename(@Nullable File file) {
         if (file == null) return null;
         if (file.isDirectory()) return file;
-        
+
         String path = file.getAbsolutePath();
         int lastSlash = path.lastIndexOf(File.separator);
         if (lastSlash == -1) return new File(path);
-        
+
         return new File(path.substring(0, lastSlash));
     }
 

@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
 
 public class Screen_OnBoarding_Five extends MasterBaseFragment {
-    
+
     private View itemView;
 
     @Nullable

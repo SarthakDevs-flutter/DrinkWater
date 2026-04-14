@@ -38,7 +38,7 @@ public class FileAdapter extends BaseAdapter<BackUpFileModel, FileAdapter.ViewHo
         if (file == null) return;
 
         holder.lblSoundName.setText(file.getName());
-        
+
         if (file.isSelected()) {
             holder.imgSelected.setVisibility(View.VISIBLE);
             holder.itemBlock.getBackground().setTint(ContextCompat.getColor(context, R.color.colorPrimary));

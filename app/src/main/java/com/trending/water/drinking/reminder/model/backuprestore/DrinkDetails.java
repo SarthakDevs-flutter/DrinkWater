@@ -7,35 +7,35 @@ public class DrinkDetails {
     @SerializedName("ContainerMeasure")
     @Expose
     private String containerMeasure;
-    
+
     @SerializedName("ContainerValue")
     @Expose
     private String containerValue;
-    
+
     @SerializedName("ContainerValueOZ")
     @Expose
     private String containerValueOZ;
-    
+
     @SerializedName("DrinkDate")
     @Expose
     private String drinkDate;
-    
+
     @SerializedName("DrinkDateTime")
     @Expose
     private String drinkDateTime;
-    
+
     @SerializedName("DrinkTime")
     @Expose
     private String drinkTime;
-    
+
     @SerializedName("id")
     @Expose
     private String id;
-    
+
     @SerializedName("TodayGoal")
     @Expose
     private String todayGoal;
-    
+
     @SerializedName("TodayGoalOZ")
     @Expose
     private String todayGoalOZ;

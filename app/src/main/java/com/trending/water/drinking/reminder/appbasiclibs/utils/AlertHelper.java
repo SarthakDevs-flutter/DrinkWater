@@ -12,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.trending.water.drinking.reminder.R;
 import com.trending.water.drinking.reminder.appbasiclibs.mycustom.MaterialProgressBar;
@@ -74,7 +73,7 @@ public class AlertHelper {
         customDialog.requestWindowFeature(1);
         customDialog.setContentView(R.layout.custom_progress_dialog);
         customDialog.setCancelable(false);
-        
+
         if (customDialog.getWindow() != null) {
             int width = context.getResources().getDisplayMetrics().widthPixels - 80;
             int height = context.getResources().getDisplayMetrics().heightPixels - 100;

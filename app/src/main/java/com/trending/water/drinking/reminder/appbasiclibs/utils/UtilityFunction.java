@@ -39,11 +39,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UtilityFunction {
-    private static final String TAG = "UtilityFunction";
-    
     public static final Pattern EMAIL_PATTERN = Pattern.compile("[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+");
     public static final Pattern GST_PATTERN = Pattern.compile("\\d{2}[a-zA-Z]{5}\\d{4}[a-zA-Z]{1}[a-zA-Z\\d]{1}[Z]{1}[a-zA-Z\\d]{1}");
-    
+    private static final String TAG = "UtilityFunction";
     private final Activity activity;
     private final Context context;
     private final StringHelper stringHelper;
@@ -140,7 +138,7 @@ public class UtilityFunction {
             Spannable spannable = (text instanceof Spannable) ? (Spannable) text : new SpannableString(text);
             spannable.setSpan(new ClickSpan(listener), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             view.setText(spannable);
-            
+
             MovementMethod movementMethod = view.getMovementMethod();
             if (!(movementMethod instanceof LinkMovementMethod)) {
                 view.setMovementMethod(LinkMovementMethod.getInstance());
@@ -164,7 +162,7 @@ public class UtilityFunction {
         try {
             File root = new File(Environment.getExternalStorageDirectory(), "Notes");
             if (!root.exists() && !root.mkdirs()) return;
-            
+
             try (FileWriter writer = new FileWriter(new File(root, fileName))) {
                 writer.append(body);
                 writer.flush();
@@ -241,7 +239,7 @@ public class UtilityFunction {
     public String getCountryZipCode() {
         TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         if (tm == null) return "+";
-        
+
         String countryId = tm.getSimCountryIso().toUpperCase(Locale.US);
         String[] countryCodeArray = context.getResources().getStringArray(R.array.CountryCodes);
         for (String entry : countryCodeArray) {

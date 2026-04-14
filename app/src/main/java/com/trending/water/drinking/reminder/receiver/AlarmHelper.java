@@ -1,7 +1,6 @@
 package com.trending.water.drinking.reminder.receiver;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.trending.water.drinking.reminder.appbasiclibs.utils.DatabaseHelper;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.DateHelper;
@@ -43,7 +42,7 @@ class AlarmHelper {
 
         for (AlarmDetails alarm : this.alarmDetailsList) {
             String alarmTime = alarm.getAlarmTime().trim();
-            
+
             if ("M".equalsIgnoreCase(alarm.getAlarmType()) && backupRestore.isManualReminderActive()) {
                 int hourOfDay = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "HH", alarmTime));
                 int minute = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "mm", alarmTime));

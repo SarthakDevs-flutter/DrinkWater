@@ -1,6 +1,5 @@
 package com.trending.water.drinking.reminder.appbasiclibs.mycustom;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -28,30 +27,25 @@ public class MaterialProgressBar extends View {
     private static final int BAR_LENGTH = 16;
     private static final int BAR_MAX_LENGTH = 270;
     private static final long PAUSE_GROWING_TIME = 200;
-
+    private final Paint barPaint = new Paint();
+    private final Paint rimPaint = new Paint();
     private int barColor = 0xAA0000FF; // Semi-transparent blue
     private int rimColor = ViewCompat.MEASURED_SIZE_MASK;
     private int barWidth = 4;
     private int rimWidth = 4;
     private int circleRadius = 28;
-
     private boolean fillRadius = false;
     private double barSpinCycleTime = 460.0d;
     private float spinSpeed = 230.0f;
     private boolean linearProgress = false;
-
     private float progress = 0.0f;
     private float targetProgress = 0.0f;
     private boolean isSpinning = false;
-
     private long lastTimeAnimated = 0;
     private long pausedTimeWithoutGrowing = 0;
     private double timeStartGrowing = 0.0d;
     private float barExtraLength = 0.0f;
     private boolean barGrowingFromFront = true;
-
-    private final Paint barPaint = new Paint();
-    private final Paint rimPaint = new Paint();
     private RectF circleBounds = new RectF();
 
     private boolean shouldAnimate = true;
@@ -139,7 +133,6 @@ public class MaterialProgressBar extends View {
         rimPaint.setStyle(Paint.Style.STROKE);
         rimPaint.setStrokeWidth(rimWidth);
     }
-
 
 
     private void setupBounds(int width, int height) {
@@ -266,25 +259,6 @@ public class MaterialProgressBar extends View {
         invalidate();
     }
 
-    public void setProgress(float progress) {
-        if (isSpinning) {
-            this.progress = 0;
-            isSpinning = false;
-            runCallback();
-        }
-
-        if (progress > 1.0f) progress -= 1.0f;
-        else if (progress < 0.0f) progress = 0.0f;
-
-        if (progress != targetProgress) {
-            if (this.progress == targetProgress) {
-                lastTimeAnimated = SystemClock.uptimeMillis();
-            }
-            targetProgress = Math.min(progress * 360.0f, 360.0f);
-            invalidate();
-        }
-    }
-
     private void runCallback(float value) {
         if (callback != null) {
             callback.onProgressUpdate(value);
@@ -304,6 +278,25 @@ public class MaterialProgressBar extends View {
 
     public float getProgress() {
         return isSpinning ? -1 : progress / 360.0f;
+    }
+
+    public void setProgress(float progress) {
+        if (isSpinning) {
+            this.progress = 0;
+            isSpinning = false;
+            runCallback();
+        }
+
+        if (progress > 1.0f) progress -= 1.0f;
+        else if (progress < 0.0f) progress = 0.0f;
+
+        if (progress != targetProgress) {
+            if (this.progress == targetProgress) {
+                lastTimeAnimated = SystemClock.uptimeMillis();
+            }
+            targetProgress = Math.min(progress * 360.0f, 360.0f);
+            invalidate();
+        }
     }
 
     public void setInstantProgress(float progress) {
@@ -367,6 +360,15 @@ public class MaterialProgressBar extends View {
     }
 
     static class WheelSavedState extends BaseSavedState {
+        public static final Creator<WheelSavedState> CREATOR = new Creator<WheelSavedState>() {
+            public WheelSavedState createFromParcel(Parcel in) {
+                return new WheelSavedState(in);
+            }
+
+            public WheelSavedState[] newArray(int size) {
+                return new WheelSavedState[size];
+            }
+        };
         float progress;
         float targetProgress;
         boolean isSpinning;
@@ -413,15 +415,5 @@ public class MaterialProgressBar extends View {
             out.writeByte((byte) (linearProgress ? 1 : 0));
             out.writeByte((byte) (fillRadius ? 1 : 0));
         }
-
-        public static final Creator<WheelSavedState> CREATOR = new Creator<WheelSavedState>() {
-            public WheelSavedState createFromParcel(Parcel in) {
-                return new WheelSavedState(in);
-            }
-
-            public WheelSavedState[] newArray(int size) {
-                return new WheelSavedState[size];
-            }
-        };
     }
 }

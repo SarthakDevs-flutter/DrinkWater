@@ -18,7 +18,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
 
-import com.github.mikephil.charting.utils.Utils;
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
 import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
 import com.trending.water.drinking.reminder.utils.HeightWeightHelper;
@@ -27,13 +26,13 @@ import com.trending.water.drinking.reminder.utils.URLFactory;
 import java.util.Locale;
 
 public class Screen_OnBoarding_Four extends MasterBaseFragment {
-    
+
     private static final String TAG = "Screen_OnBoarding_Four";
 
     private AppCompatTextView lblGoal;
     private AppCompatTextView lblUnit;
     private AppCompatTextView lblSetGoalManually;
-    
+
     private View itemView;
     private boolean isExecute = true;
     private boolean isExecuteSeekBar = true;
@@ -71,7 +70,7 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
             float manualGoal = preferencesHelper.getFloat(URLFactory.KEY_SET_MANUALLY_GOAL_VALUE, 2500.0f);
             URLFactory.dailyWaterValue = manualGoal;
             preferencesHelper.savePreferences(URLFactory.KEY_DAILY_WATER_GOAL, manualGoal);
-            
+
             lblGoal.setText(String.format(Locale.US, "%d", (int) manualGoal));
             lblUnit.setText(preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true) ? "ML" : "FL OZ");
         } else {
@@ -110,12 +109,20 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
 
         double weatherFactor;
         switch (weatherIdx) {
-            case 1: weatherFactor = URLFactory.WEATHER_CLOUDY; break;
-            case 2: weatherFactor = URLFactory.WEATHER_RAINY; break;
-            case 3: weatherFactor = URLFactory.WEATHER_SNOW; break;
-            default: weatherFactor = URLFactory.WEATHER_SUNNY; break;
+            case 1:
+                weatherFactor = URLFactory.WEATHER_CLOUDY;
+                break;
+            case 2:
+                weatherFactor = URLFactory.WEATHER_RAINY;
+                break;
+            case 3:
+                weatherFactor = URLFactory.WEATHER_SNOW;
+                break;
+            default:
+                weatherFactor = URLFactory.WEATHER_SUNNY;
+                break;
         }
-        
+
         double calculatedGoalMl = baseWater * weatherFactor;
 
         if (isFemale) {
@@ -144,7 +151,7 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         dialog.getWindow().setSoftInputMode(16);
-        
+
         View view = LayoutInflater.from(mContext).inflate(R.layout.dialog_set_manually_goal, null, false);
         final AppCompatEditText etGoal = view.findViewById(R.id.lbl_goal);
         AppCompatTextView tvUnit = view.findViewById(R.id.lbl_unit);
@@ -153,8 +160,8 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
         final SeekBar seekBar = view.findViewById(R.id.seekbarGoal);
 
         boolean isMl = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
-        float currentGoal = preferencesHelper.getBoolean(URLFactory.KEY_SET_MANUALLY_GOAL, false) ? 
-                preferencesHelper.getFloat(URLFactory.KEY_SET_MANUALLY_GOAL_VALUE, 2500f) : 
+        float currentGoal = preferencesHelper.getBoolean(URLFactory.KEY_SET_MANUALLY_GOAL, false) ?
+                preferencesHelper.getFloat(URLFactory.KEY_SET_MANUALLY_GOAL_VALUE, 2500f) :
                 preferencesHelper.getFloat(URLFactory.KEY_DAILY_WATER_GOAL, 2500f);
 
         etGoal.setText(String.format(Locale.US, "%d", (int) currentGoal));
@@ -162,7 +169,7 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
 
         int minVal = isMl ? 900 : 30;
         int maxVal = isMl ? 8000 : 270;
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             seekBar.setMin(minVal);
         }
@@ -170,17 +177,20 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
         seekBar.setProgress((int) currentGoal);
 
         etGoal.setFilters(new InputFilter[]{
-                new InputFilterWeightRange(0.1, (double) maxVal), 
+                new InputFilterWeightRange(0.1, (double) maxVal),
                 new InputFilter.LengthFilter(isMl ? 4 : 3)
         });
 
         etGoal.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 isExecuteSeekBar = false;
             }
+
             @Override
             public void afterTextChanged(Editable s) {
                 try {
@@ -188,7 +198,8 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
                     if (!stringHelper.check_blank_data(val) && isExecute) {
                         seekBar.setProgress(Integer.parseInt(val));
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
                 isExecuteSeekBar = true;
             }
         });
@@ -205,17 +216,23 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
                     etGoal.setText(String.valueOf(finalProgress));
                 }
             }
+
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) { isExecute = false; }
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                isExecute = false;
+            }
+
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) { isExecute = true; }
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                isExecute = true;
+            }
         });
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());
         btnSave.setOnClickListener(v -> {
             String goalStr = etGoal.getText().toString().trim();
             if (stringHelper.check_blank_data(goalStr)) return;
-            
+
             float newGoal = Float.parseFloat(goalStr);
             if (isMl && newGoal < 900) {
                 alertHelper.customAlert(stringHelper.getString(R.string.str_set_daily_goal_validation));
@@ -229,7 +246,7 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
             preferencesHelper.savePreferences(URLFactory.KEY_DAILY_WATER_GOAL, newGoal);
             preferencesHelper.savePreferences(URLFactory.KEY_SET_MANUALLY_GOAL, true);
             preferencesHelper.savePreferences(URLFactory.KEY_SET_MANUALLY_GOAL_VALUE, newGoal);
-            
+
             lblGoal.setText(String.format(Locale.US, "%d", (int) newGoal));
             dialog.dismiss();
         });

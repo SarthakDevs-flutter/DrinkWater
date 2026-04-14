@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -58,7 +57,7 @@ class NotificationHelper {
 
         Intent intent = new Intent(context, Screen_Dashboard.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        
+
         int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             pendingIntentFlags |= PendingIntent.FLAG_IMMUTABLE;
@@ -103,7 +102,7 @@ class NotificationHelper {
                     channelId = CHANNEL_VIBRATE;
                     channelName = "Vibrate Reminder";
                 }
-                
+
                 try {
                     if (URLFactory.notificationRingtone != null && !URLFactory.notificationRingtone.isPlaying()) {
                         URLFactory.notificationRingtone.play();
@@ -129,7 +128,7 @@ class NotificationHelper {
             } else {
                 channel.enableVibration(false);
             }
-            
+
             notificationManager.createNotificationChannel(channel);
             builder.setChannelId(channelId);
         } else {
@@ -150,16 +149,35 @@ class NotificationHelper {
         int soundIndex = preferencesHelper.getInt(URLFactory.REMINDER_SOUND);
         int resId;
         switch (soundIndex) {
-            case 1: resId = R.raw.bell; break;
-            case 2: resId = R.raw.blop; break;
-            case 3: resId = R.raw.bong; break;
-            case 4: resId = R.raw.click; break;
-            case 5: resId = R.raw.echo_droplet; break;
-            case 6: resId = R.raw.mario_droplet; break;
-            case 7: resId = R.raw.ship_bell; break;
-            case 8: resId = R.raw.simple_droplet; break;
-            case 9: resId = R.raw.tiny_droplet; break;
-            default: return Settings.System.DEFAULT_NOTIFICATION_URI;
+            case 1:
+                resId = R.raw.bell;
+                break;
+            case 2:
+                resId = R.raw.blop;
+                break;
+            case 3:
+                resId = R.raw.bong;
+                break;
+            case 4:
+                resId = R.raw.click;
+                break;
+            case 5:
+                resId = R.raw.echo_droplet;
+                break;
+            case 6:
+                resId = R.raw.mario_droplet;
+                break;
+            case 7:
+                resId = R.raw.ship_bell;
+                break;
+            case 8:
+                resId = R.raw.simple_droplet;
+                break;
+            case 9:
+                resId = R.raw.tiny_droplet;
+                break;
+            default:
+                return Settings.System.DEFAULT_NOTIFICATION_URI;
         }
         return Uri.parse("android.resource://" + context.getPackageName() + "/" + resId);
     }
@@ -168,7 +186,7 @@ class NotificationHelper {
         DatabaseHelper databaseHelper = new DatabaseHelper(context);
         String today = dateHelper.getCurrentDate("dd-MM-yyyy");
         ArrayList<HashMap<String, String>> drankData = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + today + "'");
-        
+
         float totalAmount = 0.0f;
         String unit = preferencesHelper.getString(URLFactory.WATER_UNIT);
         if (unit.isEmpty()) unit = "ML";
@@ -189,7 +207,7 @@ class NotificationHelper {
     public boolean isDailyGoalReached() {
         float goal = preferencesHelper.getFloat(URLFactory.DAILY_WATER);
         if (goal == 0.0f) goal = 2500.0f;
-        
+
         return getTodayDrunkAmount() >= goal;
     }
 

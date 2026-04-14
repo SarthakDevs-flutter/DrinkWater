@@ -38,7 +38,7 @@ public class SoundAdapter extends BaseAdapter<SoundModel, SoundAdapter.ViewHolde
         if (sound == null) return;
 
         holder.lblSoundName.setText(sound.getName());
-        
+
         if (sound.isSelected()) {
             holder.imgSelected.setVisibility(View.VISIBLE);
             holder.itemBlock.getBackground().setTint(ContextCompat.getColor(context, R.color.colorPrimary));

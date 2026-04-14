@@ -41,7 +41,10 @@ import java.util.Set;
 public class Screen_Year_Report extends MasterBaseFragment {
 
     private static final String TAG = "Screen_Year_Report";
-
+    private final List<String> monthLabelList = new ArrayList<>();
+    private final List<String> monthQueryList = new ArrayList<>();
+    private final List<Integer> intakeAvgValueList = new ArrayList<>();
+    private final List<Integer> goalAvgValueList = new ArrayList<>();
     private BarChart barChart;
     private LineChart lineChart;
     private AppCompatTextView lblTitle;
@@ -50,17 +53,10 @@ public class Screen_Year_Report extends MasterBaseFragment {
     private AppCompatTextView txtDrinkCompletion;
     private ImageView imgPre;
     private ImageView imgNext;
-
     private Calendar currentStartCalendar;
     private Calendar currentEndCalendar;
     private Calendar startCalendarRef;
     private Calendar endCalendarRef;
-
-    private final List<String> monthLabelList = new ArrayList<>();
-    private final List<String> monthQueryList = new ArrayList<>();
-    private final List<Integer> intakeAvgValueList = new ArrayList<>();
-    private final List<Integer> goalAvgValueList = new ArrayList<>();
-    
     private String[] monthNames;
     private String[] monthNamesShort;
 
@@ -172,7 +168,7 @@ public class Screen_Year_Report extends MasterBaseFragment {
         for (String query : monthQueryList) {
             // "DrinkDate like '%MM-YYYY%'"
             List<HashMap<String, String>> records = databaseHelper.getData("tbl_drink_details", "DrinkDate like '%" + query + "%'");
-            
+
             float monthIntakeTotal = 0;
             float monthGoalTotal = 0;
             Set<String> uniqueDates = new HashSet<>();
@@ -278,7 +274,8 @@ public class Screen_Year_Report extends MasterBaseFragment {
             }
 
             @Override
-            public void onNothingSelected() {}
+            public void onNothingSelected() {
+            }
         });
 
         barChart.animateY(1000);
@@ -355,7 +352,7 @@ public class Screen_Year_Report extends MasterBaseFragment {
 
         String label = monthLabelList.get(position);
         txtDate.setText(label);
-        
+
         String unit = URLFactory.waterUnitValue;
         txtGoal.setText(String.format(Locale.US, "%d %s/%s", goalAvgValueList.get(position), unit, stringHelper.getString(R.string.day)));
         txtConsumed.setText(String.format(Locale.US, "%d %s/%s", intakeAvgValueList.get(position), unit, stringHelper.getString(R.string.day)));
@@ -364,7 +361,7 @@ public class Screen_Year_Report extends MasterBaseFragment {
         List<HashMap<String, String>> records = databaseHelper.getData("tbl_drink_details", "DrinkDate like '%" + query + "%'");
         Set<String> uniqueDates = new HashSet<>();
         for (HashMap<String, String> r : records) uniqueDates.add(r.get("DrinkDate"));
-        
+
         if (!uniqueDates.isEmpty()) {
             int avgFreq = Math.round((float) records.size() / uniqueDates.size());
             String freqLabel = avgFreq > 1 ? stringHelper.getString(R.string.times) : stringHelper.getString(R.string.time);

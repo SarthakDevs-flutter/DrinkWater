@@ -52,7 +52,7 @@ class BackupHelper {
     private void checkStoragePermissionsAndBackup() {
         boolean hasRead = ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_EXTERNAL_STORAGE) == android.content.pm.PackageManager.PERMISSION_GRANTED;
         boolean hasWrite = ContextCompat.checkSelfPermission(context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == android.content.pm.PackageManager.PERMISSION_GRANTED;
-        
+
         if (hasRead && hasWrite) {
             performBackup();
         } else {
@@ -62,7 +62,7 @@ class BackupHelper {
 
     public void performBackup() {
         BackupRestore backupRestore = new BackupRestore();
-        
+
         // 1. Container Details
         ArrayList<HashMap<String, String>> containerData = databaseHelper.getData("tbl_container_details");
         List<ContainerDetails> containerDetailsList = new ArrayList<>();

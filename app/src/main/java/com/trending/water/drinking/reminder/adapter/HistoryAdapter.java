@@ -42,7 +42,7 @@ public class HistoryAdapter extends BaseAdapter<History, HistoryAdapter.ViewHold
 
         holder.lblDate.setText(history.getDrinkDate());
         holder.lblTotalDayWater.setText(history.getTotalML());
-        
+
         String measure = " " + history.getContainerMeasure();
         holder.containerName.setText(WaterValueUtils.getFormattedWaterValue(
                 history.getContainerValue(),
@@ -83,6 +83,7 @@ public class HistoryAdapter extends BaseAdapter<History, HistoryAdapter.ViewHold
 
     public interface CallBack {
         void onClickRemove(History history, int position);
+
         void onClickSelect(History history, int position);
     }
 

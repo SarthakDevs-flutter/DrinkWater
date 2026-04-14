@@ -26,20 +26,16 @@ import java.text.DecimalFormat;
 import java.util.Comparator;
 
 public class FileUtils2 {
-    private static final String TAG = "FileUtils2";
-    
     public static final String AUTHORITY = "com.trending.water.drinking.reminder.fileprovider";
     public static final String DOCUMENTS_DIR = "documents";
     public static final String HIDDEN_PREFIX = ".";
-
-    public static final Comparator<File> FILE_COMPARATOR = (f1, f2) -> 
+    public static final Comparator<File> FILE_COMPARATOR = (f1, f2) ->
             f1.getName().toLowerCase().compareTo(f2.getName().toLowerCase());
-
-    public static final FileFilter DIRECTORY_FILTER = file -> 
+    public static final FileFilter DIRECTORY_FILTER = file ->
             file.isDirectory() && !file.getName().startsWith(HIDDEN_PREFIX);
-
-    public static final FileFilter FILE_FILTER = file -> 
+    public static final FileFilter FILE_FILTER = file ->
             file.isFile() && !file.getName().startsWith(HIDDEN_PREFIX);
+    private static final String TAG = "FileUtils2";
 
     private FileUtils2() {
         // Private constructor to prevent instantiation
@@ -70,11 +66,11 @@ public class FileUtils2 {
     public static File getPathWithoutFilename(@Nullable File file) {
         if (file == null) return null;
         if (file.isDirectory()) return file;
-        
+
         String path = file.getAbsolutePath();
         int lastSlash = path.lastIndexOf(File.separator);
         if (lastSlash == -1) return new File(path);
-        
+
         return new File(path.substring(0, lastSlash));
     }
 
@@ -145,19 +141,20 @@ public class FileUtils2 {
                 if (id != null && id.startsWith("raw:")) {
                     return id.substring(4);
                 }
-                
+
                 final String[] contentUriPrefixes = {
                         "content://downloads/public_downloads",
                         "content://downloads/my_downloads"
                 };
-                
+
                 for (String prefix : contentUriPrefixes) {
                     try {
                         String path = getDataColumn(context, ContentUris.withAppendedId(Uri.parse(prefix), Long.parseLong(id)), null, null);
                         if (path != null) return path;
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 }
-                
+
                 File file = generateFileName(getFileName(context, uri), getDocumentCacheDir(context));
                 if (file != null) {
                     saveFileFromUri(context, uri, file.getAbsolutePath());

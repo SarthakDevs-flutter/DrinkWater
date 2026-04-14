@@ -44,15 +44,15 @@ public class StringHelper {
 
     @NonNull
     public String getHtmlData(@NonNull String content) {
-        return "<html>" + 
-                "<head><style>@font-face {font-family: 'Robo';src: url('file:///android_asset/Roboto-Bold.ttf');}body {font-family: 'Robo';}</style></head>" + 
+        return "<html>" +
+                "<head><style>@font-face {font-family: 'Robo';src: url('file:///android_asset/Roboto-Bold.ttf');}body {font-family: 'Robo';}</style></head>" +
                 "<body style=\"text-align:justify\">" + content + "</body></html>";
     }
 
     @NonNull
     public String getHtmlDataNormal(@NonNull String content) {
-        return "<html>" + 
-                "<head><style>@font-face {font-family: 'Robo';src: url('file:///android_asset/Roboto-Regular.ttf');}body {font-family: 'Robo';}</style></head>" + 
+        return "<html>" +
+                "<head><style>@font-face {font-family: 'Robo';src: url('file:///android_asset/Roboto-Regular.ttf');}body {font-family: 'Robo';}</style></head>" +
                 "<body style=\"text-align:justify\">" + content + "</body></html>";
     }
 
@@ -129,19 +129,19 @@ public class StringHelper {
         if (!TextUtils.isEmpty(street)) parts.add(street);
         if (!TextUtils.isEmpty(city)) parts.add(city);
         if (!TextUtils.isEmpty(state)) parts.add(state);
-        
+
         StringBuilder address = new StringBuilder(TextUtils.join(", ", parts));
-        
+
         if (!TextUtils.isEmpty(zip)) {
             if (address.length() > 0) address.append(" - ");
             address.append(zip);
         }
-        
+
         if (!TextUtils.isEmpty(country)) {
             if (address.length() > 0) address.append(", ");
             address.append(country);
         }
-        
+
         return address.toString();
     }
 

@@ -73,7 +73,7 @@ public class Screen_Select_Snooze extends MasterBaseActivity {
 
         Intent intent = new Intent(this, AlarmReceiver.class);
         PendingIntent pi = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
-        
+
         long triggerAtMillis = Calendar.getInstance().getTimeInMillis() + ((long) minutes * 60 * 1000);
         am.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi);
     }

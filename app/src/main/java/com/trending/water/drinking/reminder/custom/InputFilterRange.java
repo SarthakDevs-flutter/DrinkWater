@@ -3,8 +3,6 @@ package com.trending.water.drinking.reminder.custom;
 import android.text.InputFilter;
 import android.text.Spanned;
 
-import androidx.annotation.NonNull;
-
 import java.util.List;
 
 public class InputFilterRange implements InputFilter {

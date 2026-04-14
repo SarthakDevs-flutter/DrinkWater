@@ -1,10 +1,8 @@
 package com.trending.water.drinking.reminder;
 
 import android.app.Dialog;
-import android.graphics.DashPathEffect;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +15,6 @@ import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
@@ -28,8 +25,6 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
@@ -44,7 +39,9 @@ import java.util.Locale;
 public class Screen_Month_Report extends MasterBaseFragment {
 
     private static final String TAG = "Screen_Month_Report";
-
+    private final List<String> dateList = new ArrayList<>();
+    private final List<Integer> intakeValueList = new ArrayList<>();
+    private final List<Integer> goalValueList = new ArrayList<>();
     private BarChart barChart;
     private LineChart lineChart;
     private AppCompatTextView lblTitle;
@@ -53,15 +50,10 @@ public class Screen_Month_Report extends MasterBaseFragment {
     private AppCompatTextView txtDrinkCompletion;
     private ImageView imgPre;
     private ImageView imgNext;
-
     private Calendar currentStartCalendar;
     private Calendar currentEndCalendar;
     private Calendar startCalendarRef;
     private Calendar endCalendarRef;
-
-    private final List<String> dateList = new ArrayList<>();
-    private final List<Integer> intakeValueList = new ArrayList<>();
-    private final List<Integer> goalValueList = new ArrayList<>();
 
     @Nullable
     @Override
@@ -267,7 +259,8 @@ public class Screen_Month_Report extends MasterBaseFragment {
             }
 
             @Override
-            public void onNothingSelected() {}
+            public void onNothingSelected() {
+            }
         });
 
         barChart.animateY(1000);

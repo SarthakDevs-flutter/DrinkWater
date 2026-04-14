@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
-    
+
     private static final String TAG = "Screen_OnBoarding";
     private static final int STORAGE_PERMISSION_CODE = 3;
     private static final int MAX_PAGE = 7;
@@ -40,7 +40,7 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
     private LinearLayout btnNext;
     private AppCompatTextView lblNext;
     private View space;
-    
+
     private OnBoardingPagerAdapter pagerAdapter;
     private int currentPageIndex = 0;
 
@@ -48,11 +48,11 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_onboarding);
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.water_color));
         }
-        
+
         findViewByIds();
         initView();
         initListeners();
@@ -73,14 +73,15 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
         viewPager.setAdapter(pagerAdapter);
         viewPager.setOffscreenPageLimit(10);
         dotsIndicator.setViewPager(viewPager);
-        
+
         updateNavigationButtons(0);
     }
 
     private void initListeners() {
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
 
             @Override
             public void onPageSelected(int position) {
@@ -89,7 +90,8 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
             }
 
             @Override
-            public void onPageScrollStateChanged(int state) {}
+            public void onPageScrollStateChanged(int state) {
+            }
         });
 
         btnBack.setOnClickListener(v -> {
@@ -134,7 +136,7 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
             try {
                 String heightStr = preferencesHelper.getString(URLFactory.KEY_PERSON_HEIGHT, "");
                 String weightStr = preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, "");
-                
+
                 if (stringHelper.check_blank_data(heightStr)) {
                     alertHelper.customAlert(stringHelper.getString(R.string.str_height_validation));
                     return;
@@ -161,7 +163,7 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
         if (currentPageIndex == 5) {
             String wakeupTime = preferencesHelper.getString(URLFactory.KEY_WAKE_UP_TIME, "");
             String bedTime = preferencesHelper.getString(URLFactory.KEY_BED_TIME, "");
-            
+
             if (stringHelper.check_blank_data(wakeupTime) || stringHelper.check_blank_data(bedTime)) {
                 alertHelper.customAlert(stringHelper.getString(R.string.str_from_to_invalid_validation));
                 return;
@@ -212,7 +214,7 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
 
             if (startTime.getTimeInMillis() < endTime.getTimeInMillis()) {
                 deleteAutoAlarms(true);
-                
+
                 int mainAlarmId = (int) System.currentTimeMillis();
                 ContentValues mainAlarmValues = new ContentValues();
                 mainAlarmValues.put("AlarmTime", wakeupTimeStr + " - " + bedTimeStr);
@@ -220,7 +222,7 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
                 mainAlarmValues.put("AlarmType", "R"); // Recurring
                 mainAlarmValues.put("AlarmInterval", String.valueOf(minuteInterval));
                 databaseHelper.insert("tbl_alarm_details", mainAlarmValues);
-                
+
                 String superId = databaseHelper.getLastId("tbl_alarm_details");
 
                 SimpleDateFormat sdfInput = new SimpleDateFormat("HH:mm:ss", Locale.US);
@@ -233,10 +235,10 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
                         String formattedTime = sdfOutput.format(sdfInput.parse(timeStr));
 
                         if (!databaseHelper.isExists("tbl_alarm_details", "AlarmTime='" + formattedTime + "'") &&
-                            !databaseHelper.isExists("tbl_alarm_sub_details", "AlarmTime='" + formattedTime + "'")) {
-                            
+                                !databaseHelper.isExists("tbl_alarm_sub_details", "AlarmTime='" + formattedTime + "'")) {
+
                             MyAlarmManager.scheduleAutoRecurringAlarm(this, startTime, subAlarmId);
-                            
+
                             ContentValues subAlarmValues = new ContentValues();
                             subAlarmValues.put("AlarmTime", formattedTime);
                             subAlarmValues.put("AlarmId", String.valueOf(subAlarmId));
@@ -252,7 +254,10 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
                     startTime.add(Calendar.MINUTE, minuteInterval);
                     // Add small sleep to ensure unique timestamps for IDs if needed, 
                     // though System.currentTimeMillis() should change between loop iterations usually.
-                    try { Thread.sleep(1); } catch (InterruptedException ignored) {}
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException ignored) {
+                    }
                 }
             }
         }
@@ -264,7 +269,7 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
             int mondayId = (int) (System.currentTimeMillis() + 1);
             int tuesdayId = (int) (System.currentTimeMillis() + 2);
             int wednesdayId = (int) (System.currentTimeMillis() + 3);
-            
+
             ContentValues dayValues = new ContentValues();
             dayValues.put("AlarmTime", formattedTime);
             dayValues.put("AlarmId", String.valueOf(sundayId));
@@ -305,7 +310,7 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
         }
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             gotoHomeScreen();
         } else {
             requestPermissions(new String[]{

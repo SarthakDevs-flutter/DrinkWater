@@ -49,7 +49,7 @@ public class WaterValueUtils {
      */
     public static int getContainerImage(double mlValue, double ozValue) {
         boolean isMl = URLFactory.waterUnitValue.equalsIgnoreCase("ML");
-        
+
         if (isMl) {
             if (mlValue == 50.0) return R.drawable.ic_50_ml;
             if (mlValue == 100.0) return R.drawable.ic_100_ml;

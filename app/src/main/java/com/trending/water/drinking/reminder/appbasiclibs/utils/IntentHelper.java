@@ -18,7 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 
 import com.trending.water.drinking.reminder.R;
@@ -31,7 +30,7 @@ import java.util.List;
 
 public class IntentHelper {
     private static final String TAG = "IntentHelper";
-    
+
     private final Activity activity;
     private final Context context;
     private final String[] targetAppLabels = {"Gmail", "Facebook", "Twitter", "LinkedIn"};
@@ -81,10 +80,10 @@ public class IntentHelper {
         List<Intent> targetShareIntents = new ArrayList<>();
         Intent baseIntent = new Intent(Intent.ACTION_SEND);
         baseIntent.setType("text/plain");
-        
+
         PackageManager pm = context.getPackageManager();
         List<ResolveInfo> resInfos = pm.queryIntentActivities(baseIntent, 0);
-        
+
         if (!resInfos.isEmpty()) {
             for (ResolveInfo resInfo : resInfos) {
                 String packageName = resInfo.activityInfo.packageName;
@@ -109,23 +108,23 @@ public class IntentHelper {
     }
 
     private boolean isTargetPackage(@NonNull String pkg) {
-        return pkg.contains("com.twitter.android") || pkg.contains("com.facebook.katana") || 
-               pkg.contains("com.whatsapp") || pkg.contains("com.google.android.apps.plus") || 
-               pkg.contains("com.google.android.talk") || pkg.contains("com.slack") || 
-               pkg.contains("com.google.android.gm") || pkg.contains("com.facebook.orca") || 
-               pkg.contains("com.yahoo.mobile") || pkg.contains("com.skype.raider") || 
-               pkg.contains("com.android.mms") || pkg.contains("com.linkedin.android") || 
-               pkg.contains("com.google.android.apps.messaging");
+        return pkg.contains("com.twitter.android") || pkg.contains("com.facebook.katana") ||
+                pkg.contains("com.whatsapp") || pkg.contains("com.google.android.apps.plus") ||
+                pkg.contains("com.google.android.talk") || pkg.contains("com.slack") ||
+                pkg.contains("com.google.android.gm") || pkg.contains("com.facebook.orca") ||
+                pkg.contains("com.yahoo.mobile") || pkg.contains("com.skype.raider") ||
+                pkg.contains("com.android.mms") || pkg.contains("com.linkedin.android") ||
+                pkg.contains("com.google.android.apps.messaging");
     }
 
     public void customShare(@NonNull final String subject, @NonNull final String content) {
         PackageManager pm = context.getPackageManager();
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
-        
+
         List<ResolveInfo> launchables = pm.queryIntentActivities(shareIntent, 0);
         List<ResolveInfo> filteredLaunchables = new ArrayList<>();
-        
+
         for (ResolveInfo info : launchables) {
             String label = info.loadLabel(pm).toString().toLowerCase();
             for (String target : targetAppLabels) {
@@ -136,25 +135,25 @@ public class IntentHelper {
             }
         }
         Collections.sort(filteredLaunchables, new ResolveInfo.DisplayNameComparator(pm));
-        
+
         final CustomShareAdapter adapter = new CustomShareAdapter(context, pm, filteredLaunchables);
-        
+
         final Dialog dialog = new Dialog(context, R.style.AppDialogTheme);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.custom_share_dialog);
         dialog.setCancelable(true);
-        
+
         if (dialog.getWindow() != null) {
             int width = context.getResources().getDisplayMetrics().widthPixels - 80;
             int height = context.getResources().getDisplayMetrics().heightPixels - 100;
             dialog.getWindow().setLayout(width, height);
         }
-        
+
         TextView titleView = dialog.findViewById(R.id.textView1);
         if (titleView != null) {
             titleView.setText(Constant.sharePurchaseTitle);
         }
-        
+
         ListView listView = dialog.findViewById(R.id.listView1);
         if (listView != null) {
             listView.setAdapter(adapter);
@@ -164,7 +163,7 @@ public class IntentHelper {
                 if (info != null) {
                     ActivityInfo activityInfo = info.activityInfo;
                     ComponentName name = new ComponentName(activityInfo.applicationInfo.packageName, activityInfo.name);
-                    
+
                     Intent specificIntent = new Intent(Intent.ACTION_SEND);
                     specificIntent.setType("text/plain");
                     specificIntent.setComponent(name);
@@ -194,7 +193,7 @@ public class IntentHelper {
         emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{""});
         emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
         emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        
+
         PackageManager pm = context.getPackageManager();
         List<ResolveInfo> candidates = pm.queryIntentActivities(emailIntent, 0);
         for (ResolveInfo info : candidates) {
@@ -203,7 +202,7 @@ public class IntentHelper {
                 break;
             }
         }
-        
+
         try {
             context.startActivity(Intent.createChooser(emailIntent, "Send Email"));
         } catch (Exception e) {

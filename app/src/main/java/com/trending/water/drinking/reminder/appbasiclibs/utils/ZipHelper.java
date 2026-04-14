@@ -31,7 +31,7 @@ public class ZipHelper {
             while ((entry = zis.getNextEntry()) != null) {
                 String fullPath = destinationPath + File.separator + entry.getName();
                 File file = new File(fullPath);
-                
+
                 if (entry.isDirectory()) {
                     if (!file.exists() && !file.mkdirs()) {
                         Log.e(TAG, "Failed to create directory: " + fullPath);
@@ -42,7 +42,7 @@ public class ZipHelper {
                     if (parent != null && !parent.exists() && !parent.mkdirs()) {
                         Log.e(TAG, "Failed to create parent directory for: " + fullPath);
                     }
-                    
+
                     try (FileOutputStream fos = new FileOutputStream(file)) {
                         byte[] buffer = new byte[BUFFER_SIZE];
                         int length;

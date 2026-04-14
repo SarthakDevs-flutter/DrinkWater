@@ -23,7 +23,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
     public void uncaughtException(@NonNull Thread thread, @NonNull Throwable exception) {
         StringWriter stackTraceWriter = new StringWriter();
         exception.printStackTrace(new PrintWriter(stackTraceWriter));
-        
+
         StringBuilder reportBuilder = new StringBuilder();
         reportBuilder.append("************ CAUSE OF ERROR ************\n\n")
                 .append(stackTraceWriter)
@@ -41,9 +41,9 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
         Intent intent = new Intent(activity, Screen_Error_Report.class);
         intent.putExtra("error", reportBuilder.toString());
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        
+
         activity.startActivity(intent);
-        
+
         Process.killProcess(Process.myPid());
         System.exit(10);
     }

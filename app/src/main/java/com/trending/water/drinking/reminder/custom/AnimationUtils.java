@@ -6,27 +6,28 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
 public class AnimationUtils {
-    
+
     /**
      * Expands a view from height 0 to its measured height.
+     *
      * @param view The view to expand.
      */
     public static void expand(final View view) {
         view.measure(
-            View.MeasureSpec.makeMeasureSpec(((View) view.getParent()).getWidth(), View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                View.MeasureSpec.makeMeasureSpec(((View) view.getParent()).getWidth(), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         );
         final int targetHeight = view.getMeasuredHeight();
 
         // Older versions of android (pre API 21) cancel animations for views with a height of 0.
         view.getLayoutParams().height = 1;
         view.setVisibility(View.VISIBLE);
-        
+
         Animation animation = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
-                view.getLayoutParams().height = interpolatedTime == 1.0f 
-                        ? ViewGroup.LayoutParams.WRAP_CONTENT 
+                view.getLayoutParams().height = interpolatedTime == 1.0f
+                        ? ViewGroup.LayoutParams.WRAP_CONTENT
                         : (int) (targetHeight * interpolatedTime);
                 view.requestLayout();
             }
@@ -44,6 +45,7 @@ public class AnimationUtils {
 
     /**
      * Collapses a view from its current height to 0.
+     *
      * @param view The view to collapse.
      */
     public static void collapse(final View view) {

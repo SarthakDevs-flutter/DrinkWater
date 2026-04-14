@@ -15,7 +15,7 @@ import com.trending.water.drinking.reminder.base.MasterBaseFragment;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
 public class Screen_OnBoarding_Eight extends MasterBaseFragment {
-    
+
     private RelativeLayout sunnyBlock;
     private RelativeLayout cloudyBlock;
     private RelativeLayout rainyBlock;
@@ -24,7 +24,7 @@ public class Screen_OnBoarding_Eight extends MasterBaseFragment {
     private ImageView imgCloudy;
     private ImageView imgRainy;
     private ImageView imgSnow;
-    
+
     private View itemView;
 
     @Nullable

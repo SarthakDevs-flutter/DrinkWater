@@ -19,9 +19,9 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "Alarm received: " + intent.getAction());
-        
+
         WakeLocker.acquire(context);
-        
+
         try {
             String action = intent.getAction();
             if (ACTION_SNOOZE.equalsIgnoreCase(action)) {
@@ -39,17 +39,17 @@ public class AlarmReceiver extends BroadcastReceiver {
     private void handleSnooze(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        
+
         if (alarmManager != null) {
             Intent intent = new Intent(context, AlarmReceiver.class);
             int flags = PendingIntent.FLAG_UPDATE_CURRENT;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 flags |= PendingIntent.FLAG_IMMUTABLE;
             }
-            
+
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, flags);
             long triggerAt = Calendar.getInstance().getTimeInMillis() + SNOOZE_DURATION_MS;
-            
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -58,7 +58,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent);
             }
         }
-        
+
         if (notificationManager != null) {
             notificationManager.cancel(0);
         }

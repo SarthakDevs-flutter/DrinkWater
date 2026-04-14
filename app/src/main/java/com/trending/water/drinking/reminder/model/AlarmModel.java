@@ -6,9 +6,9 @@ public class AlarmModel {
     private String alarmType;
     private String drinkTime;
     private String id;
-    
+
     private Integer isOff = 0;
-    
+
     private Integer sunday = 0;
     private Integer monday = 0;
     private Integer tuesday = 0;

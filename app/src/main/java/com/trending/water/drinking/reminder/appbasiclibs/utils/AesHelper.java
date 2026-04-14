@@ -11,16 +11,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 public class AesHelper {
@@ -60,7 +55,7 @@ public class AesHelper {
     private static byte[] getRawKey(byte[] seed) {
         try {
             KeyGenerator keyGen = KeyGenerator.getInstance(TRANSFORMATION);
-            @SuppressLint("DeletedMethod") 
+            @SuppressLint("DeletedMethod")
             SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
             secureRandom.setSeed(seed);
             keyGen.init(128, secureRandom);

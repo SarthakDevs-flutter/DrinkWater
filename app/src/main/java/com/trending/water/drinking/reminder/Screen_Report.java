@@ -15,7 +15,7 @@ import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.custom.NonSwipeableViewPager;
 
 public class Screen_Report extends MasterBaseAppCompatActivity {
-    
+
     private AppCompatTextView lblToolbarTitle;
     private LinearLayout leftIconBlock;
     private LinearLayout rightIconBlock;
@@ -24,7 +24,7 @@ public class Screen_Report extends MasterBaseAppCompatActivity {
     private RadioButton rdoYear;
     private TabLayout tabs;
     private NonSwipeableViewPager viewPager;
-    
+
     private ReportPagerAdapter reportPagerAdapter;
 
     @Override
@@ -62,16 +62,22 @@ public class Screen_Report extends MasterBaseAppCompatActivity {
         reportPagerAdapter = new ReportPagerAdapter(getSupportFragmentManager(), mContext);
         viewPager.setAdapter(reportPagerAdapter);
         viewPager.setOffscreenPageLimit(5);
-        
+
         tabs.setupWithViewPager(viewPager);
-        
+
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 switch (position) {
-                    case 0: rdoWeek.setChecked(true); break;
-                    case 1: rdoMonth.setChecked(true); break;
-                    case 2: rdoYear.setChecked(true); break;
+                    case 0:
+                        rdoWeek.setChecked(true);
+                        break;
+                    case 1:
+                        rdoMonth.setChecked(true);
+                        break;
+                    case 2:
+                        rdoYear.setChecked(true);
+                        break;
                 }
             }
         });

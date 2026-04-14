@@ -250,7 +250,7 @@ public class BitmapHelper {
                 Log.e(TAG, "Error getting file name from content Uri", e);
             }
         }
-        
+
         String path = uri.getPath();
         if (path != null) {
             int cut = path.lastIndexOf('/');

@@ -20,12 +20,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class DatabaseHelper {
     private static final String TAG = "DatabaseHelper";
-    
+
     private final Context context;
     private final Activity activity;
     private final StringHelper stringHelper;
@@ -42,6 +41,22 @@ public class DatabaseHelper {
 
         // Ensure database directory exists
         Constant.database = context.openOrCreateDatabase(Constant.DATABASE_NAME, SQLiteDatabase.OPEN_READWRITE, null);
+    }
+
+    @Nullable
+    public static String md5(@NonNull String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] array = digest.digest(input.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : array) {
+                sb.append(Integer.toHexString((b & 0xFF) | 0x100).substring(1, 3));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, "MD5 algorithm not found", e);
+            return null;
+        }
     }
 
     public void createTable(@NonNull String tableName, @NonNull HashMap<String, String> fields) {
@@ -89,7 +104,7 @@ public class DatabaseHelper {
     public ArrayList<HashMap<String, String>> getDataQuery(@NonNull String query) {
         ArrayList<HashMap<String, String>> mapList = new ArrayList<>();
         Log.d(TAG, "SQL Select Query: " + query);
-        
+
         if (Constant.database == null) return mapList;
 
         try (Cursor cursor = Constant.database.rawQuery(query, null)) {
@@ -185,7 +200,7 @@ public class DatabaseHelper {
         if (!stringHelper.check_blank_data(whereClause)) {
             query += " WHERE " + whereClause;
         }
-        
+
         if (Constant.database == null) return 0;
 
         try (Cursor cursor = Constant.database.rawQuery(query, null)) {
@@ -240,29 +255,13 @@ public class DatabaseHelper {
         }
     }
 
-    @Nullable
-    public static String md5(@NonNull String input) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            byte[] array = digest.digest(input.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : array) {
-                sb.append(Integer.toHexString((b & 0xFF) | 0x100).substring(1, 3));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "MD5 algorithm not found", e);
-            return null;
-        }
-    }
-
     public boolean exportDb() {
         File backupDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "Databackup");
         if (!backupDir.exists() && !backupDir.mkdirs()) return false;
-        
+
         File currentDb = context.getDatabasePath(Constant.DATABASE_NAME);
         File backupDb = new File(backupDir, Constant.DATABASE_NAME);
-        
+
         try (FileChannel source = new FileInputStream(currentDb).getChannel();
              FileChannel destination = new FileOutputStream(backupDb).getChannel()) {
             destination.transferFrom(source, 0, source.size());

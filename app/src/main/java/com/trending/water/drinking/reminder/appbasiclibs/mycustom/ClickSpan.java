@@ -8,9 +8,9 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 public class ClickSpan extends ClickableSpan {
-    private int textColor = Color.BLUE;
     private final boolean isUnderline = false;
     private final OnClickListener onClickListener;
+    private int textColor = Color.BLUE;
 
     public ClickSpan(@NonNull OnClickListener listener) {
         this.onClickListener = listener;

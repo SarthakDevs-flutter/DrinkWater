@@ -19,7 +19,7 @@ import com.trending.water.drinking.reminder.base.MasterBaseFragment;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
 public class Screen_OnBoarding_Two extends MasterBaseFragment {
-    
+
     private RelativeLayout maleBlock;
     private RelativeLayout femaleBlock;
     private ImageView imgMale;
@@ -27,7 +27,7 @@ public class Screen_OnBoarding_Two extends MasterBaseFragment {
     private AppCompatTextView lblMale;
     private AppCompatTextView lblFemale;
     private AppCompatEditText txtUserName;
-    
+
     private View itemView;
 
     @Nullable
@@ -54,17 +54,19 @@ public class Screen_OnBoarding_Two extends MasterBaseFragment {
         femaleBlock.setOnClickListener(v -> setGender(false));
 
         txtUserName.setText(preferencesHelper.getString(URLFactory.KEY_USER_NAME, ""));
-        
+
         // Initial state
         boolean isFemale = preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false);
         setGender(!isFemale);
 
         txtUserName.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -79,14 +81,14 @@ public class Screen_OnBoarding_Two extends MasterBaseFragment {
             preferencesHelper.savePreferences(URLFactory.KEY_USER_GENDER, false);
             preferencesHelper.savePreferences(URLFactory.KEY_IS_PREGNANT, false);
             preferencesHelper.savePreferences(URLFactory.KEY_IS_BREASTFEEDING, false);
-            
+
             maleBlock.setBackground(ContextCompat.getDrawable(mContext, R.drawable.rdo_gender_select));
             imgMale.setImageResource(R.drawable.ic_male_selected);
             femaleBlock.setBackground(ContextCompat.getDrawable(mContext, R.drawable.rdo_gender_regular));
             imgFemale.setImageResource(R.drawable.ic_female_normal);
         } else {
             preferencesHelper.savePreferences(URLFactory.KEY_USER_GENDER, true);
-            
+
             maleBlock.setBackground(ContextCompat.getDrawable(mContext, R.drawable.rdo_gender_regular));
             imgMale.setImageResource(R.drawable.ic_male_normal);
             femaleBlock.setBackground(ContextCompat.getDrawable(mContext, R.drawable.rdo_gender_select));

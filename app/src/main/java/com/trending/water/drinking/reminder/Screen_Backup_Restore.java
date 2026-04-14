@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 import com.trending.water.drinking.reminder.adapter.FileAdapter;
-import com.trending.water.drinking.reminder.appbasiclibs.utils.DateHelper;
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
 import com.trending.water.drinking.reminder.model.BackUpFileModel;
 import com.trending.water.drinking.reminder.model.backuprestore.AlarmDetails;
@@ -50,9 +49,9 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
     private static final String TAG = "Screen_Backup_Restore";
     private static final int REQ_PERMISSIONS = 3;
     private static final int REQ_SELECT_FILE = 1;
-
-    private LinearLayout autoBackupOptionBlock;
     private final Calendar autoBackupTime = Calendar.getInstance();
+    private final List<BackUpFileModel> backupFileList = new ArrayList<>();
+    private LinearLayout autoBackupOptionBlock;
     private LinearLayout btnBackup;
     private LinearLayout btnClear;
     private boolean isPendingBackup = true;
@@ -60,8 +59,6 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
     private AppCompatTextView lblToolbarTitle;
     private LinearLayout leftIconBlock;
     private LinearLayout rightIconBlock;
-    private final List<BackUpFileModel> backupFileList = new ArrayList<>();
-    
     private AppCompatTextView lblBackup;
     private AppCompatTextView lblRestore;
     private AppCompatTextView lblClear;
@@ -77,7 +74,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_backup_restore);
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setNavigationBarColor(ContextCompat.getColor(mContext, R.color.str_green_card));
         }
@@ -144,7 +141,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
         switchAutoBackup.setOnCheckedChangeListener((buttonView, isChecked) -> {
             autoBackupOptionBlock.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             preferencesHelper.savePreferences(URLFactory.KEY_AUTO_BACKUP, isChecked);
-            
+
             if (isChecked) {
                 scheduleAutoBackup();
             } else {
@@ -185,13 +182,13 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
 
     private void validateAndRunAction() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this, "android.permission.READ_EXTERNAL_STORAGE") != 0 || 
-                ContextCompat.checkSelfPermission(this, "android.permission.WRITE_EXTERNAL_STORAGE") != 0) {
+            if (ContextCompat.checkSelfPermission(this, "android.permission.READ_EXTERNAL_STORAGE") != 0 ||
+                    ContextCompat.checkSelfPermission(this, "android.permission.WRITE_EXTERNAL_STORAGE") != 0) {
                 requestPermissions(new String[]{"android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE"}, REQ_PERMISSIONS);
                 return;
             }
         }
-        
+
         if (isPendingBackup) {
             new BackupDataTask().execute();
         } else {
@@ -201,19 +198,19 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
 
     private void confirmClearBackups() {
         new AlertDialog.Builder(mActivity)
-            .setMessage(stringHelper.getString(R.string.str_clear_all_data_confirmation_messge))
-            .setPositiveButton(R.string.str_yes, (dialog, which) -> {
-                File dir = new File(Environment.getExternalStorageDirectory(), URLFactory.APP_DIRECTORY_NAME);
-                if (dir.exists() && dir.isDirectory()) {
-                    File[] files = dir.listFiles();
-                    if (files != null) {
-                        for (File f : files) f.delete();
+                .setMessage(stringHelper.getString(R.string.str_clear_all_data_confirmation_messge))
+                .setPositiveButton(R.string.str_yes, (dialog, which) -> {
+                    File dir = new File(Environment.getExternalStorageDirectory(), URLFactory.APP_DIRECTORY_NAME);
+                    if (dir.exists() && dir.isDirectory()) {
+                        File[] files = dir.listFiles();
+                        if (files != null) {
+                            for (File f : files) f.delete();
+                        }
                     }
-                }
-                alertHelper.customAlert(stringHelper.getString(R.string.str_successfully_clear_data));
-            })
-            .setNegativeButton(R.string.str_no, null)
-            .show();
+                    alertHelper.customAlert(stringHelper.getString(R.string.str_successfully_clear_data));
+                })
+                .setNegativeButton(R.string.str_no, null)
+                .show();
     }
 
     private void showRestorePicker() {
@@ -230,7 +227,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
 
         View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_backup_pick, null);
         ((AppCompatTextView) view.findViewById(R.id.btn_text)).setText(stringHelper.getString(R.string.str_restore));
-        
+
         RecyclerView rv = view.findViewById(R.id.soundRecyclerView);
         fileAdapter = new FileAdapter(mActivity, backupFileList, (item, pos) -> {
             for (BackUpFileModel m : backupFileList) m.setSelected(false);
@@ -243,19 +240,22 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
         view.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
         view.findViewById(R.id.btn_save).setOnClickListener(v -> {
             new AlertDialog.Builder(mActivity)
-                .setTitle(stringHelper.getString(R.string.str_restore_all_data_confirmation_messge))
-                .setPositiveButton(R.string.str_yes, (d, w) -> {
-                    int pos = -1;
-                    for (int i = 0; i < backupFileList.size(); i++) {
-                        if (backupFileList.get(i).isSelected()) { pos = i; break; }
-                    }
-                    if (pos >= 0) {
-                        new RestoreDataTask(backupFileList.get(pos).getPath()).execute();
-                    }
-                    dialog.dismiss();
-                })
-                .setNegativeButton(R.string.str_no, null)
-                .show();
+                    .setTitle(stringHelper.getString(R.string.str_restore_all_data_confirmation_messge))
+                    .setPositiveButton(R.string.str_yes, (d, w) -> {
+                        int pos = -1;
+                        for (int i = 0; i < backupFileList.size(); i++) {
+                            if (backupFileList.get(i).isSelected()) {
+                                pos = i;
+                                break;
+                            }
+                        }
+                        if (pos >= 0) {
+                            new RestoreDataTask(backupFileList.get(pos).getPath()).execute();
+                        }
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton(R.string.str_no, null)
+                    .show();
         });
 
         dialog.setContentView(view);
@@ -278,53 +278,6 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
                     backupFileList.add(m);
                 }
             }
-        }
-    }
-
-    private class BackupDataTask extends AsyncTask<Void, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            try {
-                BackupRestore data = new BackupRestore();
-                data.setContainerDetails(fetchContainerData());
-                data.setDrinkDetails(fetchDrinkData());
-                data.setAlarmDetails(fetchAlarmData());
-                
-                // Prefs
-                data.setTotalDrink(preferencesHelper.getFloat(URLFactory.KEY_DAILY_WATER_GOAL, 0.0f));
-                data.setTotalWeight(preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, ""));
-                data.setTotalHeight(preferencesHelper.getString(URLFactory.KEY_PERSON_HEIGHT, ""));
-                data.setCMUnit(preferencesHelper.getBoolean(URLFactory.KEY_PERSON_HEIGHT_UNIT, true));
-                data.setKgUnit(preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true));
-                data.setMlUnit(preferencesHelper.getString(URLFactory.KEY_WATER_UNIT, "ml").equalsIgnoreCase("ml"));
-                data.setReminderOption(preferencesHelper.getInt(URLFactory.KEY_REMINDER_OPTION, 0));
-                data.setReminderSound(preferencesHelper.getInt(URLFactory.KEY_REMINDER_SOUND, 0));
-                data.setDisableNotification(preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_NOTIFICATION, false));
-                data.setManualReminderActive(preferencesHelper.getBoolean(URLFactory.KEY_IS_MANUAL_REMINDER, false));
-                data.setReminderVibrate(preferencesHelper.getBoolean(URLFactory.KEY_REMINDER_VIBRATE, false));
-                data.setUserName(preferencesHelper.getString(URLFactory.KEY_USER_NAME, ""));
-                data.setUserGender(preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, true));
-                data.setDisableSound(preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_SOUND_ON_ADD, false));
-                data.setAutoBackup(preferencesHelper.getBoolean(URLFactory.KEY_AUTO_BACKUP, false));
-                data.setAutoBackupType(preferencesHelper.getInt(URLFactory.KEY_AUTO_BACKUP_TYPE, 0));
-                data.setAutoBackupId(preferencesHelper.getInt(URLFactory.KEY_AUTO_BACKUP_ID, 0));
-                data.setActive(preferencesHelper.getBoolean(URLFactory.KEY_IS_ACTIVE, false));
-                data.setBreastfeeding(preferencesHelper.getBoolean(URLFactory.KEY_IS_BREASTFEEDING, false));
-                data.setPregnant(preferencesHelper.getBoolean(URLFactory.KEY_IS_PREGNANT, false));
-                data.setWeatherConditions(preferencesHelper.getInt(URLFactory.KEY_WEATHER_CONDITIONS, 0));
-
-                String json = new Gson().toJson(data);
-                return writeToFile(json);
-            } catch (Exception e) {
-                Log.e(TAG, "Backup failed", e);
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            if (success) alertHelper.customAlert(stringHelper.getString(R.string.str_successfully_backup));
-            else alertHelper.customAlert(stringHelper.getString(R.string.str_error_occurred));
         }
     }
 
@@ -409,7 +362,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
     private boolean writeToFile(String content) {
         File dir = new File(Environment.getExternalStorageDirectory(), URLFactory.APP_DIRECTORY_NAME);
         if (!dir.exists()) dir.mkdirs();
-        
+
         String stamp = dateHelper.getCurrentDate("dd-MMM-yyyy hh:mm:ss a");
         File file = new File(dir, "Backup_" + stamp + ".txt");
         try (FileOutputStream fos = new FileOutputStream(file);
@@ -422,10 +375,162 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
         }
     }
 
+    private void cancelExistingAlarms() {
+        List<HashMap<String, String>> rows = databaseHelper.getData("tbl_alarm_details");
+        for (HashMap<String, String> row : rows) {
+            if ("M".equalsIgnoreCase(row.get("AlarmType"))) {
+                cancelManual(row);
+            } else {
+                List<HashMap<String, String>> subs = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + row.get("id"));
+                for (HashMap<String, String> sub : subs) {
+                    MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(sub.get("AlarmId")));
+                }
+            }
+        }
+    }
+
+    private void cancelManual(HashMap<String, String> row) {
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("SundayAlarmId")));
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("MondayAlarmId")));
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("TuesdayAlarmId")));
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("WednesdayAlarmId")));
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("ThursdayAlarmId")));
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("FridayAlarmId")));
+        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("SaturdayAlarmId")));
+    }
+
+    private void applyPreferences(BackupRestore data) {
+        preferencesHelper.savePreferences(URLFactory.KEY_DAILY_WATER_GOAL, data.getTotalDrink());
+        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT, data.getTotalWeight());
+        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_HEIGHT, data.getTotalHeight());
+        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT_UNIT, data.isKgUnit());
+        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_HEIGHT_UNIT, data.isCMUnit());
+        preferencesHelper.savePreferences(URLFactory.KEY_WATER_UNIT, data.isMlUnit() ? "ml" : "fl oz");
+        preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, data.getReminderOption());
+        preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_SOUND, data.getReminderSound());
+        preferencesHelper.savePreferences(URLFactory.KEY_DISABLE_NOTIFICATION, data.isDisableNotification());
+        preferencesHelper.savePreferences(URLFactory.KEY_IS_MANUAL_REMINDER, data.isManualReminderActive());
+        preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_VIBRATE, data.isReminderVibrate());
+        preferencesHelper.savePreferences(URLFactory.KEY_USER_NAME, data.getUserName());
+        preferencesHelper.savePreferences(URLFactory.KEY_USER_GENDER, data.getUserGender());
+        preferencesHelper.savePreferences(URLFactory.KEY_DISABLE_SOUND_ON_ADD, data.isDisableSound());
+        preferencesHelper.savePreferences(URLFactory.KEY_AUTO_BACKUP, data.isAutoBackup());
+        preferencesHelper.savePreferences(URLFactory.KEY_AUTO_BACKUP_TYPE, data.getAutoBackupType());
+        preferencesHelper.savePreferences(URLFactory.KEY_AUTO_BACKUP_ID, data.getAutoBackupId());
+        preferencesHelper.savePreferences(URLFactory.KEY_IS_ACTIVE, data.isActive());
+        preferencesHelper.savePreferences(URLFactory.KEY_IS_BREASTFEEDING, data.isBreastfeeding());
+        preferencesHelper.savePreferences(URLFactory.KEY_IS_PREGNANT, data.isPregnant());
+        preferencesHelper.savePreferences(URLFactory.KEY_WEATHER_CONDITIONS, data.getWeatherConditions());
+
+        URLFactory.dailyWaterValue = data.getTotalDrink();
+        URLFactory.waterUnitValue = data.isMlUnit() ? "ml" : "fl oz";
+    }
+
+    private void rescheduleAlarms(BackupRestore data) {
+        if (data.isManualReminderActive()) {
+            for (AlarmDetails d : data.getAlarmDetails()) {
+                if ("M".equalsIgnoreCase(d.getAlarmType())) {
+                    int h = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "HH", d.getAlarmTime().trim()));
+                    int m = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "mm", d.getAlarmTime().trim()));
+                    if (d.getSunday() == 1)
+                        MyAlarmManager.scheduleManualRecurringAlarm(mContext, 1, h, m, Integer.parseInt(d.getAlarmSundayId()));
+                    if (d.getMonday() == 1)
+                        MyAlarmManager.scheduleManualRecurringAlarm(mContext, 2, h, m, Integer.parseInt(d.getAlarmMondayId()));
+                    if (d.getTuesday() == 1)
+                        MyAlarmManager.scheduleManualRecurringAlarm(mContext, 3, h, m, Integer.parseInt(d.getAlarmTuesdayId()));
+                    if (d.getWednesday() == 1)
+                        MyAlarmManager.scheduleManualRecurringAlarm(mContext, 4, h, m, Integer.parseInt(d.getAlarmWednesdayId()));
+                    if (d.getThursday() == 1)
+                        MyAlarmManager.scheduleManualRecurringAlarm(mContext, 5, h, m, Integer.parseInt(d.getAlarmThursdayId()));
+                    if (d.getFriday() == 1)
+                        MyAlarmManager.scheduleManualRecurringAlarm(mContext, 6, h, m, Integer.parseInt(d.getAlarmFridayId()));
+                    if (d.getSaturday() == 1)
+                        MyAlarmManager.scheduleManualRecurringAlarm(mContext, 7, h, m, Integer.parseInt(d.getAlarmSaturdayId()));
+                }
+            }
+        } else {
+            for (AlarmDetails d : data.getAlarmDetails()) {
+                for (AlarmSubDetails sd : d.getAlarmSubDetails()) {
+                    Calendar cal = Calendar.getInstance();
+                    cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "HH", sd.getAlarmTime().trim())));
+                    cal.set(Calendar.MINUTE, Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "mm", sd.getAlarmTime().trim())));
+                    cal.set(Calendar.SECOND, 0);
+                    MyAlarmManager.scheduleAutoRecurringAlarm(mContext, cal, Integer.parseInt(sd.getAlarmId()));
+                }
+            }
+        }
+
+        if (data.isAutoBackup()) {
+            scheduleAutoBackup();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_PERMISSIONS) {
+            if (grantResults.length > 0 && grantResults[0] == 0) {
+                validateAndRunAction();
+            } else {
+                alertHelper.customAlert(stringHelper.getString(R.string.str_permission_denied));
+            }
+        }
+    }
+
+    private class BackupDataTask extends AsyncTask<Void, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                BackupRestore data = new BackupRestore();
+                data.setContainerDetails(fetchContainerData());
+                data.setDrinkDetails(fetchDrinkData());
+                data.setAlarmDetails(fetchAlarmData());
+
+                // Prefs
+                data.setTotalDrink(preferencesHelper.getFloat(URLFactory.KEY_DAILY_WATER_GOAL, 0.0f));
+                data.setTotalWeight(preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, ""));
+                data.setTotalHeight(preferencesHelper.getString(URLFactory.KEY_PERSON_HEIGHT, ""));
+                data.setCMUnit(preferencesHelper.getBoolean(URLFactory.KEY_PERSON_HEIGHT_UNIT, true));
+                data.setKgUnit(preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true));
+                data.setMlUnit(preferencesHelper.getString(URLFactory.KEY_WATER_UNIT, "ml").equalsIgnoreCase("ml"));
+                data.setReminderOption(preferencesHelper.getInt(URLFactory.KEY_REMINDER_OPTION, 0));
+                data.setReminderSound(preferencesHelper.getInt(URLFactory.KEY_REMINDER_SOUND, 0));
+                data.setDisableNotification(preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_NOTIFICATION, false));
+                data.setManualReminderActive(preferencesHelper.getBoolean(URLFactory.KEY_IS_MANUAL_REMINDER, false));
+                data.setReminderVibrate(preferencesHelper.getBoolean(URLFactory.KEY_REMINDER_VIBRATE, false));
+                data.setUserName(preferencesHelper.getString(URLFactory.KEY_USER_NAME, ""));
+                data.setUserGender(preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, true));
+                data.setDisableSound(preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_SOUND_ON_ADD, false));
+                data.setAutoBackup(preferencesHelper.getBoolean(URLFactory.KEY_AUTO_BACKUP, false));
+                data.setAutoBackupType(preferencesHelper.getInt(URLFactory.KEY_AUTO_BACKUP_TYPE, 0));
+                data.setAutoBackupId(preferencesHelper.getInt(URLFactory.KEY_AUTO_BACKUP_ID, 0));
+                data.setActive(preferencesHelper.getBoolean(URLFactory.KEY_IS_ACTIVE, false));
+                data.setBreastfeeding(preferencesHelper.getBoolean(URLFactory.KEY_IS_BREASTFEEDING, false));
+                data.setPregnant(preferencesHelper.getBoolean(URLFactory.KEY_IS_PREGNANT, false));
+                data.setWeatherConditions(preferencesHelper.getInt(URLFactory.KEY_WEATHER_CONDITIONS, 0));
+
+                String json = new Gson().toJson(data);
+                return writeToFile(json);
+            } catch (Exception e) {
+                Log.e(TAG, "Backup failed", e);
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success)
+                alertHelper.customAlert(stringHelper.getString(R.string.str_successfully_backup));
+            else alertHelper.customAlert(stringHelper.getString(R.string.str_error_occurred));
+        }
+    }
+
     private class RestoreDataTask extends AsyncTask<Void, Void, Boolean> {
         private final String filePath;
 
-        RestoreDataTask(String path) { this.filePath = path; }
+        RestoreDataTask(String path) {
+            this.filePath = path;
+        }
 
         @Override
         protected Boolean doInBackground(Void... voids) {
@@ -435,12 +540,12 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
                     String line;
                     while ((line = br.readLine()) != null) sb.append(line).append("\n");
                 }
-                
+
                 BackupRestore data = new Gson().fromJson(sb.toString(), BackupRestore.class);
                 if (data == null) return false;
 
                 cancelExistingAlarms();
-                
+
                 databaseHelper.remove("tbl_container_details");
                 for (ContainerDetails d : data.getContainerDetails()) {
                     ContentValues cv = new ContentValues();
@@ -504,7 +609,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
 
                 applyPreferences(data);
                 rescheduleAlarms(data);
-                
+
                 return true;
             } catch (Exception e) {
                 Log.e(TAG, "Restore failed", e);
@@ -519,101 +624,6 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
                 initView();
             } else {
                 alertHelper.customAlert(stringHelper.getString(R.string.str_error_occurred));
-            }
-        }
-    }
-
-    private void cancelExistingAlarms() {
-        List<HashMap<String, String>> rows = databaseHelper.getData("tbl_alarm_details");
-        for (HashMap<String, String> row : rows) {
-            if ("M".equalsIgnoreCase(row.get("AlarmType"))) {
-                cancelManual(row);
-            } else {
-                List<HashMap<String, String>> subs = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + row.get("id"));
-                for (HashMap<String, String> sub : subs) {
-                    MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(sub.get("AlarmId")));
-                }
-            }
-        }
-    }
-
-    private void cancelManual(HashMap<String, String> row) {
-        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("SundayAlarmId")));
-        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("MondayAlarmId")));
-        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("TuesdayAlarmId")));
-        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("WednesdayAlarmId")));
-        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("ThursdayAlarmId")));
-        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("FridayAlarmId")));
-        MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("SaturdayAlarmId")));
-    }
-
-    private void applyPreferences(BackupRestore data) {
-        preferencesHelper.savePreferences(URLFactory.KEY_DAILY_WATER_GOAL, data.getTotalDrink());
-        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT, data.getTotalWeight());
-        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_HEIGHT, data.getTotalHeight());
-        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT_UNIT, data.isKgUnit());
-        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_HEIGHT_UNIT, data.isCMUnit());
-        preferencesHelper.savePreferences(URLFactory.KEY_WATER_UNIT, data.isMlUnit() ? "ml" : "fl oz");
-        preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, data.getReminderOption());
-        preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_SOUND, data.getReminderSound());
-        preferencesHelper.savePreferences(URLFactory.KEY_DISABLE_NOTIFICATION, data.isDisableNotification());
-        preferencesHelper.savePreferences(URLFactory.KEY_IS_MANUAL_REMINDER, data.isManualReminderActive());
-        preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_VIBRATE, data.isReminderVibrate());
-        preferencesHelper.savePreferences(URLFactory.KEY_USER_NAME, data.getUserName());
-        preferencesHelper.savePreferences(URLFactory.KEY_USER_GENDER, data.getUserGender());
-        preferencesHelper.savePreferences(URLFactory.KEY_DISABLE_SOUND_ON_ADD, data.isDisableSound());
-        preferencesHelper.savePreferences(URLFactory.KEY_AUTO_BACKUP, data.isAutoBackup());
-        preferencesHelper.savePreferences(URLFactory.KEY_AUTO_BACKUP_TYPE, data.getAutoBackupType());
-        preferencesHelper.savePreferences(URLFactory.KEY_AUTO_BACKUP_ID, data.getAutoBackupId());
-        preferencesHelper.savePreferences(URLFactory.KEY_IS_ACTIVE, data.isActive());
-        preferencesHelper.savePreferences(URLFactory.KEY_IS_BREASTFEEDING, data.isBreastfeeding());
-        preferencesHelper.savePreferences(URLFactory.KEY_IS_PREGNANT, data.isPregnant());
-        preferencesHelper.savePreferences(URLFactory.KEY_WEATHER_CONDITIONS, data.getWeatherConditions());
-        
-        URLFactory.dailyWaterValue = data.getTotalDrink();
-        URLFactory.waterUnitValue = data.isMlUnit() ? "ml" : "fl oz";
-    }
-
-    private void rescheduleAlarms(BackupRestore data) {
-        if (data.isManualReminderActive()) {
-            for (AlarmDetails d : data.getAlarmDetails()) {
-                if ("M".equalsIgnoreCase(d.getAlarmType())) {
-                    int h = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "HH", d.getAlarmTime().trim()));
-                    int m = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "mm", d.getAlarmTime().trim()));
-                    if (d.getSunday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 1, h, m, Integer.parseInt(d.getAlarmSundayId()));
-                    if (d.getMonday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 2, h, m, Integer.parseInt(d.getAlarmMondayId()));
-                    if (d.getTuesday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 3, h, m, Integer.parseInt(d.getAlarmTuesdayId()));
-                    if (d.getWednesday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 4, h, m, Integer.parseInt(d.getAlarmWednesdayId()));
-                    if (d.getThursday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 5, h, m, Integer.parseInt(d.getAlarmThursdayId()));
-                    if (d.getFriday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 6, h, m, Integer.parseInt(d.getAlarmFridayId()));
-                    if (d.getSaturday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 7, h, m, Integer.parseInt(d.getAlarmSaturdayId()));
-                }
-            }
-        } else {
-            for (AlarmDetails d : data.getAlarmDetails()) {
-                for (AlarmSubDetails sd : d.getAlarmSubDetails()) {
-                    Calendar cal = Calendar.getInstance();
-                    cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "HH", sd.getAlarmTime().trim())));
-                    cal.set(Calendar.MINUTE, Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "mm", sd.getAlarmTime().trim())));
-                    cal.set(Calendar.SECOND, 0);
-                    MyAlarmManager.scheduleAutoRecurringAlarm(mContext, cal, Integer.parseInt(sd.getAlarmId()));
-                }
-            }
-        }
-        
-        if (data.isAutoBackup()) {
-            scheduleAutoBackup();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQ_PERMISSIONS) {
-            if (grantResults.length > 0 && grantResults[0] == 0) {
-                validateAndRunAction();
-            } else {
-                alertHelper.customAlert(stringHelper.getString(R.string.str_permission_denied));
             }
         }
     }

@@ -24,20 +24,18 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Screen_History extends MasterBaseActivity {
-    
+
+    private final ArrayList<History> histories = new ArrayList<>();
+    private final int perPage = 20;
     private RecyclerView historyRecyclerView;
     private AppCompatTextView lblNoRecordFound;
     private AppCompatTextView lblToolbarTitle;
     private LinearLayout leftIconBlock;
     private LinearLayout rightIconBlock;
     private NestedScrollView nestedScrollView;
-    
     private HistoryAdapter adapter;
-    private final ArrayList<History> histories = new ArrayList<>();
-    
     private boolean isLoading = true;
     private int page = 0;
-    private final int perPage = 20;
     private int beforeLoad = 0;
     private int afterLoad = 0;
 
@@ -62,10 +60,10 @@ public class Screen_History extends MasterBaseActivity {
         lblToolbarTitle.setText(stringHelper.getString(R.string.str_drink_history));
         leftIconBlock.setOnClickListener(v -> finish());
         rightIconBlock.setVisibility(View.GONE);
-        
+
         historyRecyclerView.setNestedScrollingEnabled(false);
         historyRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-        
+
         adapter = new HistoryAdapter(mActivity, histories, new HistoryAdapter.CallBack() {
             @Override
             public void onClickSelect(History history, int position) {
@@ -78,9 +76,9 @@ public class Screen_History extends MasterBaseActivity {
             }
         });
         historyRecyclerView.setAdapter(adapter);
-        
+
         loadHistory(false);
-        
+
         nestedScrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
             boolean isAtBottom = scrollY == v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight();
             if (isAtBottom && isLoading) {
@@ -114,10 +112,10 @@ public class Screen_History extends MasterBaseActivity {
     public void loadHistory(boolean isPagination) {
         int startIndex = page * perPage;
         beforeLoad = histories.size();
-        
+
         // Complex SQL ordering preserved
         String query = "SELECT * FROM tbl_drink_details ORDER BY datetime(substr(DrinkDateTime, 7, 4) || '-' || substr(DrinkDateTime, 4, 2) || '-' || substr(DrinkDateTime, 1, 2) || ' ' || substr(DrinkDateTime, 12, 8)) DESC limit " + startIndex + "," + perPage;
-        
+
         try (Cursor c = Constant.database.rawQuery(query, null)) {
             ArrayList<HashMap<String, String>> records = new ArrayList<>();
             if (c.moveToFirst()) {
@@ -135,10 +133,10 @@ public class Screen_History extends MasterBaseActivity {
                 History history = new History();
                 history.setId(record.get("id"));
                 history.setContainerMeasure(unit);
-                
+
                 double val = Double.parseDouble(record.get("ContainerValue"));
                 double valOz = Double.parseDouble(record.get("ContainerValueOZ"));
-                
+
                 history.setContainerValue(String.valueOf((int) val));
                 history.setContainerValueOZ(String.valueOf((int) valOz));
                 history.setDrinkDate(record.get("DrinkDate"));
@@ -150,7 +148,7 @@ public class Screen_History extends MasterBaseActivity {
                 for (HashMap<String, String> dr : dayRecords) {
                     dayTotal += Float.parseFloat(unit.equalsIgnoreCase("ML") ? dr.get("ContainerValue") : dr.get("ContainerValueOZ"));
                 }
-                
+
                 history.setTotalML((int) dayTotal + " " + unit);
                 histories.add(history);
             }
@@ -160,7 +158,7 @@ public class Screen_History extends MasterBaseActivity {
 
         afterLoad = histories.size();
         isLoading = afterLoad > beforeLoad;
-        
+
         lblNoRecordFound.setVisibility(histories.isEmpty() ? View.VISIBLE : View.GONE);
         adapter.notifyDataSetChanged();
     }

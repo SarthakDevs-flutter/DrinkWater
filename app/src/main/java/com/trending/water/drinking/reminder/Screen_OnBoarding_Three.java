@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.RadioButton;
 
 import androidx.annotation.NonNull;
@@ -28,9 +27,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Screen_OnBoarding_Three extends MasterBaseFragment {
-    
-    private static final String TAG = "Screen_OnBoarding_Three";
 
+    private static final String TAG = "Screen_OnBoarding_Three";
+    private final List<String> weightKgList = new ArrayList<>();
+    private final List<String> weightLbList = new ArrayList<>();
+    private final List<String> heightCmList = new ArrayList<>();
+    private final List<String> heightFeetList = new ArrayList<>();
+    private final List<Double> heightFeetElements = new ArrayList<>();
     private HorizontalPicker pickerCm;
     private HorizontalPicker pickerFeet;
     private HorizontalPicker pickerKg;
@@ -41,13 +44,6 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
     private RadioButton rdoLb;
     private AppCompatEditText txtHeight;
     private AppCompatEditText txtWeight;
-    
-    private final List<String> weightKgList = new ArrayList<>();
-    private final List<String> weightLbList = new ArrayList<>();
-    private final List<String> heightCmList = new ArrayList<>();
-    private final List<String> heightFeetList = new ArrayList<>();
-    private final List<Double> heightFeetElements = new ArrayList<>();
-    
     private boolean isExecute = true;
     private boolean isExecuteWeight = true;
     private View itemView;
@@ -57,10 +53,10 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         itemView = inflater.inflate(R.layout.screen_onboarding_three, container, false);
         findViewByIds(itemView);
-        
+
         initializePickers();
         initView();
-        
+
         return itemView;
     }
 
@@ -82,7 +78,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         initWeightLb();
         initHeightCm();
         initHeightFeet();
-        
+
         if (preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true)) {
             pickerLb.setVisibility(View.GONE);
         } else {
@@ -104,7 +100,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
             currentWeight += 0.5f;
             weightKgList.add(String.valueOf(currentWeight));
         }
-        
+
         CharSequence[] values = weightKgList.toArray(new CharSequence[0]);
         pickerKg.setValues(values);
         pickerKg.setSideItems(1);
@@ -112,10 +108,11 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
             txtWeight.setText(values[index]);
             Log.d(TAG, "Weight KG selected: " + values[index]);
         });
-        
+
         try {
             pickerKg.setTextSize(getResources().getDimension(R.dimen.dp_30));
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     private void initWeightLb() {
@@ -123,7 +120,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         for (int i = 66; i < 288; i++) {
             weightLbList.add(String.valueOf(i));
         }
-        
+
         CharSequence[] values = weightLbList.toArray(new CharSequence[0]);
         pickerLb.setValues(values);
         pickerLb.setSideItems(1);
@@ -131,10 +128,11 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
             txtWeight.setText(values[index]);
             Log.d(TAG, "Weight LB selected: " + values[index]);
         });
-        
+
         try {
             pickerLb.setTextSize(getResources().getDimension(R.dimen.dp_30));
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     private void initHeightCm() {
@@ -142,7 +140,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         for (int i = 60; i < 241; i++) {
             heightCmList.add(String.valueOf(i));
         }
-        
+
         CharSequence[] values = heightCmList.toArray(new CharSequence[0]);
         pickerCm.setValues(values);
         pickerCm.setSideItems(1);
@@ -150,10 +148,11 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
             txtHeight.setText(values[index]);
             Log.d(TAG, "Height CM selected: " + values[index]);
         });
-        
+
         try {
             pickerCm.setTextSize(getResources().getDimension(R.dimen.dp_30));
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     private void initHeightFeet() {
@@ -172,10 +171,11 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
             txtHeight.setText(values[index]);
             Log.d(TAG, "Height Feet selected: " + values[index]);
         });
-        
+
         try {
             pickerFeet.setTextSize(getResources().getDimension(R.dimen.dp_30));
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     private void initView() {
@@ -194,7 +194,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         setupHeightTextWatcher();
         setupWeightTextWatcher();
         setupRadioClickListeners();
-        
+
         initializeUIStates();
     }
 
@@ -208,10 +208,12 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
     private void setupHeightTextWatcher() {
         txtHeight.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -219,7 +221,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
                 if (input.equals(".")) {
                     txtHeight.setText("2.0");
                 }
-                
+
                 if (!stringHelper.check_blank_data(input) && isExecute) {
                     if (rdoCm.isChecked()) {
                         int index = heightCmList.indexOf(input);
@@ -237,10 +239,12 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
     private void setupWeightTextWatcher() {
         txtWeight.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -260,7 +264,8 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
                         }
                     }
                     saveWeightData();
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         });
     }
@@ -282,11 +287,12 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
                         }
                     }
                     cmValue = (int) Math.round(((feet * 12) + inch) * 2.54d);
-                } catch (Exception ignored) {}
-                
+                } catch (Exception ignored) {
+                }
+
                 int index = heightCmList.indexOf(String.valueOf(cmValue));
                 if (index != -1) pickerCm.setSelectedItem(index);
-                
+
                 rdoFeet.setClickable(true);
                 rdoCm.setClickable(false);
                 txtHeight.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 240.0d)});
@@ -307,11 +313,12 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
                     int cm = (int) Float.parseFloat(current);
                     int totalInches = (int) Math.round(cm / 2.54d);
                     feetStr = (totalInches / 12) + "." + (totalInches % 12);
-                } catch (Exception ignored) {}
-                
+                } catch (Exception ignored) {
+                }
+
                 int index = heightFeetList.indexOf(getData(feetStr));
                 if (index != -1) pickerFeet.setSelectedItem(index);
-                
+
                 rdoFeet.setClickable(false);
                 rdoCm.setClickable(true);
                 txtHeight.setFilters(new InputFilter[]{new InputFilterRange(Utils.DOUBLE_EPSILON, heightFeetElements)});
@@ -331,7 +338,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
                 double kg = lb > 0 ? Math.round(HeightWeightHelper.convertLbToKg(lb)) : 0;
                 int index = weightKgList.indexOf(String.valueOf((float) kg));
                 if (index != -1) pickerKg.setSelectedItem(index);
-                
+
                 txtWeight.setFilters(new InputFilter[]{new InputFilterWeightRange(0, 130.0d)});
                 txtWeight.setText(getData(String.valueOf((int) kg)));
                 rdoKg.setClickable(false);
@@ -347,7 +354,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
                 double lb = kg > 0 ? Math.round(HeightWeightHelper.convertKgToLb(kg)) : 0;
                 int index = weightLbList.indexOf(String.valueOf((int) lb));
                 if (index != -1) pickerLb.setSelectedItem(index);
-                
+
                 txtWeight.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 287.0d)});
                 txtWeight.setText(String.valueOf((int) lb));
                 rdoKg.setClickable(true);

@@ -94,9 +94,13 @@ public class AlarmAdapter extends BaseAdapter<AlarmModel, AlarmAdapter.ViewHolde
 
     public interface CallBack {
         void onClickEdit(AlarmModel alarm, int position);
+
         void onClickRemove(AlarmModel alarm, int position);
+
         void onClickSelect(AlarmModel alarm, int position);
+
         void onClickSwitch(AlarmModel alarm, int position, boolean isChecked);
+
         void onClickWeek(AlarmModel alarm, int position, int dayIndex, boolean isChecked);
     }
 

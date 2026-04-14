@@ -10,95 +10,95 @@ public class BackupRestore {
     @SerializedName("AlarmDetails")
     @Expose
     private List<AlarmDetails> alarmDetailsList = new ArrayList<>();
-    
+
     @SerializedName("auto_backup")
     @Expose
     private boolean autoBackup = false;
-    
+
     @SerializedName("auto_backup_id")
     @Expose
     private Integer autoBackupId = 0;
-    
+
     @SerializedName("auto_backup_type")
     @Expose
     private Integer autoBackupType = 0;
-    
+
     @SerializedName("ContainerDetails")
     @Expose
     private List<ContainerDetails> containerDetailsList = new ArrayList<>();
-    
+
     @SerializedName("disable_notification")
     @Expose
     private boolean disableNotification = false;
-    
+
     @SerializedName("disable_sound")
     @Expose
     private boolean disableSound = false;
-    
+
     @SerializedName("DrinkDetails")
     @Expose
     private List<DrinkDetails> drinkDetailsList = new ArrayList<>();
-    
+
     @SerializedName("isCMUnit")
     @Expose
     private boolean isCMUnit = true;
-    
+
     @SerializedName("isKgUnit")
     @Expose
     private boolean isKgUnit = true;
-    
+
     @SerializedName("isMlUnit")
     @Expose
     private boolean isMlUnit = true;
-    
+
     @SerializedName("is_active")
     @Expose
     private boolean isActive = false;
-    
+
     @SerializedName("is_breastfeeding")
     @Expose
     private boolean isBreastfeeding = false;
-    
+
     @SerializedName("is_pregnant")
     @Expose
     private boolean isPregnant = false;
-    
+
     @SerializedName("manual_reminder_active")
     @Expose
     private boolean manualReminderActive = true;
-    
+
     @SerializedName("reminder_option")
     @Expose
     private Integer reminderOption;
-    
+
     @SerializedName("reminder_sound")
     @Expose
     private Integer reminderSound;
-    
+
     @SerializedName("reminder_vibrate")
     @Expose
     private boolean reminderVibrate = true;
-    
+
     @SerializedName("total_drink")
     @Expose
     private float totalDrink;
-    
+
     @SerializedName("total_height")
     @Expose
     private String totalHeight;
-    
+
     @SerializedName("total_weight")
     @Expose
     private String totalWeight;
-    
+
     @SerializedName("user_gender")
     @Expose
     private boolean userGender = true;
-    
+
     @SerializedName("user_name")
     @Expose
     private String userName;
-    
+
     @SerializedName("weather_conditions")
     @Expose
     private Integer weatherConditions = 0;

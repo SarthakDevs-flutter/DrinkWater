@@ -7,15 +7,15 @@ public class AlarmSubDetails {
     @SerializedName("AlarmId")
     @Expose
     private String alarmId;
-    
+
     @SerializedName("AlarmTime")
     @Expose
     private String alarmTime;
-    
+
     @SerializedName("id")
     @Expose
     private String id;
-    
+
     @SerializedName("SuperId")
     @Expose
     private String superId;

@@ -13,10 +13,8 @@ import androidx.core.content.ContextCompat;
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
-import java.util.Objects;
-
 public class Screen_Settings extends MasterBaseActivity {
-    
+
     private AppCompatTextView lblRestoreAndBackup;
     private AppCompatTextView lblToolbarTitle;
     private View leftIconBlock;
@@ -30,7 +28,7 @@ public class Screen_Settings extends MasterBaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_settings);
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setNavigationBarColor(ContextCompat.getColor(mContext, R.color.str_green_card));
         }

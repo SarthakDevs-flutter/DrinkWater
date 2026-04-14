@@ -3,8 +3,6 @@ package com.trending.water.drinking.reminder.custom;
 import android.text.InputFilter;
 import android.text.Spanned;
 
-import androidx.annotation.NonNull;
-
 public class DigitsInputFilter implements InputFilter {
     private final double maxValue;
     private final int maxDigitsAfterDot;
@@ -20,14 +18,14 @@ public class DigitsInputFilter implements InputFilter {
     public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
         String allText = getAllText(source, dest, dstart);
         String onlyDigitsText = getOnlyDigitsPart(allText);
-        
+
         if (allText.isEmpty()) {
             return null; // Let the deletion happen
         }
-        
+
         try {
             double enteredValue = Double.parseDouble(onlyDigitsText);
-            
+
             if (enteredValue > maxValue) {
                 return ""; // Exceeds max value
             }
@@ -47,7 +45,7 @@ public class DigitsInputFilter implements InputFilter {
         } catch (NumberFormatException e) {
             return "";
         }
-        
+
         return null; // Accept the input
     }
 

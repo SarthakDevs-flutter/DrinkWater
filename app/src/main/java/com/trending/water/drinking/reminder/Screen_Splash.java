@@ -15,9 +15,9 @@ import com.trending.water.drinking.reminder.mywidgets.NewAppWidget;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
 public class Screen_Splash extends MasterBaseAppCompatActivity {
-    
+
     private static final int SPLASH_DELAY = 1000;
-    
+
     private ImageView imgSplashLogo;
     private Handler splashHandler;
     private Runnable splashRunnable;
@@ -26,7 +26,7 @@ public class Screen_Splash extends MasterBaseAppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_splash);
-        
+
         findViewByIds();
         updateWidgets();
     }

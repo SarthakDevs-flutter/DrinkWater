@@ -16,7 +16,7 @@ public class BackupReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "Backup alarm received: " + intent.getAction());
-        
+
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             PreferenceHelper preferencesHelper = new PreferenceHelper(context);
             if (preferencesHelper.getBoolean(URLFactory.AUTO_BACK_UP)) {
@@ -29,7 +29,7 @@ public class BackupReceiver extends BroadcastReceiver {
 
                 preferencesHelper.savePreferences(URLFactory.AUTO_BACK_UP_ID, backupId);
                 int backupType = preferencesHelper.getInt(URLFactory.AUTO_BACK_UP_TYPE);
-                
+
                 MyAlarmManager.scheduleAutoBackupAlarm(context, backupTime, backupId, backupType);
             }
         } else {

@@ -15,14 +15,14 @@ public class MyAlarmManager {
     public static void scheduleAutoRecurringAlarm(Context context, Calendar triggerTime, int alarmId) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(triggerTime.getTimeInMillis());
-        
+
         if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
             calendar.add(Calendar.DAY_OF_YEAR, 1);
         }
 
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = getBroadcastPendingIntent(context, alarmId, intent);
-        
+
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager != null) {
             Log.d(TAG, "Scheduling auto alarm ID: " + alarmId + " at " + calendar.getTimeInMillis());
@@ -65,7 +65,7 @@ public class MyAlarmManager {
     public static void scheduleAutoBackupAlarm(Context context, Calendar triggerTime, int alarmId, int autoBackupType) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(triggerTime.getTimeInMillis());
-        
+
         if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
             calendar.add(Calendar.DAY_OF_YEAR, 1);
         }

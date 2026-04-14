@@ -1,10 +1,8 @@
 package com.trending.water.drinking.reminder;
 
 import android.app.Dialog;
-import android.graphics.DashPathEffect;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
@@ -30,12 +25,7 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.github.mikephil.charting.utils.Utils;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.trending.water.drinking.reminder.adapter.HistoryAdapter;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
 import com.trending.water.drinking.reminder.model.History;
@@ -48,9 +38,13 @@ import java.util.List;
 import java.util.Locale;
 
 public class Screen_Week_Report extends MasterBaseFragment {
-    
-    private static final String TAG = "Screen_Week_Report";
 
+    private static final String TAG = "Screen_Week_Report";
+    private final List<String> dateList = new ArrayList<>();
+    private final List<Integer> intakeValueList = new ArrayList<>();
+    private final List<Integer> goalValueList = new ArrayList<>();
+    private final ArrayList<String> weekDaysLabels = new ArrayList<>();
+    private final ArrayList<History> histories = new ArrayList<>();
     private BarChart barChart;
     private LineChart lineChart;
     private AppCompatTextView lblTitle;
@@ -59,30 +53,23 @@ public class Screen_Week_Report extends MasterBaseFragment {
     private AppCompatTextView txtDrinkCompletion;
     private ImageView imgPre;
     private ImageView imgNext;
-
     private Calendar currentStartCalendar;
     private Calendar currentEndCalendar;
     private Calendar startCalendarRef;
     private Calendar endCalendarRef;
 
-    private final List<String> dateList = new ArrayList<>();
-    private final List<Integer> intakeValueList = new ArrayList<>();
-    private final List<Integer> goalValueList = new ArrayList<>();
-    private final ArrayList<String> weekDaysLabels = new ArrayList<>();
-    private final ArrayList<History> histories = new ArrayList<>();
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.screen_week_report, container, false);
-        
+
         initLabels();
         findViewByIds(view);
         initCalendars();
         setupListeners();
-        
+
         refreshData();
-        
+
         return view;
     }
 
@@ -212,10 +199,10 @@ public class Screen_Week_Report extends MasterBaseFragment {
             int avgIntake = (int) Math.round(totalDrink / activeDays);
             int avgFreq = Math.round((float) frequency / activeDays);
             String freqUnit = avgFreq > 1 ? stringHelper.getString(R.string.times) : stringHelper.getString(R.string.time);
-            
+
             txtAvgIntake.setText(String.format(Locale.US, "%d %s/%s", avgIntake, unit, stringHelper.getString(R.string.day)));
             txtDrinkFrequency.setText(String.format(Locale.US, "%d %s/%s", avgFreq, freqUnit, stringHelper.getString(R.string.day)));
-            
+
             int completion = (int) Math.round((totalDrink * 100.0) / totalGoal);
             txtDrinkCompletion.setText(String.format(Locale.US, "%d%%", completion));
         } else {
@@ -282,7 +269,8 @@ public class Screen_Week_Report extends MasterBaseFragment {
             }
 
             @Override
-            public void onNothingSelected() {}
+            public void onNothingSelected() {
+            }
         });
 
         barChart.animateY(1000);
@@ -293,7 +281,7 @@ public class Screen_Week_Report extends MasterBaseFragment {
         lineChart.clear();
         lineChart.getDescription().setEnabled(false);
         lineChart.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.white));
-        
+
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setLabelRotationAngle(-45f);
@@ -309,7 +297,7 @@ public class Screen_Week_Report extends MasterBaseFragment {
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setAxisMinimum(0f);
         leftAxis.setAxisMaximum(getMaxChartValue(intakeValueList, goalValueList) + 100);
-        
+
         lineChart.getAxisRight().setEnabled(false);
 
         ArrayList<Entry> entries = new ArrayList<>();
@@ -338,10 +326,10 @@ public class Screen_Week_Report extends MasterBaseFragment {
         float max = 0;
         for (int val : intakes) if (val > max) max = val;
         for (int val : goals) if (val > max) max = val;
-        
+
         int unit = URLFactory.waterUnitValue.equalsIgnoreCase("ML") ? 1000 : 35;
         if (max < 1) return (float) (unit * 3);
-        
+
         return (float) ((((int) (max / unit)) + 1) * unit);
     }
 
@@ -350,7 +338,7 @@ public class Screen_Week_Report extends MasterBaseFragment {
         dialog.requestWindowFeature(1);
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.drawable_background_tra);
         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        
+
         View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_day_info_chart, null, false);
         AppCompatTextView txtDate = view.findViewById(R.id.txt_date);
         AppCompatTextView txtGoal = view.findViewById(R.id.txt_goal);
@@ -368,7 +356,7 @@ public class Screen_Week_Report extends MasterBaseFragment {
 
         view.findViewById(R.id.img_cancel).setOnClickListener(v -> dialog.dismiss());
         dialog.setOnDismissListener(d -> barChart.highlightValue(null));
-        
+
         dialog.setContentView(view);
         dialog.show();
     }

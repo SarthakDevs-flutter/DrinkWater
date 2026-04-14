@@ -15,14 +15,14 @@ import com.trending.water.drinking.reminder.base.MasterBaseFragment;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
 public class Screen_OnBoarding_Seven extends MasterBaseFragment {
-    
+
     private RelativeLayout activeBlock;
     private RelativeLayout pregnantBlock;
     private RelativeLayout breastfeedingBlock;
     private ImageView imgActive;
     private ImageView imgPregnant;
     private ImageView imgBreastfeeding;
-    
+
     private View itemView;
 
     @Nullable

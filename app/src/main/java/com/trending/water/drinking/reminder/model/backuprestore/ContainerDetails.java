@@ -7,27 +7,27 @@ public class ContainerDetails {
     @SerializedName("ContainerID")
     @Expose
     private String containerId;
-    
+
     @SerializedName("ContainerMeasure")
     @Expose
     private String containerMeasure;
-    
+
     @SerializedName("ContainerValue")
     @Expose
     private String containerValue;
-    
+
     @SerializedName("ContainerValueOZ")
     @Expose
     private String containerValueOZ;
-    
+
     @SerializedName("id")
     @Expose
     private String id;
-    
+
     @SerializedName("IsCustom")
     @Expose
     private String isCustom;
-    
+
     @SerializedName("IsOpen")
     @Expose
     private String isOpen;

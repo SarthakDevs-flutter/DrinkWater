@@ -36,7 +36,6 @@ import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.github.mikephil.charting.utils.Utils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.custom.DigitsInputFilter;
@@ -50,10 +49,8 @@ import com.trending.water.drinking.reminder.utils.URLFactory;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 public class Screen_Profile extends MasterBaseAppCompatActivity {
 
@@ -61,7 +58,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     private static final int REQUEST_PICK_IMAGE = 1;
     private static final int REQUEST_CAMERA_IMAGE = 2;
     private static final int REQUEST_STORAGE_PERMISSION = 3;
-
+    private final List<Double> heightFeetElements = new ArrayList<>();
     private ImageView imgUser;
     private AppCompatTextView txtUserName;
     private AppCompatTextView txtGender;
@@ -69,7 +66,6 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     private AppCompatTextView txtWeight;
     private AppCompatTextView txtGoal;
     private AppCompatTextView txtWeather;
-    
     private AppCompatTextView lblToolbarTitle;
     private AppCompatTextView lblGender;
     private AppCompatTextView lblWeightHeader;
@@ -80,11 +76,9 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     private AppCompatTextView lblBreastfeeding;
     private AppCompatTextView lblWeatherHeader;
     private AppCompatTextView lblOtherFactor;
-
     private SwitchCompat switchActive;
     private SwitchCompat switchPregnant;
     private SwitchCompat switchBreastfeeding;
-
     private LinearLayout editUserNameBlock;
     private LinearLayout genderBlock;
     private LinearLayout heightBlock;
@@ -95,13 +89,10 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     private RelativeLayout changeProfileBlock;
     private View leftIconBlock;
     private View rightIconBlock;
-
     private BottomSheetDialog bottomSheetDialog;
     private PopupWindow popupMenu;
     private Uri imageUri;
     private String selectedImagePath;
-
-    private final List<Double> heightFeetElements = new ArrayList<>();
     private boolean isGoalUpdateExecuting = true;
     private RadioButton rdoCm;
     private RadioButton rdoFeet;
@@ -157,7 +148,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         weatherBlock = findViewById(R.id.weather_block);
         otherFactorsBlock = findViewById(R.id.other_factors);
         changeProfileBlock = findViewById(R.id.change_profile);
-        
+
         leftIconBlock = findViewById(R.id.left_icon_block);
         rightIconBlock = findViewById(R.id.right_icon_block);
     }
@@ -178,9 +169,9 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         setUpperCase(lblOtherFactor);
 
         txtUserName.setText(preferencesHelper.getString(URLFactory.KEY_USER_NAME, "User"));
-        txtGender.setText(preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false) ? 
+        txtGender.setText(preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false) ?
                 stringHelper.getString(R.string.str_female) : stringHelper.getString(R.string.str_male));
-        
+
         loadUserPhoto();
         updateHeightDisplay();
         updateWeightDisplay();
@@ -247,7 +238,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
 
     private void loadUserPhoto() {
         String photoPath = preferencesHelper.getString(URLFactory.KEY_USER_PHOTO, "");
-        int placeholder = preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false) ? 
+        int placeholder = preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false) ?
                 R.drawable.female_white : R.drawable.male_white;
 
         if (photoPath.isEmpty() || !new File(photoPath).exists()) {
@@ -278,10 +269,10 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     private void updateWeatherDisplay() {
         int idx = preferencesHelper.getInt(URLFactory.KEY_WEATHER_CONDITIONS, 0);
         String[] weatherArr = {
-            stringHelper.getString(R.string.sunny),
-            stringHelper.getString(R.string.cloudy),
-            stringHelper.getString(R.string.rainy),
-            stringHelper.getString(R.string.snow)
+                stringHelper.getString(R.string.sunny),
+                stringHelper.getString(R.string.cloudy),
+                stringHelper.getString(R.string.rainy),
+                stringHelper.getString(R.string.snow)
         };
         txtWeather.setText(weatherArr[idx]);
     }
@@ -302,7 +293,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         double weight = Double.parseDouble(preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, "70"));
         double weightKg = isKg ? weight : HeightWeightHelper.convertLbToKg(weight);
         boolean isFemale = preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false);
-        
+
         double baseDiff = (isFemale ? URLFactory.DEACTIVE_FEMALE_WATER : URLFactory.DEACTIVE_MALE_WATER) * weightKg;
         int weatherIdx = preferencesHelper.getInt(URLFactory.KEY_WEATHER_CONDITIONS, 0);
         double weatherFactor = URLFactory.WEATHER_SUNNY;
@@ -312,7 +303,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
 
         int activeVal = (int) Math.round(baseDiff * weatherFactor);
         if (!isKg) activeVal = (int) Math.round(HeightWeightHelper.convertMlToOz(activeVal));
-        
+
         lblActive.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.active).toUpperCase(), activeVal, unit));
     }
 
@@ -320,7 +311,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         double weight = Double.parseDouble(preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, "70"));
         boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
         double weightKg = isKg ? weight : HeightWeightHelper.convertLbToKg(weight);
-        
+
         boolean isFemale = preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false);
         boolean isActive = preferencesHelper.getBoolean(URLFactory.KEY_IS_ACTIVE, false);
         boolean isPregnant = preferencesHelper.getBoolean(URLFactory.KEY_IS_PREGNANT, false);
@@ -335,12 +326,12 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         }
 
         double drinkTotalMl = baseFactor * weightKg;
-        
+
         double weatherFactor = URLFactory.WEATHER_SUNNY;
         if (weatherIdx == 1) weatherFactor = URLFactory.WEATHER_CLOUDY;
         else if (weatherIdx == 2) weatherFactor = URLFactory.WEATHER_RAINY;
         else if (weatherIdx == 3) weatherFactor = URLFactory.WEATHER_SNOW;
-        
+
         drinkTotalMl *= weatherFactor;
 
         if (isFemale) {
@@ -472,23 +463,26 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
 
         int min = isKg ? 900 : 30;
         int max = isKg ? 8000 : 270;
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             seekBar.setMin(min);
         }
         seekBar.setMax(max);
-        
+
         int currentGoal = (int) URLFactory.dailyWaterValue;
         etGoal.setText(String.valueOf(currentGoal));
         seekBar.setProgress(currentGoal);
 
         etGoal.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 isGoalUpdateExecuting = false;
             }
+
             @Override
             public void afterTextChanged(Editable s) {
                 try {
@@ -497,7 +491,8 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
                         int progress = Integer.parseInt(val);
                         seekBar.setProgress(progress);
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
                 isGoalUpdateExecuting = true;
             }
         });
@@ -513,10 +508,15 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
                     etGoal.setText(String.valueOf(progress));
                 }
             }
+
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) { isGoalUpdateExecuting = true; }
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                isGoalUpdateExecuting = true;
+            }
+
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
 
         view.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
@@ -649,7 +649,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
             preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT_UNIT, rdoKg.isChecked());
             preferencesHelper.savePreferences(URLFactory.KEY_WATER_UNIT, rdoKg.isChecked() ? "ml" : "fl oz");
             URLFactory.waterUnitValue = rdoKg.isChecked() ? "ml" : "fl oz";
-            
+
             updateWeightDisplay();
             calculateGoalBasedOnFactors();
             dialog.dismiss();
@@ -665,7 +665,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
 
         View rowRemove = view.findViewById(R.id.btnRemove);
         View rowRemoveLine = view.findViewById(R.id.btnRemoveLine);
-        
+
         if (preferencesHelper.getString(URLFactory.KEY_USER_PHOTO, "").isEmpty()) {
             rowRemove.setVisibility(View.GONE);
             rowRemoveLine.setVisibility(View.GONE);
@@ -686,13 +686,13 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         view.findViewById(R.id.btnRemove).setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
             new AlertDialog.Builder(mActivity)
-                .setMessage(stringHelper.getString(R.string.str_remove_photo_confirmation_message))
-                .setPositiveButton(R.string.str_yes, (d, w) -> {
-                    preferencesHelper.savePreferences(URLFactory.KEY_USER_PHOTO, "");
-                    loadUserPhoto();
-                })
-                .setNegativeButton(R.string.str_no, null)
-                .show();
+                    .setMessage(stringHelper.getString(R.string.str_remove_photo_confirmation_message))
+                    .setPositiveButton(R.string.str_yes, (d, w) -> {
+                        preferencesHelper.savePreferences(URLFactory.KEY_USER_PHOTO, "");
+                        loadUserPhoto();
+                    })
+                    .setNegativeButton(R.string.str_no, null)
+                    .show();
         });
 
         view.findViewById(R.id.btnCancel).setOnClickListener(v -> bottomSheetDialog.dismiss());
@@ -706,7 +706,8 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
             File root = new File(Environment.getExternalStorageDirectory() + "/" + URLFactory.APP_DIRECTORY_NAME + "/" + URLFactory.PROFILE_DIR_NAME + "/");
             if (!root.exists()) {
                 root.mkdirs();
-            }            if (!root.exists()) root.mkdirs();
+            }
+            if (!root.exists()) root.mkdirs();
             File file = new File(root, "profile_image.png");
             imageUri = FileProvider.getUriForFile(mActivity, getPackageName() + ".provider", file);
             selectedImagePath = file.getAbsolutePath();
@@ -718,7 +719,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void checkStoragePermissions() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == 0 &&
-            ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == 0) {
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == 0) {
             openImagePicker();
         } else {
             requestPermissions(new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.CAMERA}, REQUEST_STORAGE_PERMISSION);

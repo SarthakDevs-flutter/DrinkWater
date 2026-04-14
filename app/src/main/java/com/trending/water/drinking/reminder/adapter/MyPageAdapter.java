@@ -21,7 +21,7 @@ public class MyPageAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(@NonNull ViewGroup collection, int position) {
         int layoutResId = (position == 0) ? R.layout.screen_battery_optimize_one : R.layout.screen_battery_optimize_two;
-        
+
         View layout = LayoutInflater.from(context).inflate(layoutResId, collection, false);
         collection.addView(layout);
         return layout;

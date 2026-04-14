@@ -7,7 +7,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -37,7 +36,7 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_select_bottle);
-        
+
         // Make it full screen but likely transparent/headless
         if (getWindow() != null) {
             getWindow().setLayout(-1, -1);
@@ -62,7 +61,7 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
 
     private void performAction() {
         int selectedId = preferencesHelper.getInt(URLFactory.KEY_SELECTED_CONTAINER, 1);
-        
+
         List<HashMap<String, String>> containers = databaseHelper.getData("tbl_container_details", "IsCustom", 1);
         for (int i = 0; i < containers.size(); i++) {
             HashMap<String, String> row = containers.get(i);
@@ -72,7 +71,7 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
             container.setContainerValueOZ(row.get("ContainerValueOZ"));
             container.setOpen("1".equalsIgnoreCase(row.get("IsOpen")));
             container.setSelected(String.valueOf(selectedId).equalsIgnoreCase(row.get("ContainerID")));
-            
+
             if (container.isSelected()) {
                 selectedPosition = i;
             }
@@ -87,7 +86,7 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
             preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
             preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT, "80");
             preferencesHelper.savePreferences(URLFactory.KEY_USER_NAME, "");
-            
+
             startActivity(new Intent(this, Screen_OnBoarding.class));
             finish();
             return;
@@ -96,13 +95,13 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
         boolean isMl = URLFactory.waterUnitValue.equalsIgnoreCase("ml");
         float limitValue = isMl ? 8000.0f : 270.0f;
         String unit = isMl ? "ml" : "fl oz";
-        
+
         String validationMsg = stringHelper.getString(R.string.str_you_should_not_drink_more_then_target)
                 .replace("$1", String.format(Locale.getDefault(), "%.0f %s", limitValue, unit));
 
         List<HashMap<String, String>> todayHistory = databaseHelper.getData("tbl_drink_details",
                 "DrinkDate ='" + dateHelper.getCurrentDate(URLFactory.DATE_FORMAT) + "'");
-        
+
         currentTotalDrank = 0.0f;
         for (HashMap<String, String> row : todayHistory) {
             String valStr = isMl ? row.get("ContainerValue") : row.get("ContainerValueOZ");
@@ -118,7 +117,7 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
         if (canAdd) {
             Container selectedBucket = containerList.get(selectedPosition);
             float addingValue = Float.parseFloat(isMl ? selectedBucket.getContainerValue() : selectedBucket.getContainerValueOZ());
-            
+
             if (currentTotalDrank + addingValue > limitValue) {
                 // If it exceeds but not yet at limit, we might still show alert or allow partial (app logic seems to just alert)
                 alertHelper.customAlert(validationMsg);
@@ -132,7 +131,7 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
             cv.put("DrinkDate", dateHelper.getCurrentDate("dd-MM-yyyy"));
             cv.put("DrinkTime", dateHelper.getCurrentTime(true));
             cv.put("DrinkDateTime", dateHelper.getCurrentDate("dd-MM-yyyy HH:mm:ss"));
-            
+
             if (isMl) {
                 cv.put("TodayGoal", String.valueOf(URLFactory.dailyWaterValue));
                 cv.put("TodayGoalOZ", String.valueOf(HeightWeightHelper.convertMlToOz(URLFactory.dailyWaterValue)));
@@ -140,7 +139,7 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
                 cv.put("TodayGoal", String.valueOf(HeightWeightHelper.convertOzToMl(URLFactory.dailyWaterValue)));
                 cv.put("TodayGoalOZ", String.valueOf(URLFactory.dailyWaterValue));
             }
-            
+
             databaseHelper.insert("tbl_drink_details", cv);
         }
 

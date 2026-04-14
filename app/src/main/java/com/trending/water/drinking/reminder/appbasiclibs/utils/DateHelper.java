@@ -3,7 +3,6 @@ package com.trending.water.drinking.reminder.appbasiclibs.utils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -14,13 +13,13 @@ import java.util.concurrent.TimeUnit;
 
 public class DateHelper {
 
-     public DateHelper() {
-     }
+    private static final String TAG = "DateHelper";
 
-     private static final String TAG = "DateHelper";
+    public DateHelper() {
+    }
 
     @NonNull
-    public  String getDate(long milliSeconds, @NonNull String dateFormat) {
+    public String getDate(long milliSeconds, @NonNull String dateFormat) {
         SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.US);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(milliSeconds);
@@ -28,7 +27,7 @@ public class DateHelper {
     }
 
     @NonNull
-    public  String formatDateFromString(@NonNull String inputFormat, @NonNull String outputFormat, @NonNull String inputDate) {
+    public String formatDateFromString(@NonNull String inputFormat, @NonNull String outputFormat, @NonNull String inputDate) {
         SimpleDateFormat dfInput = new SimpleDateFormat(inputFormat, Locale.US);
         try {
             Date date = dfInput.parse(inputDate);
@@ -42,7 +41,7 @@ public class DateHelper {
     }
 
     @NonNull
-    public  String getLastDateOfMonth(int month, int year, @NonNull String format) {
+    public String getLastDateOfMonth(int month, int year, @NonNull String format) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month - 1, 1);
         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
@@ -139,7 +138,7 @@ public class DateHelper {
             } else {
                 amPm = "AM";
             }
-            
+
             return formatTwoDigits(hour) + ":" + formatTwoDigits(min) + " " + amPm;
         } catch (Exception e) {
             return time;
@@ -151,10 +150,14 @@ public class DateHelper {
         if (n < 1 || n > 31) return "";
         if (n >= 11 && n <= 13) return "th";
         switch (n % 10) {
-            case 1: return "st";
-            case 2: return "nd";
-            case 3: return "rd";
-            default: return "th";
+            case 1:
+                return "st";
+            case 2:
+                return "nd";
+            case 3:
+                return "rd";
+            default:
+                return "th";
         }
     }
 
@@ -301,7 +304,7 @@ public class DateHelper {
                 cal.add(Calendar.DAY_OF_YEAR, 1);
                 end = cal.getTime();
             }
-            
+
             return (target.equals(start) || target.after(start)) && target.before(end);
         } catch (Exception e) {
             Log.e(TAG, "Error checking time between dates", e);

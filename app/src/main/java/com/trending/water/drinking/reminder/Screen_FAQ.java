@@ -3,7 +3,6 @@ package com.trending.water.drinking.reminder;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -19,20 +18,19 @@ import java.util.List;
 
 public class Screen_FAQ extends MasterBaseActivity {
 
+    private final List<FAQModel> faqList = new ArrayList<>();
+    private final List<LinearLayout> answerViewList = new ArrayList<>();
+    private final List<ImageView> expandIconList = new ArrayList<>();
     private LinearLayout faqContainer;
     private AppCompatTextView lblToolbarTitle;
     private LinearLayout leftIconBlock;
     private LinearLayout rightIconBlock;
 
-    private final List<FAQModel> faqList = new ArrayList<>();
-    private final List<LinearLayout> answerViewList = new ArrayList<>();
-    private final List<ImageView> expandIconList = new ArrayList<>();
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_faq);
-        
+
         findViewByIds();
         initView();
     }
@@ -84,7 +82,7 @@ public class Screen_FAQ extends MasterBaseActivity {
         for (int i = 0; i < faqList.size(); i++) {
             final int pos = i;
             FAQModel faq = faqList.get(i);
-            
+
             View itemView = LayoutInflater.from(mContext).inflate(R.layout.row_item_faq, faqContainer, false);
             LinearLayout answerBlock = itemView.findViewById(R.id.answer_block);
             ImageView imgFaq = itemView.findViewById(R.id.img_faq);

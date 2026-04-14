@@ -54,15 +54,24 @@ public class MenuAdapter extends BaseAdapter<Menu, MenuAdapter.ViewHolder> {
 
     private int getMenuImage(int position) {
         switch (position) {
-            case 0: return R.drawable.ic_menu_drink_water;
-            case 1: return R.drawable.ic_menu_history;
-            case 2: return R.drawable.ic_menu_report;
-            case 3: return R.drawable.ic_menu_settings;
-            case 4: return R.drawable.ic_menu_faq;
-            case 5: return R.drawable.ic_privacypolicy;
-            case 6: return R.drawable.ic_menu_share;
-            case 7: return R.drawable.ic_menu_go_premium;
-            default: return R.drawable.ic_menu_drink_water;
+            case 0:
+                return R.drawable.ic_menu_drink_water;
+            case 1:
+                return R.drawable.ic_menu_history;
+            case 2:
+                return R.drawable.ic_menu_report;
+            case 3:
+                return R.drawable.ic_menu_settings;
+            case 4:
+                return R.drawable.ic_menu_faq;
+            case 5:
+                return R.drawable.ic_privacypolicy;
+            case 6:
+                return R.drawable.ic_menu_share;
+            case 7:
+                return R.drawable.ic_menu_go_premium;
+            default:
+                return R.drawable.ic_menu_drink_water;
         }
     }
 

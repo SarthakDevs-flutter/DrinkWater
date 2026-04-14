@@ -29,7 +29,7 @@ public class DbHelper {
         containerFields.put("IsOpen", "TEXT");
         containerFields.put("IsCustom", "INTEGER DEFAULT 0");
         databaseHelper.createTable("tbl_container_details", containerFields);
-        
+
         // Populate initial data if empty
         populateInitialContainerData();
 
@@ -84,7 +84,7 @@ public class DbHelper {
             int[] valuesMl = {50, 100, 150, 200, 250, 300, 500, 600, 700, 800, 900, 1000};
             int[] valuesOz = {2, 3, 5, 7, 8, 10, 17, 20, 24, 27, 30, 34};
             int[] isOpenStates = {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0};
-            
+
             for (int i = 0; i < valuesMl.length; i++) {
                 ContentValues values = new ContentValues();
                 values.put("ContainerID", i + 1);

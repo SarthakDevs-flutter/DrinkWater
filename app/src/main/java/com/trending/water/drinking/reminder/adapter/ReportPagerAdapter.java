@@ -14,7 +14,7 @@ import com.trending.water.drinking.reminder.Screen_Week_Report;
 import com.trending.water.drinking.reminder.Screen_Year_Report;
 
 public class ReportPagerAdapter extends FragmentStatePagerAdapter {
-    
+
     private final Context context;
 
     public ReportPagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Context context) {

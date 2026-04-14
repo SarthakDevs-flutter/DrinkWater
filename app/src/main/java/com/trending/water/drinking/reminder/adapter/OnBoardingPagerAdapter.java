@@ -16,7 +16,7 @@ import com.trending.water.drinking.reminder.Screen_OnBoarding_Three;
 import com.trending.water.drinking.reminder.Screen_OnBoarding_Two;
 
 public class OnBoardingPagerAdapter extends FragmentStatePagerAdapter {
-    
+
     private final Context context;
 
     public OnBoardingPagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Context context) {

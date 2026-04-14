@@ -20,7 +20,7 @@ import com.trending.water.drinking.reminder.appbasiclibs.utils.ZipHelper;
 public class BaseFragment extends Fragment {
     protected Activity mActivity;
     protected Context mContext;
-    
+
     protected AlertHelper alertHelper;
     protected BitmapHelper bitmapHelper;
     protected DatabaseHelper databaseHelper;
@@ -37,7 +37,7 @@ public class BaseFragment extends Fragment {
         super.onAttach(context);
         this.mContext = context;
         this.mActivity = getActivity();
-        
+
         if (this.mActivity != null) {
             this.utilityFunction = new UtilityFunction(this.mContext, this.mActivity);
             this.alertHelper = new AlertHelper(this.mContext);
@@ -49,7 +49,7 @@ public class BaseFragment extends Fragment {
             this.stringHelper = new StringHelper(this.mContext);
             this.preferencesHelper = new PreferenceHelper(this.mContext);
             this.zipHelper = new ZipHelper();
-            
+
             this.utilityFunction.permissionStrictMode();
         }
     }

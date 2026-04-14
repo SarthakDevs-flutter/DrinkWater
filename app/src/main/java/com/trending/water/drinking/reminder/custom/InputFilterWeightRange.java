@@ -23,7 +23,7 @@ public class InputFilterWeightRange implements InputFilter {
             }
 
             double input = Double.parseDouble(newVal);
-            
+
             // Limit to 5 characters including decimal point
             if (newVal.length() <= 5 && input >= min && input <= max) {
                 return null;

@@ -38,7 +38,7 @@ public class IntervalAdapter extends BaseAdapter<IntervalModel, IntervalAdapter.
         if (interval == null) return;
 
         holder.lblSoundName.setText(interval.getName());
-        
+
         if (interval.isSelected()) {
             holder.imgSelected.setVisibility(View.VISIBLE);
             holder.itemBlock.getBackground().setTint(ContextCompat.getColor(context, R.color.colorPrimary));

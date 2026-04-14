@@ -1,6 +1,7 @@
 package com.trending.water.drinking.reminder.utils;
 
 import android.media.Ringtone;
+
 import java.text.DecimalFormat;
 
 public class URLFactory {
@@ -40,14 +41,14 @@ public class URLFactory {
     public static final String DAILY_WATER = KEY_DAILY_WATER_GOAL;
     public static final String KEY_SET_MANUALLY_GOAL = "set_manually_goal";
     public static final String KEY_SET_MANUALLY_GOAL_VALUE = "set_manually_goal_value";
-    
+
     public static final String KEY_WAKE_UP_TIME = "wakeup_time";
     public static final String KEY_WAKE_UP_HOUR = "wakeup_time_hour";
     public static final String KEY_WAKE_UP_MINUTE = "wakeup_time_minute";
     public static final String KEY_BED_TIME = "bed_time";
     public static final String KEY_BED_TIME_HOUR = "bed_time_hour";
     public static final String KEY_BED_TIME_MINUTE = "bed_time_minute";
-    
+
     public static final String KEY_INTERVAL = "interval";
     public static final String KEY_REMINDER_OPTION = "reminder_option";
     public static final String REMINDER_OPTION = KEY_REMINDER_OPTION;
@@ -57,12 +58,12 @@ public class URLFactory {
     public static final String REMINDER_VIBRATE = KEY_REMINDER_VIBRATE;
     public static final String KEY_IS_MANUAL_REMINDER = "manual_reminder_active";
     public static final String IS_MANUAL_REMINDER = KEY_IS_MANUAL_REMINDER;
-    
+
     public static final String KEY_IS_ACTIVE = "is_active";
     public static final String KEY_IS_PREGNANT = "is_pregnant";
     public static final String KEY_IS_BREASTFEEDING = "is_breastfeeding";
     public static final String KEY_WEATHER_CONDITIONS = "weather_conditions";
-    
+
     public static final String KEY_HIDE_WELCOME_SCREEN = "hide_welcome_screen";
     public static final String KEY_DISABLE_NOTIFICATION = "disable_notification";
     public static final String DISABLE_NOTIFICATION = KEY_DISABLE_NOTIFICATION;
@@ -70,7 +71,7 @@ public class URLFactory {
     public static final String DISABLE_SOUND_WHEN_ADD_WATER = KEY_DISABLE_SOUND_ON_ADD;
     public static final String KEY_SELECTED_CONTAINER = "selected_container";
     public static final String KEY_IGNORE_NEXT_STEP = "ignore_next_step";
-    
+
     public static final String KEY_AUTO_BACKUP = "auto_backup";
     public static final String AUTO_BACK_UP = KEY_AUTO_BACKUP;
     public static final String KEY_AUTO_BACKUP_ID = "auto_backup_id";
@@ -84,14 +85,12 @@ public class URLFactory {
     public static final String APP_SHARE_URL = "https://share.html";
     public static final String PRIVACY_POLICY_URL = "https://privacy-policy.html";
     public static final String DATE_FORMAT = "dd-MM-yyyy";
-
+    // Formatters
+    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#0.00");
+    public static final DecimalFormat DECIMAL_FORMAT_SINGLE = new DecimalFormat("#0.0");
     // Static Mutables (Consider moving to a Manager later)
     public static float dailyWaterValue = 0.0f;
     public static String waterUnitValue = "ML";
     public static boolean reloadDashboard = true;
     public static Ringtone notificationRingtone;
-
-    // Formatters
-    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#0.00");
-    public static final DecimalFormat DECIMAL_FORMAT_SINGLE = new DecimalFormat("#0.0");
 }
