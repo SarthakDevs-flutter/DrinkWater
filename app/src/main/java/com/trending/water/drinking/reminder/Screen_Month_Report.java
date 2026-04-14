@@ -168,7 +168,7 @@ public class Screen_Month_Report extends MasterBaseFragment {
         boolean isMl = URLFactory.waterUnitValue.equalsIgnoreCase("ML");
 
         for (String date : dateList) {
-            ArrayList<HashMap<String, String>> records = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + date + "'");
+            List<HashMap<String, String>> records = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + date + "'");
             float dailyTotal = 0.0f;
             float dailyGoal = preferencesHelper.getFloat(URLFactory.KEY_DAILY_WATER_GOAL, 2500.0f);
 
@@ -347,7 +347,7 @@ public class Screen_Month_Report extends MasterBaseFragment {
         txtGoal.setText(String.format(Locale.US, "%d %s", goalValueList.get(position), URLFactory.waterUnitValue));
         txtConsumed.setText(String.format(Locale.US, "%d %s", intakeValueList.get(position), URLFactory.waterUnitValue));
 
-        ArrayList<HashMap<String, String>> records = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + date + "'");
+        List<HashMap<String, String>> records = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + date + "'");
         String freqLabel = records.size() > 1 ? stringHelper.getString(R.string.times) : stringHelper.getString(R.string.time);
         txtFreq.setText(String.format(Locale.US, "%d %s", records.size(), freqLabel));
 

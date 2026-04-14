@@ -103,24 +103,24 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
 
         double baseWater;
         if (isFemale) {
-            baseWater = (isActive ? URLFactory.ACTIVE_FEMALE_WATER_ML_PER_KG : URLFactory.FEMALE_WATER_ML_PER_KG) * weightKg;
+            baseWater = (isActive ? URLFactory.ACTIVE_FEMALE_WATER : URLFactory.FEMALE_WATER) * weightKg;
         } else {
-            baseWater = (isActive ? URLFactory.ACTIVE_MALE_WATER_ML_PER_KG : URLFactory.MALE_WATER_ML_PER_KG) * weightKg;
+            baseWater = (isActive ? URLFactory.ACTIVE_MALE_WATER : URLFactory.MALE_WATER) * weightKg;
         }
 
         double weatherFactor;
         switch (weatherIdx) {
-            case 1: weatherFactor = URLFactory.WEATHER_CLOUDY_FACTOR; break;
-            case 2: weatherFactor = URLFactory.WEATHER_RAINY_FACTOR; break;
-            case 3: weatherFactor = URLFactory.WEATHER_SNOW_FACTOR; break;
-            default: weatherFactor = URLFactory.WEATHER_SUNNY_FACTOR; break;
+            case 1: weatherFactor = URLFactory.WEATHER_CLOUDY; break;
+            case 2: weatherFactor = URLFactory.WEATHER_RAINY; break;
+            case 3: weatherFactor = URLFactory.WEATHER_SNOW; break;
+            default: weatherFactor = URLFactory.WEATHER_SUNNY; break;
         }
         
         double calculatedGoalMl = baseWater * weatherFactor;
 
         if (isFemale) {
-            if (isPregnant) calculatedGoalMl += URLFactory.PREGNANT_ADDITIONAL_WATER_ML;
-            if (isBreastfeeding) calculatedGoalMl += URLFactory.BREASTFEEDING_ADDITIONAL_WATER_ML;
+            if (isPregnant) calculatedGoalMl += URLFactory.PREGNANT_WATER_ADDITIONAL;
+            if (isBreastfeeding) calculatedGoalMl += URLFactory.BREASTFEEDING_WATER_ADDITIONAL;
         }
 
         // Constraints

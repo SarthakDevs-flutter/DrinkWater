@@ -97,7 +97,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
     }
 
     private void initView() {
-        lblToolbarTitle.setText(stringHelper.capitalize(stringHelper.getString(R.string.str_backup_and_restore)));
+        lblToolbarTitle.setText(stringHelper.capitalizeAll(stringHelper.getString(R.string.str_backup_and_restore)));
         rightIconBlock.setVisibility(View.GONE);
 
         boolean isAutoBackupOn = preferencesHelper.getBoolean(URLFactory.KEY_AUTO_BACKUP, false);
@@ -214,8 +214,8 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
         
         RecyclerView rv = view.findViewById(R.id.soundRecyclerView);
         fileAdapter = new FileAdapter(mActivity, backupFileList, (item, pos) -> {
-            for (BackUpFileModel m : backupFileList) m.isSelected(false);
-            backupFileList.get(pos).isSelected(true);
+            for (BackUpFileModel m : backupFileList) m.setSelected(false);
+            backupFileList.get(pos).setSelected(true);
             fileAdapter.notifyDataSetChanged();
         });
         rv.setLayoutManager(new LinearLayoutManager(mActivity));
@@ -255,7 +255,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
                     m.setName(files[i].getName());
                     m.setPath(files[i].getPath());
                     m.setLastModify(files[i].lastModified());
-                    m.isSelected(i == 0);
+                    m.setSelected(i == 0);
                     backupFileList.add(m);
                 }
             }
@@ -275,23 +275,23 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
                 data.setTotalDrink(preferencesHelper.getFloat(URLFactory.KEY_DAILY_WATER_GOAL, 0.0f));
                 data.setTotalWeight(preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, ""));
                 data.setTotalHeight(preferencesHelper.getString(URLFactory.KEY_PERSON_HEIGHT, ""));
-                data.isCMUnit(preferencesHelper.getBoolean(URLFactory.KEY_PERSON_HEIGHT_UNIT, true));
-                data.isKgUnit(preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true));
-                data.isMlUnit(preferencesHelper.getString(URLFactory.KEY_WATER_UNIT, "ml").equalsIgnoreCase("ml"));
+                data.setCMUnit(preferencesHelper.getBoolean(URLFactory.KEY_PERSON_HEIGHT_UNIT, true));
+                data.setKgUnit(preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true));
+                data.setMlUnit(preferencesHelper.getString(URLFactory.KEY_WATER_UNIT, "ml").equalsIgnoreCase("ml"));
                 data.setReminderOption(preferencesHelper.getInt(URLFactory.KEY_REMINDER_OPTION, 0));
                 data.setReminderSound(preferencesHelper.getInt(URLFactory.KEY_REMINDER_SOUND, 0));
-                data.isDisableNotifiction(preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_NOTIFICATION, false));
-                data.isManualReminderActive(preferencesHelper.getBoolean(URLFactory.KEY_IS_MANUAL_REMINDER, false));
-                data.isReminderVibrate(preferencesHelper.getBoolean(URLFactory.KEY_REMINDER_VIBRATE, false));
+                data.setDisableNotification(preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_NOTIFICATION, false));
+                data.setManualReminderActive(preferencesHelper.getBoolean(URLFactory.KEY_IS_MANUAL_REMINDER, false));
+                data.setReminderVibrate(preferencesHelper.getBoolean(URLFactory.KEY_REMINDER_VIBRATE, false));
                 data.setUserName(preferencesHelper.getString(URLFactory.KEY_USER_NAME, ""));
                 data.setUserGender(preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, true));
-                data.isDisableSound(preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_SOUND_ON_ADD, false));
-                data.isAutoBackup(preferencesHelper.getBoolean(URLFactory.KEY_AUTO_BACKUP, false));
+                data.setDisableSound(preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_SOUND_ON_ADD, false));
+                data.setAutoBackup(preferencesHelper.getBoolean(URLFactory.KEY_AUTO_BACKUP, false));
                 data.setAutoBackupType(preferencesHelper.getInt(URLFactory.KEY_AUTO_BACKUP_TYPE, 0));
-                data.setAutoBackupID(preferencesHelper.getInt(URLFactory.KEY_AUTO_BACKUP_ID, 0));
-                data.isActive(preferencesHelper.getBoolean(URLFactory.KEY_IS_ACTIVE, false));
-                data.isBreastfeeding(preferencesHelper.getBoolean(URLFactory.KEY_IS_BREASTFEEDING, false));
-                data.isPregnant(preferencesHelper.getBoolean(URLFactory.KEY_IS_PREGNANT, false));
+                data.setAutoBackupId(preferencesHelper.getInt(URLFactory.KEY_AUTO_BACKUP_ID, 0));
+                data.setActive(preferencesHelper.getBoolean(URLFactory.KEY_IS_ACTIVE, false));
+                data.setBreastfeeding(preferencesHelper.getBoolean(URLFactory.KEY_IS_BREASTFEEDING, false));
+                data.setPregnant(preferencesHelper.getBoolean(URLFactory.KEY_IS_PREGNANT, false));
                 data.setWeatherConditions(preferencesHelper.getInt(URLFactory.KEY_WEATHER_CONDITIONS, 0));
 
                 String json = new Gson().toJson(data);
@@ -311,10 +311,10 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
 
     private List<ContainerDetails> fetchContainerData() {
         List<ContainerDetails> list = new ArrayList<>();
-        ArrayList<HashMap<String, String>> rows = databaseHelper.getData("tbl_container_details");
+        List<HashMap<String, String>> rows = databaseHelper.getData("tbl_container_details");
         for (HashMap<String, String> row : rows) {
             ContainerDetails d = new ContainerDetails();
-            d.setContainerID(row.get("ContainerID"));
+            d.setContainerId(row.get("ContainerID"));
             d.setContainerMeasure(row.get("ContainerMeasure"));
             d.setContainerValue(row.get("ContainerValue"));
             d.setContainerValueOZ(row.get("ContainerValueOZ"));
@@ -328,7 +328,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
 
     private List<DrinkDetails> fetchDrinkData() {
         List<DrinkDetails> list = new ArrayList<>();
-        ArrayList<HashMap<String, String>> rows = databaseHelper.getData("tbl_drink_details");
+        List<HashMap<String, String>> rows = databaseHelper.getData("tbl_drink_details");
         for (HashMap<String, String> row : rows) {
             DrinkDetails d = new DrinkDetails();
             d.setDrinkDateTime(row.get("DrinkDateTime"));
@@ -347,7 +347,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
 
     private List<AlarmDetails> fetchAlarmData() {
         List<AlarmDetails> list = new ArrayList<>();
-        ArrayList<HashMap<String, String>> rows = databaseHelper.getData("tbl_alarm_details");
+        List<HashMap<String, String>> rows = databaseHelper.getData("tbl_alarm_details");
         for (HashMap<String, String> row : rows) {
             AlarmDetails d = new AlarmDetails();
             d.setAlarmId(row.get("AlarmId"));
@@ -372,7 +372,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
             d.setSaturday(Integer.parseInt(row.get("Saturday")));
 
             List<AlarmSubDetails> subList = new ArrayList<>();
-            ArrayList<HashMap<String, String>> subRows = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + row.get("id"));
+            List<HashMap<String, String>> subRows = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + row.get("id"));
             for (HashMap<String, String> subRow : subRows) {
                 AlarmSubDetails sd = new AlarmSubDetails();
                 sd.setAlarmId(subRow.get("AlarmId"));
@@ -425,7 +425,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
                 databaseHelper.remove("tbl_container_details");
                 for (ContainerDetails d : data.getContainerDetails()) {
                     ContentValues cv = new ContentValues();
-                    cv.put("ContainerID", d.getContainerID());
+                    cv.put("ContainerID", d.getContainerId());
                     cv.put("ContainerValue", d.getContainerValue());
                     cv.put("ContainerValueOZ", d.getContainerValueOZ());
                     cv.put("ContainerMeasure", d.getContainerMeasure());
@@ -472,7 +472,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
                     cv.put("Friday", d.getFriday());
                     cv.put("Saturday", d.getSaturday());
                     databaseHelper.insert("tbl_alarm_details", cv);
-                    String lastId = databaseHelper.GET_LAST_ID("tbl_alarm_details");
+                    String lastId = databaseHelper.getLastId("tbl_alarm_details");
 
                     for (AlarmSubDetails sd : d.getAlarmSubDetails()) {
                         ContentValues scv = new ContentValues();
@@ -505,12 +505,12 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
     }
 
     private void cancelExistingAlarms() {
-        ArrayList<HashMap<String, String>> rows = databaseHelper.getData("tbl_alarm_details");
+        List<HashMap<String, String>> rows = databaseHelper.getData("tbl_alarm_details");
         for (HashMap<String, String> row : rows) {
             if ("M".equalsIgnoreCase(row.get("AlarmType"))) {
                 cancelManual(row);
             } else {
-                ArrayList<HashMap<String, String>> subs = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + row.get("id"));
+                List<HashMap<String, String>> subs = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + row.get("id"));
                 for (HashMap<String, String> sub : subs) {
                     MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(sub.get("AlarmId")));
                 }
@@ -537,7 +537,7 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
         preferencesHelper.savePreferences(URLFactory.KEY_WATER_UNIT, data.isMlUnit() ? "ml" : "fl oz");
         preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, data.getReminderOption());
         preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_SOUND, data.getReminderSound());
-        preferencesHelper.savePreferences(URLFactory.KEY_DISABLE_NOTIFICATION, data.isDisableNotifiction());
+        preferencesHelper.savePreferences(URLFactory.KEY_DISABLE_NOTIFICATION, data.isDisableNotification());
         preferencesHelper.savePreferences(URLFactory.KEY_IS_MANUAL_REMINDER, data.isManualReminderActive());
         preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_VIBRATE, data.isReminderVibrate());
         preferencesHelper.savePreferences(URLFactory.KEY_USER_NAME, data.getUserName());

@@ -271,7 +271,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
             if (!stringHelper.check_blank_data(current)) {
                 int cmValue = 150;
                 try {
-                    String clean = URLFactory.getData(current);
+                    String clean = getData(current);
                     float feetVal = Float.parseFloat(clean);
                     int feet = (int) feetVal;
                     int inch = 0;
@@ -309,13 +309,13 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
                     feetStr = (totalInches / 12) + "." + (totalInches % 12);
                 } catch (Exception ignored) {}
                 
-                int index = heightFeetList.indexOf(URLFactory.getData(feetStr));
+                int index = heightFeetList.indexOf(getData(feetStr));
                 if (index != -1) pickerFeet.setSelectedItem(index);
                 
                 rdoFeet.setClickable(false);
                 rdoCm.setClickable(true);
                 txtHeight.setFilters(new InputFilter[]{new InputFilterRange(Utils.DOUBLE_EPSILON, heightFeetElements)});
-                txtHeight.setText(URLFactory.getData(feetStr));
+                txtHeight.setText(getData(feetStr));
                 txtHeight.setSelection(txtHeight.getText().length());
                 saveHeightData();
             } else {
@@ -333,7 +333,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
                 if (index != -1) pickerKg.setSelectedItem(index);
                 
                 txtWeight.setFilters(new InputFilter[]{new InputFilterWeightRange(0, 130.0d)});
-                txtWeight.setText(URLFactory.getData(String.valueOf((int) kg)));
+                txtWeight.setText(getData(String.valueOf((int) kg)));
                 rdoKg.setClickable(false);
                 rdoLb.setClickable(true);
             }
@@ -344,7 +344,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
             String current = txtWeight.getText().toString();
             if (!stringHelper.check_blank_data(current)) {
                 double kg = Double.parseDouble(current);
-                double lb = kg > 0 ? Math.round(HeightWeightHelper.kgToLbConverter(kg)) : 0;
+                double lb = kg > 0 ? Math.round(HeightWeightHelper.convertKgToLb(kg)) : 0;
                 int index = weightLbList.indexOf(String.valueOf((int) lb));
                 if (index != -1) pickerLb.setSelectedItem(index);
                 
@@ -373,7 +373,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         String height = preferencesHelper.getString(URLFactory.KEY_PERSON_HEIGHT, "");
         if (!stringHelper.check_blank_data(height)) {
             txtHeight.setFilters(new InputFilter[]{isCm ? new DigitsInputFilter(3, 0, 240.0d) : new InputFilterRange(0, heightFeetElements)});
-            txtHeight.setText(URLFactory.getData(height));
+            txtHeight.setText(getData(height));
         } else {
             txtHeight.setText(isCm ? "150" : "5.0");
         }
@@ -381,7 +381,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         String weight = preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, "");
         if (!stringHelper.check_blank_data(weight)) {
             txtWeight.setFilters(new InputFilter[]{isKg ? new InputFilterWeightRange(0, 130.0d) : new DigitsInputFilter(3, 0, 287.0d)});
-            txtWeight.setText(URLFactory.getData(weight));
+            txtWeight.setText(getData(weight));
         } else {
             txtWeight.setText(isKg ? "80.0" : "176");
         }
@@ -398,5 +398,9 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT_UNIT, rdoKg.isChecked());
         preferencesHelper.savePreferences(URLFactory.KEY_WATER_UNIT, rdoKg.isChecked() ? "ML" : "FL OZ");
         preferencesHelper.savePreferences(URLFactory.KEY_SET_MANUALLY_GOAL, false);
+    }
+
+    public String getData(String str) {
+        return str.replace(",", ".");
     }
 }

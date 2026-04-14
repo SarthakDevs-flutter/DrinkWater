@@ -21,6 +21,7 @@ import com.trending.water.drinking.reminder.utils.URLFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Screen_History extends MasterBaseActivity {
     
@@ -144,7 +145,7 @@ public class Screen_History extends MasterBaseActivity {
                 history.setDrinkTime(dateHelper.formatDateFromString("HH:mm", "hh:mm a", record.get("DrinkTime")));
 
                 // Calculate total for that day
-                ArrayList<HashMap<String, String>> dayRecords = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + record.get("DrinkDate") + "'");
+                List<HashMap<String, String>> dayRecords = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + record.get("DrinkDate") + "'");
                 float dayTotal = 0.0f;
                 for (HashMap<String, String> dr : dayRecords) {
                     dayTotal += Float.parseFloat(unit.equalsIgnoreCase("ML") ? dr.get("ContainerValue") : dr.get("ContainerValueOZ"));

@@ -34,6 +34,20 @@ public class PreferenceHelper {
         sharedPreferences.edit().putLong(key, value).apply();
     }
 
+    public void savePreferences(@NonNull String key, @Nullable Object value) {
+        if (value instanceof Boolean) {
+            saveBoolean(key, (Boolean) value);
+        } else if (value instanceof String) {
+            saveString(key, (String) value);
+        } else if (value instanceof Integer) {
+            saveInt(key, (Integer) value);
+        } else if (value instanceof Float) {
+            saveFloat(key, (Float) value);
+        } else if (value instanceof Long) {
+            saveLong(key, (Long) value);
+        }
+    }
+
     public void clearAll() {
         sharedPreferences.edit().clear().apply();
     }

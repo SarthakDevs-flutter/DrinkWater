@@ -21,6 +21,7 @@ import android.widget.RelativeLayout;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -260,7 +261,7 @@ public class Screen_Reminder extends MasterBaseActivity {
     }
 
     private void loadAutoSettingsFromDb() {
-        ArrayList<HashMap<String, String>> data = databaseHelper.getData("tbl_alarm_details", "AlarmType='R'");
+        List<HashMap<String, String>> data = databaseHelper.getData("tbl_alarm_details", "AlarmType='R'");
         if (!data.isEmpty()) {
             String timeRange = data.get(0).get("AlarmTime");
             if (timeRange != null && timeRange.contains("-")) {
@@ -305,12 +306,12 @@ public class Screen_Reminder extends MasterBaseActivity {
     }
 
     private void cancelAllAutoAlarms() {
-        ArrayList<HashMap<String, String>> autoAlarms = databaseHelper.getData("tbl_alarm_details", "AlarmType='R'");
+        List<HashMap<String, String>> autoAlarms = databaseHelper.getData("tbl_alarm_details", "AlarmType='R'");
         for (HashMap<String, String> row : autoAlarms) {
             String primaryId = row.get("id");
             MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("AlarmId")));
-            
-            ArrayList<HashMap<String, String>> subAlarms = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + primaryId);
+
+            List<HashMap<String, String>> subAlarms = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + primaryId);
             for (HashMap<String, String> subRow : subAlarms) {
                 MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(subRow.get("AlarmId")));
             }
@@ -374,7 +375,7 @@ public class Screen_Reminder extends MasterBaseActivity {
             masterValues.put("AlarmInterval", String.valueOf(currentInterval));
             databaseHelper.insert("tbl_alarm_details", masterValues);
             
-            String lastInsertedId = databaseHelper.GET_LAST_ID("tbl_alarm_details");
+            String lastInsertedId = databaseHelper.getLastId("tbl_alarm_details");
 
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
             SimpleDateFormat displaySdf = new SimpleDateFormat("hh:mm a", Locale.US);
@@ -405,12 +406,12 @@ public class Screen_Reminder extends MasterBaseActivity {
     }
 
     private void clearAutoAlarmsFromDisk() {
-        ArrayList<HashMap<String, String>> autoRows = databaseHelper.getData("tbl_alarm_details", "AlarmType='R'");
+        List<HashMap<String, String>> autoRows = databaseHelper.getData("tbl_alarm_details", "AlarmType='R'");
         for (HashMap<String, String> row : autoRows) {
             String id = row.get("id");
             MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(row.get("AlarmId")));
-            
-            ArrayList<HashMap<String, String>> subs = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + id);
+
+            List<HashMap<String, String>> subs = databaseHelper.getData("tbl_alarm_sub_details", "SuperId=" + id);
             for (HashMap<String, String> sub : subs) {
                 MyAlarmManager.cancelRecurringAlarm(mContext, Integer.parseInt(sub.get("AlarmId")));
             }
@@ -445,7 +446,7 @@ public class Screen_Reminder extends MasterBaseActivity {
     }
 
     private void toggleManualAlarm(AlarmModel alarm, int position, boolean isOn) {
-        databaseHelper.UPDATE("tbl_alarm_details", createValue("IsOff", isOn ? 0 : 1), "id=" + alarm.getId());
+        databaseHelper.update("tbl_alarm_details", createValue("IsOff", isOn ? 0 : 1), "id=" + alarm.getId());
         alarmList.get(position).setIsOff(isOn ? 0 : 1);
         
         if (isOn) {
@@ -486,7 +487,7 @@ public class Screen_Reminder extends MasterBaseActivity {
         
         if (!field.isEmpty()) {
             values.put(field, 1);
-            databaseHelper.UPDATE("tbl_alarm_details", values, "id=" + alarm.getId());
+            databaseHelper.update("tbl_alarm_details", values, "id=" + alarm.getId());
             MyAlarmManager.scheduleManualRecurringAlarm(mContext, day, hour, min, alarmId);
             alarmAdapter.notifyDataSetChanged();
         }
@@ -517,13 +518,13 @@ public class Screen_Reminder extends MasterBaseActivity {
         }
         
         values.put(field, isOn ? 1 : 0);
-        databaseHelper.UPDATE("tbl_alarm_details", values, "id=" + alarm.getId());
+        databaseHelper.update("tbl_alarm_details", values, "id=" + alarm.getId());
         
         if (isOn) MyAlarmManager.scheduleManualRecurringAlarm(mContext, dayEnum, hour, min, alarmId);
         else MyAlarmManager.cancelRecurringAlarm(mContext, alarmId);
         
         if (!hasAnyDaySelected(alarmList.get(pos))) {
-            databaseHelper.UPDATE("tbl_alarm_details", createValue("IsOff", 1), "id=" + alarm.getId());
+            databaseHelper.update("tbl_alarm_details", createValue("IsOff", 1), "id=" + alarm.getId());
             alarmList.get(pos).setIsOff(1);
         }
         
@@ -580,7 +581,7 @@ public class Screen_Reminder extends MasterBaseActivity {
 
     private void loadManualAlarmsFromDb() {
         alarmList.clear();
-        ArrayList<HashMap<String, String>> data = databaseHelper.getData("tbl_alarm_details", "AlarmType='M'");
+        List<HashMap<String, String>> data = databaseHelper.getData("tbl_alarm_details", "AlarmType='M'");
         for (HashMap<String, String> row : data) {
             AlarmModel model = new AlarmModel();
             model.setId(row.get("id"));
@@ -618,8 +619,8 @@ public class Screen_Reminder extends MasterBaseActivity {
         View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_pick_interval, null);
         RecyclerView rv = view.findViewById(R.id.intervalRecyclerView);
         intervalAdapter = new IntervalAdapter(mActivity, intervalList, (item, pos) -> {
-            for (IntervalModel m : intervalList) m.isSelected(false);
-            intervalList.get(pos).isSelected(true);
+            for (IntervalModel m : intervalList) m.setSelected(false);
+            intervalList.get(pos).setSelected(true);
             intervalAdapter.notifyDataSetChanged();
         });
         rv.setLayoutManager(new LinearLayoutManager(mActivity));
@@ -653,7 +654,7 @@ public class Screen_Reminder extends MasterBaseActivity {
         IntervalModel m = new IntervalModel();
         m.setId(id);
         m.setName(name);
-        m.isSelected(id == currentInterval);
+        m.setSelected(id == currentInterval);
         return m;
     }
 
@@ -686,7 +687,7 @@ public class Screen_Reminder extends MasterBaseActivity {
                 SimpleDateFormat display = new SimpleDateFormat("hh:mm a", Locale.US);
                 String timeStr = display.format(hms.parse(h + ":" + m + ":00"));
 
-                if (!databaseHelper.IS_EXISTS("tbl_alarm_details", "AlarmTime='" + timeStr + "'")) {
+                if (!databaseHelper.isExists("tbl_alarm_details", "AlarmTime='" + timeStr + "'")) {
                     saveNewManualAlarm(timeStr, h, m);
                 } else {
                     alertHelper.customAlert(stringHelper.getString(R.string.str_set_alarm_validation));
@@ -741,7 +742,7 @@ public class Screen_Reminder extends MasterBaseActivity {
                 SimpleDateFormat display = new SimpleDateFormat("hh:mm a", Locale.US);
                 String timeStr = display.format(hms.parse(selectedH + ":" + selectedM + ":00"));
 
-                if (!databaseHelper.IS_EXISTS("tbl_alarm_details", "AlarmTime='" + timeStr + "'")) {
+                if (!databaseHelper.isExists("tbl_alarm_details", "AlarmTime='" + timeStr + "'")) {
                     updateManualAlarm(alarm, timeStr, selectedH, selectedM);
                 } else {
                     alertHelper.customAlert(stringHelper.getString(R.string.str_set_alarm_validation));
@@ -756,7 +757,7 @@ public class Screen_Reminder extends MasterBaseActivity {
     }
 
     private void updateManualAlarm(AlarmModel alarm, String timeStr, int h, int m) {
-        databaseHelper.UPDATE("tbl_alarm_details", createValue("AlarmTime", timeStr), "id=" + alarm.getId());
+        databaseHelper.update("tbl_alarm_details", createValue("AlarmTime", timeStr), "id=" + alarm.getId());
         
         if (alarm.getSunday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 1, h, m, Integer.parseInt(alarm.getAlarmSundayId()));
         if (alarm.getMonday() == 1) MyAlarmManager.scheduleManualRecurringAlarm(mContext, 2, h, m, Integer.parseInt(alarm.getAlarmMondayId()));
@@ -776,8 +777,8 @@ public class Screen_Reminder extends MasterBaseActivity {
         RecyclerView rv = view.findViewById(R.id.soundRecyclerView);
         
         soundAdapter = new SoundAdapter(mActivity, soundList, (item, pos) -> {
-            for (SoundModel s : soundList) s.isSelected(false);
-            soundList.get(pos).isSelected(true);
+            for (SoundModel s : soundList) s.setSelected(false);
+            soundList.get(pos).setSelected(true);
             soundAdapter.notifyDataSetChanged();
             preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_SOUND, pos);
             if (pos > 0) playPreviewSound(pos);
@@ -799,7 +800,7 @@ public class Screen_Reminder extends MasterBaseActivity {
             SoundModel m = new SoundModel();
             m.setId(i);
             m.setName(names[i]);
-            m.isSelected(i == selected);
+            m.setSelected(i == selected);
             soundList.add(m);
         }
     }

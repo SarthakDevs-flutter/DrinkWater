@@ -394,13 +394,13 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
 
     private void updateNextReminderLabel() {
         List<NextReminderModel> nextReminders = new ArrayList<>();
-        ArrayList<HashMap<String, String>> alarms = databaseHelper.getData("tbl_alarm_details");
+        List<HashMap<String, String>> alarms = databaseHelper.getData("tbl_alarm_details");
 
         for (HashMap<String, String> alarm : alarms) {
             String type = alarm.get("AlarmType");
             if ("R".equalsIgnoreCase(type)) {
                 if (!preferencesHelper.getBoolean(URLFactory.KEY_IS_MANUAL_REMINDER, false)) {
-                    ArrayList<HashMap<String, String>> subAlarms = databaseHelper.getData("tbl_alarm_sub_details", "SuperId='" + alarm.get("id") + "'");
+                    List<HashMap<String, String>> subAlarms = databaseHelper.getData("tbl_alarm_sub_details", "SuperId='" + alarm.get("id") + "'");
                     for (HashMap<String, String> sub : subAlarms) {
                         nextReminders.add(new NextReminderModel(getMilliFromAlarmTime(sub.get("AlarmTime")), sub.get("AlarmTime")));
                     }
@@ -414,7 +414,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
         long now = System.currentTimeMillis();
         NextReminderModel next = null;
         for (NextReminderModel rem : nextReminders) {
-            if (rem.getMillesecond() > now) {
+            if (rem.getMillisecond() > now) {
                 next = rem;
                 break;
             }
@@ -439,7 +439,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
     }
 
     private void updateIntakeData(String date, boolean isRegularAnimation) {
-        ArrayList<HashMap<String, String>> intakeRecords = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + date + "'");
+        List<HashMap<String, String>> intakeRecords = databaseHelper.getData("tbl_drink_details", "DrinkDate ='" + date + "'");
         
         consumedWater = 0.0f;
         boolean isMl = URLFactory.waterUnitValue.equalsIgnoreCase("ML");
@@ -532,7 +532,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
             // The logic in original was a bit convoluted, let's keep it safe.
         }
 
-        if (!preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_SOUND, false)) {
+        if (!preferencesHelper.getBoolean(URLFactory.KEY_DISABLE_SOUND_ON_ADD, false)) {
             if (fillWaterRingtone.isPlaying()) fillWaterRingtone.stop();
             fillWaterRingtone.play();
         }
@@ -560,7 +560,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
 
     private void loadAllContainers() {
         containerList.clear();
-        ArrayList<HashMap<String, String>> data = databaseHelper.getData("tbl_container_details", "IsCustom", 1);
+        List<HashMap<String, String>> data = databaseHelper.getData("tbl_container_details", "IsCustom", 1);
         int savedId = preferencesHelper.getInt(URLFactory.KEY_SELECTED_CONTAINER, 1);
 
         for (int i = 0; i < data.size(); i++) {
@@ -569,11 +569,11 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
             c.setContainerId(map.get("ContainerID"));
             c.setContainerValue(map.get("ContainerValue"));
             c.setContainerValueOZ(map.get("ContainerValueOZ"));
-            c.isOpen("1".equals(map.get("IsOpen")));
-            c.isCustom("1".equals(map.get("IsCustom")));
+            c.setOpen("1".equals(map.get("IsOpen")));
+            c.setCustom("1".equals(map.get("IsCustom")));
             
             boolean isSelected = String.valueOf(savedId).equals(c.getContainerId());
-            c.isSelected(isSelected);
+            c.setSelected(isSelected);
             if (isSelected) selectedContainerPos = i;
             
             containerList.add(c);
@@ -644,8 +644,8 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
             selectedContainerPos = position;
             preferencesHelper.savePreferences(URLFactory.KEY_SELECTED_CONTAINER, Integer.parseInt(container.getContainerId()));
             
-            for (Container c : containerList) c.isSelected(false);
-            containerList.get(position).isSelected(true);
+            for (Container c : containerList) c.setSelected(false);
+            containerList.get(position).setSelected(true);
             updateSelectedContainerInfo();
         });
         rv.setAdapter(containerAdapter);
@@ -842,8 +842,8 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
         RecyclerView rv = view.findViewById(R.id.soundRecyclerView);
         rv.setLayoutManager(new LinearLayoutManager(mActivity));
         soundAdapter = new SoundAdapter(mActivity, soundList, (sound, position) -> {
-            for (SoundModel s : soundList) s.isSelected(false);
-            soundList.get(position).isSelected(true);
+            for (SoundModel s : soundList) s.setSelected(false);
+            soundList.get(position).setSelected(true);
             soundAdapter.notifyDataSetChanged();
             playPreviewSound(position);
         });
@@ -861,7 +861,7 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
             SoundModel sm = new SoundModel();
             sm.setId(i);
             sm.setName(internalNames[i]);
-            sm.isSelected(i == savedIdx);
+            sm.setSelected(i == savedIdx);
             soundList.add(sm);
         }
     }

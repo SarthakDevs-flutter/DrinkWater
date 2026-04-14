@@ -61,8 +61,8 @@ public class Screen_Year_Report extends MasterBaseFragment {
     private final List<Integer> intakeAvgValueList = new ArrayList<>();
     private final List<Integer> goalAvgValueList = new ArrayList<>();
     
-    private ArrayList<String> monthNames;
-    private ArrayList<String> monthNamesShort;
+    private String[] monthNames;
+    private String[] monthNamesShort;
 
     @Nullable
     @Override
@@ -157,7 +157,7 @@ public class Screen_Year_Report extends MasterBaseFragment {
 
         Calendar tempCal = (Calendar) startCalendarRef.clone();
         for (int i = 0; i < 12; i++) {
-            monthLabelList.add(monthNames.get(tempCal.get(Calendar.MONTH)) + "-" + tempCal.get(Calendar.YEAR));
+            monthLabelList.add(monthNames[tempCal.get(Calendar.MONTH)] + "-" + tempCal.get(Calendar.YEAR));
             monthQueryList.add(stringHelper.get_2_point(String.valueOf(tempCal.get(Calendar.MONTH) + 1)) + "-" + tempCal.get(Calendar.YEAR));
             tempCal.add(Calendar.MONTH, 1);
         }
@@ -171,7 +171,7 @@ public class Screen_Year_Report extends MasterBaseFragment {
 
         for (String query : monthQueryList) {
             // "DrinkDate like '%MM-YYYY%'"
-            ArrayList<HashMap<String, String>> records = databaseHelper.getData("tbl_drink_details", "DrinkDate like '%" + query + "%'");
+            List<HashMap<String, String>> records = databaseHelper.getData("tbl_drink_details", "DrinkDate like '%" + query + "%'");
             
             float monthIntakeTotal = 0;
             float monthGoalTotal = 0;
@@ -186,7 +186,7 @@ public class Screen_Year_Report extends MasterBaseFragment {
             }
 
             for (String uniqueDate : uniqueDates) {
-                ArrayList<HashMap<String, String>> dayRecords = databaseHelper.getData("tbl_drink_details", "DrinkDate='" + uniqueDate + "'");
+                List<HashMap<String, String>> dayRecords = databaseHelper.getData("tbl_drink_details", "DrinkDate='" + uniqueDate + "'");
                 if (!dayRecords.isEmpty()) {
                     monthGoalTotal += Float.parseFloat(isMl ? dayRecords.get(0).get("TodayGoal") : dayRecords.get(0).get("TodayGoalOZ"));
                 }
@@ -251,7 +251,7 @@ public class Screen_Year_Report extends MasterBaseFragment {
             @Override
             public String getFormattedValue(float value) {
                 int idx = (int) value;
-                return (idx >= 0 && idx < monthNamesShort.size()) ? monthNamesShort.get(idx) : "";
+                return (idx >= 0 && idx < monthNamesShort.length) ? monthNamesShort[idx] : "";
             }
         });
 
@@ -361,7 +361,7 @@ public class Screen_Year_Report extends MasterBaseFragment {
         txtConsumed.setText(String.format(Locale.US, "%d %s/%s", intakeAvgValueList.get(position), unit, stringHelper.getString(R.string.day)));
 
         String query = monthQueryList.get(position);
-        ArrayList<HashMap<String, String>> records = databaseHelper.getData("tbl_drink_details", "DrinkDate like '%" + query + "%'");
+        List<HashMap<String, String>> records = databaseHelper.getData("tbl_drink_details", "DrinkDate like '%" + query + "%'");
         Set<String> uniqueDates = new HashSet<>();
         for (HashMap<String, String> r : records) uniqueDates.add(r.get("DrinkDate"));
         

@@ -20,6 +20,7 @@ import com.trending.water.drinking.reminder.utils.URLFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -62,15 +63,15 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
     private void performAction() {
         int selectedId = preferencesHelper.getInt(URLFactory.KEY_SELECTED_CONTAINER, 1);
         
-        ArrayList<HashMap<String, String>> containers = databaseHelper.getData("tbl_container_details", "IsCustom", 1);
+        List<HashMap<String, String>> containers = databaseHelper.getData("tbl_container_details", "IsCustom", 1);
         for (int i = 0; i < containers.size(); i++) {
             HashMap<String, String> row = containers.get(i);
             Container container = new Container();
             container.setContainerId(row.get("ContainerID"));
             container.setContainerValue(row.get("ContainerValue"));
             container.setContainerValueOZ(row.get("ContainerValueOZ"));
-            container.isOpen("1".equalsIgnoreCase(row.get("IsOpen")));
-            container.isSelected(String.valueOf(selectedId).equalsIgnoreCase(row.get("ContainerID")));
+            container.setOpen("1".equalsIgnoreCase(row.get("IsOpen")));
+            container.setSelected(String.valueOf(selectedId).equalsIgnoreCase(row.get("ContainerID")));
             
             if (container.isSelected()) {
                 selectedPosition = i;
@@ -99,7 +100,7 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
         String validationMsg = stringHelper.getString(R.string.str_you_should_not_drink_more_then_target)
                 .replace("$1", String.format(Locale.getDefault(), "%.0f %s", limitValue, unit));
 
-        ArrayList<HashMap<String, String>> todayHistory = databaseHelper.getData("tbl_drink_details", 
+        List<HashMap<String, String>> todayHistory = databaseHelper.getData("tbl_drink_details",
                 "DrinkDate ='" + dateHelper.getCurrentDate(URLFactory.DATE_FORMAT) + "'");
         
         currentTotalDrank = 0.0f;

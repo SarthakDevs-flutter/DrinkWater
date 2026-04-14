@@ -220,7 +220,7 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
                 mainAlarmValues.put("AlarmInterval", String.valueOf(minuteInterval));
                 databaseHelper.insert("tbl_alarm_details", mainAlarmValues);
                 
-                String superId = databaseHelper.GET_LAST_ID("tbl_alarm_details");
+                String superId = databaseHelper.getLastId("tbl_alarm_details");
 
                 SimpleDateFormat sdfInput = new SimpleDateFormat("HH:mm:ss", Locale.US);
                 SimpleDateFormat sdfOutput = new SimpleDateFormat("hh:mm a", Locale.US);
@@ -231,8 +231,8 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
                         String timeStr = startTime.get(Calendar.HOUR_OF_DAY) + ":" + startTime.get(Calendar.MINUTE) + ":" + startTime.get(Calendar.SECOND);
                         String formattedTime = sdfOutput.format(sdfInput.parse(timeStr));
 
-                        if (!databaseHelper.IS_EXISTS("tbl_alarm_details", "AlarmTime='" + formattedTime + "'") &&
-                            !databaseHelper.IS_EXISTS("tbl_alarm_sub_details", "AlarmTime='" + formattedTime + "'")) {
+                        if (!databaseHelper.isExists("tbl_alarm_details", "AlarmTime='" + formattedTime + "'") &&
+                            !databaseHelper.isExists("tbl_alarm_sub_details", "AlarmTime='" + formattedTime + "'")) {
                             
                             MyAlarmManager.scheduleAutoRecurringAlarm(this, startTime, subAlarmId);
                             
