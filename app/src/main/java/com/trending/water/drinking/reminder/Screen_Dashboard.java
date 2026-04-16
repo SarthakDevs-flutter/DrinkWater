@@ -82,31 +82,6 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
     private final ArrayList<Container> containerList = new ArrayList<>();
     private final ArrayList<Menu> menuList = new ArrayList<>();
     private final List<SoundModel> soundList = new ArrayList<>();
-    private LottieAnimationView animationView;
-    private RelativeLayout contentFrame;
-    private RelativeLayout contentFrameTest;
-    private RelativeLayout addWaterLayout;
-    private RelativeLayout selectedContainerBlock;
-    private RelativeLayout openHistory;
-    private LinearLayout nextReminderBlock;
-    private LinearLayout openProfile;
-    private LinearLayout btnRateUs;
-    private LinearLayout btnContactUs;
-    private LinearLayout bannerView;
-    private ImageView imgNext;
-    private ImageView imgPre;
-    private ImageView imgSelectedContainer;
-    private ImageView imgUser;
-    private ImageView btnMenu;
-    private ImageView btnAlarm;
-    private AppCompatTextView lblNextReminder;
-    private AppCompatTextView lblToolbarTitle;
-    private AppCompatTextView lblTotalConsumed;
-    private AppCompatTextView lblDailyGoal;
-    private AppCompatTextView lblUserName;
-    private AppCompatTextView containerName;
-    private DrawerLayout drawerLayout;
-    private RecyclerView drawerRecyclerView;
     private BottomSheetDialog bottomSheetDialog;
     private ContainerAdapterNew containerAdapter;
     private MenuAdapter menuAdapter;
@@ -173,61 +148,61 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
     }
 
     private void findViewByIds() {
-        animationView = findViewById(R.id.animationView);
-        contentFrame = findViewById(R.id.content_frame);
-        contentFrameTest = findViewById(R.id.content_frame_test);
-        lblNextReminder = findViewById(R.id.lbl_next_reminder);
-        nextReminderBlock = findViewById(R.id.next_reminder_block);
-        addWaterLayout = findViewById(R.id.add_water);
-        containerName = findViewById(R.id.container_name);
-        imgSelectedContainer = findViewById(R.id.img_selected_container);
-        selectedContainerBlock = findViewById(R.id.selected_container_block);
-        openHistory = findViewById(R.id.open_history);
-        lblDailyGoal = findViewById(R.id.lbl_total_goal);
-        lblTotalConsumed = findViewById(R.id.lbl_total_drunk);
-        bannerView = findViewById(R.id.banner_view);
+//        binding.animationView = binding.binding.animationView;
+//        binding.contentFrame = binding.binding.contentFrame;
+//        binding.binding.contentFrameTest = binding.binding.binding.contentFrameTest;
+//        binding.lblNextReminder = binding.binding.lblNextReminder;
+//        binding.nextReminderBlock = binding.binding.nextReminderBlock;
+//        addWaterLayout = binding.addWater;
+//        containerName = binding.containerName;
+//        binding.imgSelectedContainer = binding.binding.imgSelectedContainer;
+//        selectedContainerBlock = binding.selectedContainerBlock;
+//        openHistory = binding.openHistory;
+//        binding.lblTotalGoal = binding.lblTotalGoal;
+//        lblTotalConsumed = binding.lblTotalDrunk;
+//        bannerView = binding.bannerView;
+//
+//        btnMenu = binding.include1.btnMenu;
+//        btnAlarm = binding.include1.btnAlarm;
+//        binding.include1.lblToolbarTitle = binding.include1.binding.include1.lblToolbarTitle;
+//        imgPre = binding.include1.imgPre;
+//        imgNext = binding.include1.imgNext;
+//        binding.imgUser = binding.binding.imgUser;
+//        openProfile = binding.openProfile;
+//        btnRateUs = binding.btnRateUs;
+//        btnContactUs = binding.btnContactUs;
+//        binding.drawerLayout = binding.binding.drawerLayout;
+//        drawerRecyclerView = binding.leftDrawer;
+//        binding.lblUserName = binding.binding.lblUserName;
 
-        btnMenu = findViewById(R.id.btn_menu);
-        btnAlarm = findViewById(R.id.btn_alarm);
-        lblToolbarTitle = findViewById(R.id.lbl_toolbar_title);
-        imgPre = findViewById(R.id.img_pre);
-        imgNext = findViewById(R.id.img_next);
-        imgUser = findViewById(R.id.img_user);
-        openProfile = findViewById(R.id.open_profile);
-        btnRateUs = findViewById(R.id.btn_rate_us);
-        btnContactUs = findViewById(R.id.btn_contact_us);
-        drawerLayout = findViewById(R.id.drawer_layout);
-        drawerRecyclerView = findViewById(R.id.left_drawer);
-        lblUserName = findViewById(R.id.lbl_user_name);
-
-        contentFrameTest.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-            maxBottleHeight = contentFrameTest.getHeight() - 30;
+        binding.contentFrameTest.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            maxBottleHeight = binding.contentFrameTest.getHeight() - 30;
         });
     }
 
     private void setupListeners() {
-        lblToolbarTitle.setOnClickListener(v -> {
+        binding.include1.lblToolbarTitle.setOnClickListener(v -> {
             filterCal.setTimeInMillis(todayCal.getTimeInMillis());
-            lblToolbarTitle.setText(stringHelper.getString(R.string.str_today));
+            binding.include1.lblToolbarTitle.setText(stringHelper.getString(R.string.str_today));
             setDashboardDate(dateHelper.getDate(filterCal.getTimeInMillis(), URLFactory.DATE_FORMAT));
         });
 
-        btnRateUs.setOnClickListener(v -> rateApp());
-        btnContactUs.setOnClickListener(v -> contactUs());
-        openProfile.setOnClickListener(v -> {
+        binding. btnRateUs.setOnClickListener(v -> rateApp());
+        binding. btnContactUs.setOnClickListener(v -> contactUs());
+        binding. openProfile.setOnClickListener(v -> {
             closeDrawer();
             startActivity(new Intent(mActivity, Screen_Profile.class));
         });
-        btnAlarm.setOnClickListener(v -> showReminderSettingsDialog());
-        btnMenu.setOnClickListener(v -> toggleDrawer());
+        binding.include1. btnAlarm.setOnClickListener(v -> showReminderSettingsDialog());
+        binding. include1.btnMenu.setOnClickListener(v -> toggleDrawer());
 
-        imgPre.setOnClickListener(v -> changeDateBy(-1));
-        imgNext.setOnClickListener(v -> changeDateBy(1));
+        binding. include1. imgPre.setOnClickListener(v -> changeDateBy(-1));
+        binding.include1.imgNext.setOnClickListener(v -> changeDateBy(1));
 
-        selectedContainerBlock.setOnClickListener(v -> openChangeContainerPicker());
-        openHistory.setOnClickListener(v -> startActivity(new Intent(mActivity, Screen_History.class)));
+        binding. selectedContainerBlock.setOnClickListener(v -> openChangeContainerPicker());
+        binding.    openHistory.setOnClickListener(v -> startActivity(new Intent(mActivity, Screen_History.class)));
 
-        addWaterLayout.setOnClickListener(v -> {
+        binding.  addWater.setOnClickListener(v -> {
             if (!containerList.isEmpty() && isTodaySelected() && isClickable) {
                 isClickable = false;
                 executeAddWater();
@@ -269,8 +244,8 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
                     break;
             }
         });
-        drawerRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        drawerRecyclerView.setAdapter(menuAdapter);
+       binding. leftDrawer.setLayoutManager(new LinearLayoutManager(mContext));
+        binding. leftDrawer.setAdapter(menuAdapter);
     }
 
     private void initializeRingtone() {
@@ -334,14 +309,14 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
 
     private void initDashboard() {
         updateUserInfo();
-        lblToolbarTitle.setText(stringHelper.getString(R.string.str_today));
+        binding.include1.lblToolbarTitle.setText(stringHelper.getString(R.string.str_today));
         loadAllContainers();
         updateIntakeData(dateHelper.getDate(filterCal.getTimeInMillis(), URLFactory.DATE_FORMAT), false);
         startReminderPoller();
     }
 
     private void updateUserInfo() {
-        lblUserName.setText(preferencesHelper.getString(URLFactory.KEY_USER_NAME, "User"));
+        binding.lblUserName.setText(preferencesHelper.getString(URLFactory.KEY_USER_NAME, "User"));
         loadUserPhoto();
     }
 
@@ -351,9 +326,9 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
         int defaultRes = isFemale ? R.drawable.female_white : R.drawable.male_white;
 
         if (stringHelper.check_blank_data(photoPath) || !new File(photoPath).exists()) {
-            Glide.with(mActivity).load(defaultRes).apply(RequestOptions.circleCropTransform()).into(imgUser);
+            Glide.with(mActivity).load(defaultRes).apply(RequestOptions.circleCropTransform()).into(binding.imgUser);
         } else {
-            Glide.with(mActivity).load(photoPath).apply(RequestOptions.circleCropTransform()).into(imgUser);
+            Glide.with(mActivity).load(photoPath).apply(RequestOptions.circleCropTransform()).into(binding.imgUser);
         }
     }
 
@@ -369,11 +344,11 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
         String yesterdayDate = dateHelper.getDate(yesterdayCal.getTimeInMillis(), URLFactory.DATE_FORMAT);
 
         if (filterDate.equalsIgnoreCase(todayDate)) {
-            lblToolbarTitle.setText(stringHelper.getString(R.string.str_today));
+            binding.include1.lblToolbarTitle.setText(stringHelper.getString(R.string.str_today));
         } else if (filterDate.equalsIgnoreCase(yesterdayDate)) {
-            lblToolbarTitle.setText(stringHelper.getString(R.string.str_yesterday));
+            binding.include1.lblToolbarTitle.setText(stringHelper.getString(R.string.str_yesterday));
         } else {
-            lblToolbarTitle.setText(filterDate);
+            binding.include1.lblToolbarTitle.setText(filterDate);
         }
 
         setDashboardDate(filterDate);
@@ -431,10 +406,10 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
         }
 
         if (next != null) {
-            nextReminderBlock.setVisibility(View.VISIBLE);
-            lblNextReminder.setText(stringHelper.getString(R.string.str_next_reminder).replace("$1", next.getTime()));
+            binding.nextReminderBlock.setVisibility(View.VISIBLE);
+            binding.lblNextReminder.setText(stringHelper.getString(R.string.str_next_reminder).replace("$1", next.getTime()));
         } else {
-            nextReminderBlock.setVisibility(View.INVISIBLE);
+            binding.nextReminderBlock.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -470,8 +445,8 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
             dailyGoal = URLFactory.dailyWaterValue;
         }
 
-        lblTotalConsumed.setText(formatWaterValue(consumedWater));
-        lblDailyGoal.setText(formatWaterValue(dailyGoal));
+        binding.lblTotalDrunk.setText(formatWaterValue(consumedWater));
+        binding.lblTotalGoal.setText(formatWaterValue(dailyGoal));
 
         animateBottle(consumedWater, dailyGoal, isRegularAnimation);
     }
@@ -505,12 +480,12 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
         animationHandler = new Handler(Looper.getMainLooper());
         animationHandler.postDelayed(animationRunnable, delay);
 
-        animationView.setVisibility(targetBottleHeight > 0 ? View.VISIBLE : View.GONE);
+        binding.animationView.setVisibility(targetBottleHeight > 0 ? View.VISIBLE : View.GONE);
     }
 
     private void updateBottleHeight(int height) {
-        contentFrame.getLayoutParams().height = height;
-        contentFrame.requestLayout();
+        binding.contentFrame.getLayoutParams().height = height;
+        binding.contentFrame.requestLayout();
     }
 
     private void checkGoalReached() {
@@ -598,10 +573,10 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
         String unit = URLFactory.waterUnitValue;
         String val = unit.equalsIgnoreCase("ML") ? selected.getContainerValue() : selected.getContainerValueOZ();
 
-        containerName.setText(val + " " + unit);
+        binding.containerName.setText(val + " " + unit);
 
         int iconRes = selected.isCustom() ? R.drawable.ic_custom_ml : getContainerIcon(val);
-        Glide.with(mContext).load(iconRes).into(imgSelectedContainer);
+        Glide.with(mContext).load(iconRes).into(binding.imgSelectedContainer);
     }
 
     private int getContainerIcon(String val) {
@@ -929,16 +904,16 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
     }
 
     private void toggleDrawer() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            binding.drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            drawerLayout.openDrawer(GravityCompat.START);
+            binding.drawerLayout.openDrawer(GravityCompat.START);
         }
     }
 
     private void closeDrawer() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            binding.drawerLayout.closeDrawer(GravityCompat.START);
         }
     }
 
@@ -981,8 +956,8 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
 
     @Override
     public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            binding.drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }
