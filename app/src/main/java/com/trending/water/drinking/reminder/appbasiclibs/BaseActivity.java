@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
+import android.view.LayoutInflater;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewbinding.ViewBinding;
 
 import com.trending.water.drinking.reminder.appbasiclibs.utils.AlertHelper;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.BitmapHelper;
@@ -17,7 +20,10 @@ import com.trending.water.drinking.reminder.appbasiclibs.utils.StringHelper;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.UtilityFunction;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.ZipHelper;
 
-public class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity<VB extends ViewBinding> extends AppCompatActivity {
+    protected VB binding;
+    protected abstract VB inflateBinding(LayoutInflater inflater);
+
     protected Activity mActivity;
     protected Context mContext;
 
@@ -35,6 +41,11 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        binding = inflateBinding(getLayoutInflater());
+        if (binding != null) {
+            setContentView(binding.getRoot());
+        }
 
         this.mContext = this;
         this.mActivity = this;

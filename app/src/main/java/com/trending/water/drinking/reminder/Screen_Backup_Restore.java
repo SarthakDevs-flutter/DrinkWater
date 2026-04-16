@@ -44,86 +44,60 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-public class Screen_Backup_Restore extends MasterBaseActivity {
+import android.view.LayoutInflater;
+
+import com.trending.water.drinking.reminder.databinding.ScreenBackupRestoreBinding;
+import com.google.gson.Gson;
+/* ... rest of imports ... */
+
+public class Screen_Backup_Restore extends MasterBaseActivity<ScreenBackupRestoreBinding> {
+
+    @Override
+    protected ScreenBackupRestoreBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenBackupRestoreBinding.inflate(inflater);
+    }
 
     private static final String TAG = "Screen_Backup_Restore";
     private static final int REQ_PERMISSIONS = 3;
     private static final int REQ_SELECT_FILE = 1;
     private final Calendar autoBackupTime = Calendar.getInstance();
     private final List<BackUpFileModel> backupFileList = new ArrayList<>();
-    private LinearLayout autoBackupOptionBlock;
-    private LinearLayout btnBackup;
-    private LinearLayout btnClear;
     private boolean isPendingBackup = true;
     private FileAdapter fileAdapter;
-    private AppCompatTextView lblToolbarTitle;
-    private LinearLayout leftIconBlock;
-    private LinearLayout rightIconBlock;
-    private AppCompatTextView lblBackup;
-    private AppCompatTextView lblRestore;
-    private AppCompatTextView lblClear;
-    private AppCompatTextView lblAutoBackup;
-
-    private RadioButton rdoDaily;
-    private RadioButton rdoWeekly;
-    private RadioButton rdoMonthly;
-    private LinearLayout btnRestore;
-    private SwitchCompat switchAutoBackup;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_backup_restore);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setNavigationBarColor(ContextCompat.getColor(mContext, R.color.str_green_card));
         }
 
-        findViewByIds();
         initView();
         setupListeners();
     }
 
-    private void findViewByIds() {
-        rightIconBlock = findViewById(R.id.right_icon_block);
-        leftIconBlock = findViewById(R.id.left_icon_block);
-        lblToolbarTitle = findViewById(R.id.lbl_toolbar_title);
-        btnBackup = findViewById(R.id.backup_block);
-        btnRestore = findViewById(R.id.restore_block);
-        btnClear = findViewById(R.id.clear_block);
-        switchAutoBackup = findViewById(R.id.switch_auto_backup);
-        autoBackupOptionBlock = findViewById(R.id.auto_backup_option_block);
-        rdoDaily = findViewById(R.id.rdo_daily);
-        rdoWeekly = findViewById(R.id.rdo_weekly);
-        rdoMonthly = findViewById(R.id.rdo_monthly);
-
-        lblBackup = findViewById(R.id.lbl_backup);
-        lblRestore = findViewById(R.id.lbl_restore);
-        lblClear = findViewById(R.id.lbl_clear);
-        lblAutoBackup = findViewById(R.id.lbl_auto_backup);
-    }
-
     private void initView() {
-        lblToolbarTitle.setText(stringHelper.capitalizeAll(stringHelper.getString(R.string.str_backup_and_restore)));
-        rightIconBlock.setVisibility(View.GONE);
+        binding.include1.lblToolbarTitle.setText(stringHelper.capitalizeAll(stringHelper.getString(R.string.str_backup_and_restore)));
+        binding.include1.rightIconBlock.setVisibility(View.GONE);
 
-        lblBackup.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_backup)));
-        lblRestore.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_restore)));
-        lblClear.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_clear_all_data)));
-        lblAutoBackup.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_auto_backup)));
+        binding.lblBackup.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_backup)));
+        binding.lblRestore.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_restore)));
+        binding.lblClear.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_clear_all_data)));
+        binding.lblAutoBackup.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_auto_backup)));
 
-        rdoDaily.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_daily)));
-        rdoWeekly.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_weekly)));
-        rdoMonthly.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_monthly)));
+        binding.rdoDaily.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_daily)));
+        binding.rdoWeekly.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_weekly)));
+        binding.rdoMonthly.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_monthly)));
 
         boolean isAutoBackupOn = preferencesHelper.getBoolean(URLFactory.KEY_AUTO_BACKUP, false);
-        switchAutoBackup.setChecked(isAutoBackupOn);
-        autoBackupOptionBlock.setVisibility(isAutoBackupOn ? View.VISIBLE : View.GONE);
+        binding.switchAutoBackup.setChecked(isAutoBackupOn);
+        binding.autoBackupOptionBlock.setVisibility(isAutoBackupOn ? View.VISIBLE : View.GONE);
 
         int type = preferencesHelper.getInt(URLFactory.KEY_AUTO_BACKUP_TYPE, 0);
-        rdoDaily.setChecked(type == 0);
-        rdoWeekly.setChecked(type == 1);
-        rdoMonthly.setChecked(type == 2);
+        binding.rdoDaily.setChecked(type == 0);
+        binding.rdoWeekly.setChecked(type == 1);
+        binding.rdoMonthly.setChecked(type == 2);
 
         setupAutoBackupTime();
     }
@@ -136,10 +110,10 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
     }
 
     private void setupListeners() {
-        leftIconBlock.setOnClickListener(v -> finish());
+        binding.include1.leftIconBlock.setOnClickListener(v -> finish());
 
-        switchAutoBackup.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            autoBackupOptionBlock.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        binding.switchAutoBackup.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.autoBackupOptionBlock.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             preferencesHelper.savePreferences(URLFactory.KEY_AUTO_BACKUP, isChecked);
 
             if (isChecked) {
@@ -149,21 +123,21 @@ public class Screen_Backup_Restore extends MasterBaseActivity {
             }
         });
 
-        rdoDaily.setOnClickListener(v -> updateBackupType(0));
-        rdoWeekly.setOnClickListener(v -> updateBackupType(1));
-        rdoMonthly.setOnClickListener(v -> updateBackupType(2));
+        binding.rdoDaily.setOnClickListener(v -> updateBackupType(0));
+        binding.rdoWeekly.setOnClickListener(v -> updateBackupType(1));
+        binding.rdoMonthly.setOnClickListener(v -> updateBackupType(2));
 
-        btnBackup.setOnClickListener(v -> {
+        binding.backupBlock.setOnClickListener(v -> {
             isPendingBackup = true;
             validateAndRunAction();
         });
 
-        btnRestore.setOnClickListener(v -> {
+        binding.restoreBlock.setOnClickListener(v -> {
             isPendingBackup = false;
             validateAndRunAction();
         });
 
-        btnClear.setOnClickListener(v -> confirmClearBackups());
+        binding.clearBlock.setOnClickListener(v -> confirmClearBackups());
     }
 
     private void updateBackupType(int type) {

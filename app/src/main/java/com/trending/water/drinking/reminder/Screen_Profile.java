@@ -41,6 +41,7 @@ import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.custom.DigitsInputFilter;
 import com.trending.water.drinking.reminder.custom.InputFilterRange;
 import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
+import com.trending.water.drinking.reminder.databinding.ScreenProfileBinding;
 import com.trending.water.drinking.reminder.lib.cropper.CropImage;
 import com.trending.water.drinking.reminder.mywidgets.NewAppWidget;
 import com.trending.water.drinking.reminder.utils.FileUtils;
@@ -52,44 +53,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class Screen_Profile extends MasterBaseAppCompatActivity {
+public class Screen_Profile extends MasterBaseAppCompatActivity<ScreenProfileBinding> {
+
+    @Override
+    protected ScreenProfileBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenProfileBinding.inflate(inflater);
+    }
+
 
     private static final String TAG = "Screen_Profile";
     private static final int REQUEST_PICK_IMAGE = 1;
     private static final int REQUEST_CAMERA_IMAGE = 2;
     private static final int REQUEST_STORAGE_PERMISSION = 3;
     private final List<Double> heightFeetElements = new ArrayList<>();
-    private ImageView imgUser;
-    private AppCompatTextView txtUserName;
-    private AppCompatTextView txtGender;
-    private AppCompatTextView txtHeight;
-    private AppCompatTextView txtWeight;
-    private AppCompatTextView txtGoal;
-    private AppCompatTextView txtWeather;
-    private AppCompatTextView lblToolbarTitle;
-    private AppCompatTextView lblGender;
-    private AppCompatTextView lblWeightHeader;
-    private AppCompatTextView lblHeightHeader;
-    private AppCompatTextView lblGoalHeader;
-    private AppCompatTextView lblActive;
-    private AppCompatTextView lblPregnant;
-    private AppCompatTextView lblBreastfeeding;
-    private AppCompatTextView lblWeatherHeader;
-    private AppCompatTextView lblOtherFactor;
-    private SwitchCompat switchActive;
-    private SwitchCompat switchPregnant;
-    private SwitchCompat switchBreastfeeding;
-    private LinearLayout editUserNameBlock;
-    private LinearLayout genderBlock;
-    private LinearLayout heightBlock;
-    private LinearLayout weightBlock;
-    private LinearLayout goalBlock;
-    private LinearLayout weatherBlock;
-    private LinearLayout otherFactorsBlock;
-    private RelativeLayout changeProfileBlock;
-    private View leftIconBlock;
-    private View rightIconBlock;
     private BottomSheetDialog bottomSheetDialog;
+
     private PopupWindow popupMenu;
     private Uri imageUri;
     private String selectedImagePath;
@@ -102,7 +80,6 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_profile);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setNavigationBarColor(ContextCompat.getColor(mContext, R.color.water_color));
@@ -110,66 +87,28 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
 
         URLFactory.dailyWaterValue = preferencesHelper.getFloat(URLFactory.KEY_DAILY_WATER_GOAL, 2500.0f);
 
-        findViewByIds();
         initView();
         setupListeners();
         loadHeightData();
     }
 
-    private void findViewByIds() {
-        imgUser = findViewById(R.id.img_user);
-        txtUserName = findViewById(R.id.txt_user_name);
-        txtGender = findViewById(R.id.txt_gender);
-        txtHeight = findViewById(R.id.txt_height);
-        txtWeight = findViewById(R.id.txt_weight);
-        txtGoal = findViewById(R.id.txt_goal);
-        txtWeather = findViewById(R.id.txt_weather);
-
-        lblToolbarTitle = findViewById(R.id.lbl_toolbar_title);
-        lblGender = findViewById(R.id.lbl_gender);
-        lblWeightHeader = findViewById(R.id.lbl_weight);
-        lblHeightHeader = findViewById(R.id.lbl_height);
-        lblGoalHeader = findViewById(R.id.lbl_goal);
-        lblActive = findViewById(R.id.lbl_active);
-        lblPregnant = findViewById(R.id.lbl_pregnant);
-        lblBreastfeeding = findViewById(R.id.lbl_breastfeeding);
-        lblWeatherHeader = findViewById(R.id.lbl_weather);
-        lblOtherFactor = findViewById(R.id.lbl_other_factor);
-
-        switchActive = findViewById(R.id.switch_active);
-        switchPregnant = findViewById(R.id.switch_pregnant);
-        switchBreastfeeding = findViewById(R.id.switch_breastfeeding);
-
-        editUserNameBlock = findViewById(R.id.edit_user_name_block);
-        genderBlock = findViewById(R.id.gender_block);
-        heightBlock = findViewById(R.id.height_block);
-        weightBlock = findViewById(R.id.weight_block);
-        goalBlock = findViewById(R.id.goal_block);
-        weatherBlock = findViewById(R.id.weather_block);
-        otherFactorsBlock = findViewById(R.id.other_factors);
-        changeProfileBlock = findViewById(R.id.change_profile);
-
-        leftIconBlock = findViewById(R.id.left_icon_block);
-        rightIconBlock = findViewById(R.id.right_icon_block);
-    }
-
     private void initView() {
-        lblToolbarTitle.setText(stringHelper.getString(R.string.str_my_profile));
-        rightIconBlock.setVisibility(View.GONE);
+        binding.headerBlock.lblToolbarTitle.setText(stringHelper.getString(R.string.str_my_profile));
+        binding.headerBlock.rightIconBlock.setVisibility(View.GONE);
 
         // Header and labels
-        setUpperCase(lblGender);
-        setUpperCase(lblWeightHeader);
-        setUpperCase(lblHeightHeader);
-        setUpperCase(lblGoalHeader);
-        setUpperCase(lblActive);
-        setUpperCase(lblPregnant);
-        setUpperCase(lblBreastfeeding);
-        setUpperCase(lblWeatherHeader);
-        setUpperCase(lblOtherFactor);
+        setUpperCase(binding.lblGender);
+        setUpperCase(binding.lblWeight);
+        setUpperCase(binding.lblHeight);
+        setUpperCase(binding.lblGoal);
+        setUpperCase(binding.lblActive);
+        setUpperCase(binding.lblPregnant);
+        setUpperCase(binding.lblBreastfeeding);
+        setUpperCase(binding.lblWeather);
+        setUpperCase(binding.lblOtherFactor);
 
-        txtUserName.setText(preferencesHelper.getString(URLFactory.KEY_USER_NAME, "User"));
-        txtGender.setText(preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false) ?
+        binding.txtUserName.setText(preferencesHelper.getString(URLFactory.KEY_USER_NAME, "User"));
+        binding.txtGender.setText(preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false) ?
                 stringHelper.getString(R.string.str_female) : stringHelper.getString(R.string.str_male));
 
         loadUserPhoto();
@@ -177,20 +116,20 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         updateWeightDisplay();
         updateGoalDisplay();
 
-        switchActive.setChecked(preferencesHelper.getBoolean(URLFactory.KEY_IS_ACTIVE, false));
-        switchBreastfeeding.setChecked(preferencesHelper.getBoolean(URLFactory.KEY_IS_BREASTFEEDING, false));
-        switchPregnant.setChecked(preferencesHelper.getBoolean(URLFactory.KEY_IS_PREGNANT, false));
+        binding.switchActive.setChecked(preferencesHelper.getBoolean(URLFactory.KEY_IS_ACTIVE, false));
+        binding.switchBreastfeeding.setChecked(preferencesHelper.getBoolean(URLFactory.KEY_IS_BREASTFEEDING, false));
+        binding.switchPregnant.setChecked(preferencesHelper.getBoolean(URLFactory.KEY_IS_PREGNANT, false));
 
-        otherFactorsBlock.setVisibility(preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false) ? View.VISIBLE : View.GONE);
+        binding.otherFactors.setVisibility(preferencesHelper.getBoolean(URLFactory.KEY_USER_GENDER, false) ? View.VISIBLE : View.GONE);
 
         updateWeatherDisplay();
         calculateActiveFactors();
     }
 
     private void setupListeners() {
-        leftIconBlock.setOnClickListener(v -> finish());
+        binding.headerBlock.leftIconBlock.setOnClickListener(v -> finish());
 
-        changeProfileBlock.setOnClickListener(v -> {
+        binding.changeProfile.setOnClickListener(v -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 checkStoragePermissions();
             } else {
@@ -198,28 +137,28 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
             }
         });
 
-        genderBlock.setOnClickListener(v -> showGenderPopup(v));
-        editUserNameBlock.setOnClickListener(v -> openUserNameDialog());
-        goalBlock.setOnClickListener(v -> showSetGoalManuallyDialog());
-        heightBlock.setOnClickListener(v -> openHeightDialog());
-        weightBlock.setOnClickListener(v -> openWeightDialog());
+        binding.genderBlock.setOnClickListener(v -> showGenderPopup(v));
+        binding.editUserNameBlock.setOnClickListener(v -> openUserNameDialog());
+        binding.goalBlock.setOnClickListener(v -> showSetGoalManuallyDialog());
+        binding.heightBlock.setOnClickListener(v -> openHeightDialog());
+        binding.weightBlock.setOnClickListener(v -> openWeightDialog());
 
-        switchActive.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        binding.switchActive.setOnCheckedChangeListener((buttonView, isChecked) -> {
             preferencesHelper.savePreferences(URLFactory.KEY_IS_ACTIVE, isChecked);
             calculateGoalBasedOnFactors();
         });
 
-        switchBreastfeeding.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        binding.switchBreastfeeding.setOnCheckedChangeListener((buttonView, isChecked) -> {
             preferencesHelper.savePreferences(URLFactory.KEY_IS_BREASTFEEDING, isChecked);
             calculateGoalBasedOnFactors();
         });
 
-        switchPregnant.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        binding.switchPregnant.setOnCheckedChangeListener((buttonView, isChecked) -> {
             preferencesHelper.savePreferences(URLFactory.KEY_IS_PREGNANT, isChecked);
             calculateGoalBasedOnFactors();
         });
 
-        weatherBlock.setOnClickListener(v -> showWeatherPopup(v));
+        binding.weatherBlock.setOnClickListener(v -> showWeatherPopup(v));
     }
 
     private void loadHeightData() {
@@ -242,28 +181,28 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
                 R.drawable.female_white : R.drawable.male_white;
 
         if (photoPath.isEmpty() || !new File(photoPath).exists()) {
-            Glide.with(mActivity).load(placeholder).apply(RequestOptions.circleCropTransform()).into(imgUser);
+            Glide.with(mActivity).load(placeholder).apply(RequestOptions.circleCropTransform()).into(binding.imgUser);
         } else {
-            Glide.with(mActivity).load(photoPath).apply(RequestOptions.circleCropTransform()).into(imgUser);
+            Glide.with(mActivity).load(photoPath).apply(RequestOptions.circleCropTransform()).into(binding.imgUser);
         }
     }
 
     private void updateHeightDisplay() {
         boolean isCm = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_HEIGHT_UNIT, true);
         String height = preferencesHelper.getString(URLFactory.KEY_PERSON_HEIGHT, "160");
-        txtHeight.setText(String.format(Locale.getDefault(), "%s %s", height, isCm ? "cm" : "ft"));
+        binding.txtHeight.setText(String.format(Locale.getDefault(), "%s %s", height, isCm ? "cm" : "ft"));
     }
 
     private void updateWeightDisplay() {
         boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
         String weight = preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, "70");
-        txtWeight.setText(String.format(Locale.getDefault(), "%s %s", weight, isKg ? "kg" : "lb"));
+        binding.txtWeight.setText(String.format(Locale.getDefault(), "%s %s", weight, isKg ? "kg" : "lb"));
     }
 
     private void updateGoalDisplay() {
         boolean isMl = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
         int goal = (int) URLFactory.dailyWaterValue;
-        txtGoal.setText(String.format(Locale.getDefault(), "%d %s", goal, isMl ? "ml" : "fl oz"));
+        binding.txtGoal.setText(String.format(Locale.getDefault(), "%d %s", goal, isMl ? "ml" : "fl oz"));
     }
 
     private void updateWeatherDisplay() {
@@ -274,7 +213,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
                 stringHelper.getString(R.string.rainy),
                 stringHelper.getString(R.string.snow)
         };
-        txtWeather.setText(weatherArr[idx]);
+       binding. txtWeather.setText(weatherArr[idx]);
     }
 
     private void calculateActiveFactors() {
@@ -283,11 +222,11 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
 
         // Pregnant
         int pVal = isKg ? (int) URLFactory.PREGNANT_WATER_ADDITIONAL : (int) Math.round(HeightWeightHelper.convertMlToOz(URLFactory.PREGNANT_WATER_ADDITIONAL));
-        lblPregnant.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.pregnant).toUpperCase(), pVal, unit));
+        binding. lblPregnant.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.pregnant).toUpperCase(), pVal, unit));
 
         // Breastfeeding
         int bVal = isKg ? (int) URLFactory.BREASTFEEDING_WATER_ADDITIONAL : (int) Math.round(HeightWeightHelper.convertMlToOz(URLFactory.BREASTFEEDING_WATER_ADDITIONAL));
-        lblBreastfeeding.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.breastfeeding).toUpperCase(), bVal, unit));
+        binding.  lblBreastfeeding.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.breastfeeding).toUpperCase(), bVal, unit));
 
         // Active
         double weight = Double.parseDouble(preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, "70"));
@@ -304,7 +243,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
         int activeVal = (int) Math.round(baseDiff * weatherFactor);
         if (!isKg) activeVal = (int) Math.round(HeightWeightHelper.convertMlToOz(activeVal));
 
-        lblActive.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.active).toUpperCase(), activeVal, unit));
+        binding.lblActive.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.active).toUpperCase(), activeVal, unit));
     }
 
     private void calculateGoalBasedOnFactors() {
@@ -377,11 +316,11 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
     }
 
     private void updateGenderView(boolean isFemale) {
-        txtGender.setText(stringHelper.getString(isFemale ? R.string.str_female : R.string.str_male));
-        otherFactorsBlock.setVisibility(isFemale ? View.VISIBLE : View.GONE);
+       binding.txtGender.setText(stringHelper.getString(isFemale ? R.string.str_female : R.string.str_male));
+        binding.  otherFactors.setVisibility(isFemale ? View.VISIBLE : View.GONE);
         if (!isFemale) {
-            switchPregnant.setChecked(false);
-            switchBreastfeeding.setChecked(false);
+            binding.  switchPregnant.setChecked(false);
+            binding.  switchBreastfeeding.setChecked(false);
             preferencesHelper.savePreferences(URLFactory.KEY_IS_PREGNANT, false);
             preferencesHelper.savePreferences(URLFactory.KEY_IS_BREASTFEEDING, false);
         }
@@ -438,7 +377,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity {
                 alertHelper.customAlert(stringHelper.getString(R.string.str_valid_name_validation));
             } else {
                 preferencesHelper.savePreferences(URLFactory.KEY_USER_NAME, name);
-                txtUserName.setText(name);
+                binding.txtUserName.setText(name);
                 dialog.dismiss();
             }
         });

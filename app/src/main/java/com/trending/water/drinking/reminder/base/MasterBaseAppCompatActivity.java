@@ -6,12 +6,13 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.viewbinding.ViewBinding;
 
 import com.trending.water.drinking.reminder.R;
 import com.trending.water.drinking.reminder.appbasiclibs.BaseAppCompatActivity;
 import com.trending.water.drinking.reminder.utils.DbHelper;
 
-public class MasterBaseAppCompatActivity extends BaseAppCompatActivity {
+public abstract class MasterBaseAppCompatActivity<VB extends ViewBinding> extends BaseAppCompatActivity<VB> {
     protected DbHelper dbHelper;
 
     public static int getThemeColor(Context context) {

@@ -4,10 +4,12 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import androidx.viewbinding.ViewBinding;
+
 import com.trending.water.drinking.reminder.appbasiclibs.BaseActivity;
 import com.trending.water.drinking.reminder.utils.DbHelper;
 
-public class MasterBaseActivity extends BaseActivity {
+public abstract class MasterBaseActivity<VB extends ViewBinding> extends BaseActivity<VB> {
     protected DbHelper dbHelper;
 
     @Override

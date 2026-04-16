@@ -13,70 +13,56 @@ import com.google.android.material.tabs.TabLayout;
 import com.trending.water.drinking.reminder.adapter.ReportPagerAdapter;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.custom.NonSwipeableViewPager;
+import com.trending.water.drinking.reminder.databinding.ScreenReportBinding;
+import android.view.LayoutInflater;
 
-public class Screen_Report extends MasterBaseAppCompatActivity {
+public class Screen_Report extends MasterBaseAppCompatActivity<ScreenReportBinding> {
 
-    private AppCompatTextView lblToolbarTitle;
-    private LinearLayout leftIconBlock;
-    private LinearLayout rightIconBlock;
-    private RadioButton rdoMonth;
-    private RadioButton rdoWeek;
-    private RadioButton rdoYear;
-    private TabLayout tabs;
-    private NonSwipeableViewPager viewPager;
+    @Override
+    protected ScreenReportBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenReportBinding.inflate(inflater);
+    }
+
 
     private ReportPagerAdapter reportPagerAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_report);
-        findViewByIds();
         initView();
     }
 
-    private void findViewByIds() {
-        rightIconBlock = findViewById(R.id.right_icon_block);
-        leftIconBlock = findViewById(R.id.left_icon_block);
-        lblToolbarTitle = findViewById(R.id.lbl_toolbar_title);
-        tabs = findViewById(R.id.tabs);
-        viewPager = findViewById(R.id.viewPager);
-        rdoWeek = findViewById(R.id.rdo_week);
-        rdoMonth = findViewById(R.id.rdo_month);
-        rdoYear = findViewById(R.id.rdo_year);
-    }
-
     private void initView() {
-        lblToolbarTitle.setText(stringHelper.getString(R.string.str_drink_report));
-        leftIconBlock.setOnClickListener(v -> finish());
-        rightIconBlock.setVisibility(View.GONE);
+        binding.include1.lblToolbarTitle.setText(stringHelper.getString(R.string.str_drink_report));
+        binding.include1.leftIconBlock.setOnClickListener(v -> finish());
+        binding.include1.rightIconBlock.setVisibility(View.GONE);
 
-        rdoWeek.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_week)));
-        rdoMonth.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_month)));
-        rdoYear.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_year)));
+        binding.rdoWeek.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_week)));
+        binding.rdoMonth.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_month)));
+        binding.rdoYear.setText(stringHelper.capitalizeFirst(stringHelper.getString(R.string.str_year)));
 
-        rdoWeek.setOnClickListener(v -> viewPager.setCurrentItem(0));
-        rdoMonth.setOnClickListener(v -> viewPager.setCurrentItem(1));
-        rdoYear.setOnClickListener(v -> viewPager.setCurrentItem(2));
+        binding.rdoWeek.setOnClickListener(v -> binding.viewPager.setCurrentItem(0));
+        binding.rdoMonth.setOnClickListener(v -> binding.viewPager.setCurrentItem(1));
+        binding.rdoYear.setOnClickListener(v -> binding.viewPager.setCurrentItem(2));
 
         reportPagerAdapter = new ReportPagerAdapter(getSupportFragmentManager(), mContext);
-        viewPager.setAdapter(reportPagerAdapter);
-        viewPager.setOffscreenPageLimit(5);
+        binding.viewPager.setAdapter(reportPagerAdapter);
+        binding.viewPager.setOffscreenPageLimit(5);
 
-        tabs.setupWithViewPager(viewPager);
+        binding.tabs.setupWithViewPager(binding.viewPager);
 
-        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        binding.viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 switch (position) {
                     case 0:
-                        rdoWeek.setChecked(true);
+                        binding.rdoWeek.setChecked(true);
                         break;
                     case 1:
-                        rdoMonth.setChecked(true);
+                        binding.rdoMonth.setChecked(true);
                         break;
                     case 2:
-                        rdoYear.setChecked(true);
+                        binding.rdoYear.setChecked(true);
                         break;
                 }
             }

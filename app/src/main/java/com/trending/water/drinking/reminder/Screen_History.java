@@ -4,18 +4,18 @@ import android.app.AlertDialog;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.trending.water.drinking.reminder.adapter.HistoryAdapter;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.Constant;
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
+import com.trending.water.drinking.reminder.databinding.ScreenHistoryBinding;
 import com.trending.water.drinking.reminder.model.History;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
@@ -23,16 +23,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Screen_History extends MasterBaseActivity {
+public class Screen_History extends MasterBaseActivity<ScreenHistoryBinding> {
+
+    @Override
+    protected ScreenHistoryBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenHistoryBinding.inflate(inflater);
+    }
 
     private final ArrayList<History> histories = new ArrayList<>();
     private final int perPage = 20;
-    private RecyclerView historyRecyclerView;
-    private AppCompatTextView lblNoRecordFound;
-    private AppCompatTextView lblToolbarTitle;
-    private LinearLayout leftIconBlock;
-    private LinearLayout rightIconBlock;
-    private NestedScrollView nestedScrollView;
     private HistoryAdapter adapter;
     private boolean isLoading = true;
     private int page = 0;
@@ -42,27 +41,17 @@ public class Screen_History extends MasterBaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_history);
-        findViewByIds();
+
         initView();
     }
 
-    private void findViewByIds() {
-        rightIconBlock = findViewById(R.id.right_icon_block);
-        leftIconBlock = findViewById(R.id.left_icon_block);
-        lblToolbarTitle = findViewById(R.id.lbl_toolbar_title);
-        historyRecyclerView = findViewById(R.id.historyRecyclerView);
-        lblNoRecordFound = findViewById(R.id.lbl_no_record_found);
-        nestedScrollView = findViewById(R.id.nestedScrollView);
-    }
-
     private void initView() {
-        lblToolbarTitle.setText(stringHelper.getString(R.string.str_drink_history));
-        leftIconBlock.setOnClickListener(v -> finish());
-        rightIconBlock.setVisibility(View.GONE);
+        binding.include1.lblToolbarTitle.setText(stringHelper.getString(R.string.str_drink_history));
+        binding.include1.leftIconBlock.setOnClickListener(v -> finish());
+        binding.include1.rightIconBlock.setVisibility(View.GONE);
 
-        historyRecyclerView.setNestedScrollingEnabled(false);
-        historyRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
+        binding.historyRecyclerView.setNestedScrollingEnabled(false);
+        binding.historyRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
 
         adapter = new HistoryAdapter(mActivity, histories, new HistoryAdapter.CallBack() {
             @Override
@@ -75,11 +64,11 @@ public class Screen_History extends MasterBaseActivity {
                 showRemoveConfirmationDialog(history);
             }
         });
-        historyRecyclerView.setAdapter(adapter);
+        binding.historyRecyclerView.setAdapter(adapter);
 
         loadHistory(false);
 
-        nestedScrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+        binding.nestedScrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
             boolean isAtBottom = scrollY == v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight();
             if (isAtBottom && isLoading) {
                 isLoading = false;
@@ -159,7 +148,7 @@ public class Screen_History extends MasterBaseActivity {
         afterLoad = histories.size();
         isLoading = afterLoad > beforeLoad;
 
-        lblNoRecordFound.setVisibility(histories.isEmpty() ? View.VISIBLE : View.GONE);
+        binding.lblNoRecordFound.setVisibility(histories.isEmpty() ? View.VISIBLE : View.GONE);
         adapter.notifyDataSetChanged();
     }
 }

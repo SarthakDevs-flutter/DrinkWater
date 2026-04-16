@@ -19,6 +19,7 @@ import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 import com.trending.water.drinking.reminder.adapter.OnBoardingPagerAdapter;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.custom.NonSwipeableViewPager;
+import com.trending.water.drinking.reminder.databinding.ScreenOnboardingBinding;
 import com.trending.water.drinking.reminder.receiver.MyAlarmManager;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
@@ -27,19 +28,18 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import android.view.LayoutInflater;
 
-public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
+public class Screen_OnBoarding extends MasterBaseAppCompatActivity<ScreenOnboardingBinding> {
+
+    @Override
+    protected ScreenOnboardingBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenOnboardingBinding.inflate(inflater);
+    }
 
     private static final String TAG = "Screen_OnBoarding";
     private static final int STORAGE_PERMISSION_CODE = 3;
     private static final int MAX_PAGE = 7;
-
-    private NonSwipeableViewPager viewPager;
-    private DotsIndicator dotsIndicator;
-    private LinearLayout btnBack;
-    private LinearLayout btnNext;
-    private AppCompatTextView lblNext;
-    private View space;
 
     private OnBoardingPagerAdapter pagerAdapter;
     private int currentPageIndex = 0;
@@ -47,38 +47,27 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_onboarding);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.water_color));
         }
 
-        findViewByIds();
         initView();
         initListeners();
     }
 
-    private void findViewByIds() {
-        viewPager = findViewById(R.id.viewPager);
-        dotsIndicator = findViewById(R.id.dots_indicator);
-        btnBack = findViewById(R.id.btn_back);
-        btnNext = findViewById(R.id.btn_next);
-        lblNext = findViewById(R.id.lbl_next);
-        space = findViewById(R.id.space);
-    }
-
     private void initView() {
-        dotsIndicator.setDotsClickable(false);
+        binding.dotsIndicator.setDotsClickable(false);
         pagerAdapter = new OnBoardingPagerAdapter(getSupportFragmentManager(), this);
-        viewPager.setAdapter(pagerAdapter);
-        viewPager.setOffscreenPageLimit(10);
-        dotsIndicator.setViewPager(viewPager);
+        binding.viewPager.setAdapter(pagerAdapter);
+        binding.viewPager.setOffscreenPageLimit(10);
+        binding.dotsIndicator.setViewPager(binding.viewPager);
 
         updateNavigationButtons(0);
     }
 
     private void initListeners() {
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        binding.viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             }
@@ -94,29 +83,29 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
             }
         });
 
-        btnBack.setOnClickListener(v -> {
+        binding.btnBack.setOnClickListener(v -> {
             if (currentPageIndex > 0) {
                 currentPageIndex--;
-                viewPager.setCurrentItem(currentPageIndex);
+                binding.viewPager.setCurrentItem(currentPageIndex);
             }
         });
 
-        btnNext.setOnClickListener(v -> handleNextButtonClick());
+        binding.btnNext.setOnClickListener(v -> handleNextButtonClick());
     }
 
     private void updateNavigationButtons(int position) {
         if (position == 0) {
-            btnBack.setVisibility(View.GONE);
-            space.setVisibility(View.GONE);
+            binding.btnBack.setVisibility(View.GONE);
+            binding.space.setVisibility(View.GONE);
         } else {
-            btnBack.setVisibility(View.VISIBLE);
-            space.setVisibility(View.VISIBLE);
+            binding.btnBack.setVisibility(View.VISIBLE);
+            binding.space.setVisibility(View.VISIBLE);
         }
 
         if (position == MAX_PAGE - 1) {
-            lblNext.setText(stringHelper.getString(R.string.str_get_started));
+            binding.lblNext.setText(stringHelper.getString(R.string.str_get_started));
         } else {
-            lblNext.setText(stringHelper.getString(R.string.str_next));
+            binding.lblNext.setText(stringHelper.getString(R.string.str_next));
         }
     }
 
@@ -175,7 +164,7 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
 
         if (currentPageIndex < MAX_PAGE - 1) {
             currentPageIndex++;
-            viewPager.setCurrentItem(currentPageIndex);
+            binding.viewPager.setCurrentItem(currentPageIndex);
         } else {
             checkAndRequestPermissions();
         }
@@ -340,7 +329,7 @@ public class Screen_OnBoarding extends MasterBaseAppCompatActivity {
     public void onBackPressed() {
         if (currentPageIndex > 0) {
             currentPageIndex--;
-            viewPager.setCurrentItem(currentPageIndex);
+            binding.viewPager.setCurrentItem(currentPageIndex);
         } else {
             super.onBackPressed();
         }

@@ -9,43 +9,39 @@ import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import android.view.LayoutInflater;
+
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
 import com.trending.water.drinking.reminder.custom.AnimationUtils;
+import com.trending.water.drinking.reminder.databinding.RowItemFaqBinding;
+import com.trending.water.drinking.reminder.databinding.ScreenFaqBinding;
 import com.trending.water.drinking.reminder.model.FAQModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Screen_FAQ extends MasterBaseActivity {
+public class Screen_FAQ extends MasterBaseActivity<ScreenFaqBinding> {
+
+    @Override
+    protected ScreenFaqBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenFaqBinding.inflate(inflater);
+    }
 
     private final List<FAQModel> faqList = new ArrayList<>();
     private final List<LinearLayout> answerViewList = new ArrayList<>();
     private final List<ImageView> expandIconList = new ArrayList<>();
-    private LinearLayout faqContainer;
-    private AppCompatTextView lblToolbarTitle;
-    private LinearLayout leftIconBlock;
-    private LinearLayout rightIconBlock;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_faq);
 
-        findViewByIds();
         initView();
     }
 
-    private void findViewByIds() {
-        rightIconBlock = findViewById(R.id.right_icon_block);
-        leftIconBlock = findViewById(R.id.left_icon_block);
-        lblToolbarTitle = findViewById(R.id.lbl_toolbar_title);
-        faqContainer = findViewById(R.id.faq_block);
-    }
-
     private void initView() {
-        lblToolbarTitle.setText(stringHelper.getString(R.string.str_faqs));
-        leftIconBlock.setOnClickListener(v -> finish());
-        rightIconBlock.setVisibility(View.GONE);
+        binding.include1.lblToolbarTitle.setText(stringHelper.getString(R.string.str_faqs));
+        binding.include1.leftIconBlock.setOnClickListener(v -> finish());
+        binding.include1.rightIconBlock.setVisibility(View.GONE);
 
         initializeFAQData();
         renderFAQRows();
@@ -75,7 +71,7 @@ public class Screen_FAQ extends MasterBaseActivity {
     }
 
     private void renderFAQRows() {
-        faqContainer.removeAllViews();
+        binding.faqBlock.removeAllViews();
         answerViewList.clear();
         expandIconList.clear();
 
@@ -83,31 +79,26 @@ public class Screen_FAQ extends MasterBaseActivity {
             final int pos = i;
             FAQModel faq = faqList.get(i);
 
-            View itemView = LayoutInflater.from(mContext).inflate(R.layout.row_item_faq, faqContainer, false);
-            LinearLayout answerBlock = itemView.findViewById(R.id.answer_block);
-            ImageView imgFaq = itemView.findViewById(R.id.img_faq);
-            AppCompatTextView lblQuestion = itemView.findViewById(R.id.lbl_question);
-            AppCompatTextView lblAnswer = itemView.findViewById(R.id.lbl_answer);
-            LinearLayout questionBlock = itemView.findViewById(R.id.question_block);
+            RowItemFaqBinding rowBinding = RowItemFaqBinding.inflate(LayoutInflater.from(mContext), binding.faqBlock, false);
 
-            answerViewList.add(answerBlock);
-            expandIconList.add(imgFaq);
+            answerViewList.add(rowBinding.answerBlock);
+            expandIconList.add(rowBinding.imgFaq);
 
-            lblQuestion.setText(faq.getQuestion());
-            lblAnswer.setText(faq.getAnswer());
+            rowBinding.lblQuestion.setText(faq.getQuestion());
+            rowBinding.lblAnswer.setText(faq.getAnswer());
 
-            questionBlock.setOnClickListener(v -> {
-                if (answerBlock.getVisibility() == View.GONE) {
+            rowBinding.questionBlock.setOnClickListener(v -> {
+                if (rowBinding.answerBlock.getVisibility() == View.GONE) {
                     collapseAllExcept(pos);
-                    imgFaq.setImageResource(R.drawable.ic_faq_minus);
-                    AnimationUtils.expand(answerBlock);
+                    rowBinding.imgFaq.setImageResource(R.drawable.ic_faq_minus);
+                    AnimationUtils.expand(rowBinding.answerBlock);
                 } else {
-                    imgFaq.setImageResource(R.drawable.ic_faq_plus);
-                    AnimationUtils.collapse(answerBlock);
+                    rowBinding.imgFaq.setImageResource(R.drawable.ic_faq_plus);
+                    AnimationUtils.collapse(rowBinding.answerBlock);
                 }
             });
 
-            faqContainer.addView(itemView);
+            binding.faqBlock.addView(rowBinding.getRoot());
         }
     }
 

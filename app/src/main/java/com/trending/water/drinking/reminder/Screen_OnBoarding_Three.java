@@ -14,19 +14,27 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
 
+import android.view.LayoutInflater;
+
 import com.github.mikephil.charting.utils.Utils;
+/* ... rest of imports ... */
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
+import com.trending.water.drinking.reminder.databinding.ScreenOnboardingThreeBinding;
+import com.trending.water.drinking.reminder.utils.URLFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 import com.trending.water.drinking.reminder.custom.DigitsInputFilter;
 import com.trending.water.drinking.reminder.custom.InputFilterRange;
 import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
 import com.trending.water.drinking.reminder.lib.horizontalpicker.HorizontalPicker;
 import com.trending.water.drinking.reminder.utils.HeightWeightHelper;
-import com.trending.water.drinking.reminder.utils.URLFactory;
+public class Screen_OnBoarding_Three extends MasterBaseFragment<ScreenOnboardingThreeBinding> {
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Screen_OnBoarding_Three extends MasterBaseFragment {
+    @Override
+    protected ScreenOnboardingThreeBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
+        return ScreenOnboardingThreeBinding.inflate(inflater, container, false);
+    }
 
     private static final String TAG = "Screen_OnBoarding_Three";
     private final List<String> weightKgList = new ArrayList<>();
@@ -34,44 +42,18 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
     private final List<String> heightCmList = new ArrayList<>();
     private final List<String> heightFeetList = new ArrayList<>();
     private final List<Double> heightFeetElements = new ArrayList<>();
-    private HorizontalPicker pickerCm;
-    private HorizontalPicker pickerFeet;
-    private HorizontalPicker pickerKg;
-    private HorizontalPicker pickerLb;
-    private RadioButton rdoCm;
-    private RadioButton rdoFeet;
-    private RadioButton rdoKg;
-    private RadioButton rdoLb;
-    private AppCompatEditText txtHeight;
-    private AppCompatEditText txtWeight;
     private boolean isExecute = true;
     private boolean isExecuteWeight = true;
     private View itemView;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        itemView = inflater.inflate(R.layout.screen_onboarding_three, container, false);
-        findViewByIds(itemView);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         initializePickers();
         initView();
-
-        return itemView;
     }
 
-    private void findViewByIds(View view) {
-        txtHeight = view.findViewById(R.id.txt_height);
-        txtWeight = view.findViewById(R.id.txt_weight);
-        rdoCm = view.findViewById(R.id.rdo_cm);
-        rdoFeet = view.findViewById(R.id.rdo_feet);
-        rdoKg = view.findViewById(R.id.rdo_kg);
-        rdoLb = view.findViewById(R.id.rdo_lb);
-        pickerKg = view.findViewById(R.id.pickerKG);
-        pickerLb = view.findViewById(R.id.pickerLB);
-        pickerCm = view.findViewById(R.id.pickerCM);
-        pickerFeet = view.findViewById(R.id.pickerFeet);
-    }
 
     private void initializePickers() {
         initWeightKg();
@@ -80,15 +62,15 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         initHeightFeet();
 
         if (preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true)) {
-            pickerLb.setVisibility(View.GONE);
+            binding.pickerLB.setVisibility(View.GONE);
         } else {
-            pickerKg.setVisibility(View.GONE);
+            binding.pickerKG.setVisibility(View.GONE);
         }
 
         if (preferencesHelper.getBoolean(URLFactory.KEY_PERSON_HEIGHT_UNIT, true)) {
-            pickerFeet.setVisibility(View.GONE);
+            binding.pickerFeet.setVisibility(View.GONE);
         } else {
-            pickerCm.setVisibility(View.GONE);
+            binding.pickerCM.setVisibility(View.GONE);
         }
     }
 
@@ -102,15 +84,15 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         }
 
         CharSequence[] values = weightKgList.toArray(new CharSequence[0]);
-        pickerKg.setValues(values);
-        pickerKg.setSideItems(1);
-        pickerKg.setOnItemSelectedListener(index -> {
-            txtWeight.setText(values[index]);
+        binding.pickerKG.setValues(values);
+        binding.pickerKG.setSideItems(1);
+        binding.pickerKG.setOnItemSelectedListener(index -> {
+            binding.txtWeight.setText(values[index]);
             Log.d(TAG, "Weight KG selected: " + values[index]);
         });
 
         try {
-            pickerKg.setTextSize(getResources().getDimension(R.dimen.dp_30));
+            binding.pickerKG.setTextSize(getResources().getDimension(R.dimen.dp_30));
         } catch (Exception ignored) {
         }
     }
@@ -122,15 +104,15 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         }
 
         CharSequence[] values = weightLbList.toArray(new CharSequence[0]);
-        pickerLb.setValues(values);
-        pickerLb.setSideItems(1);
-        pickerLb.setOnItemSelectedListener(index -> {
-            txtWeight.setText(values[index]);
+        binding.pickerLB.setValues(values);
+        binding.pickerLB.setSideItems(1);
+        binding.pickerLB.setOnItemSelectedListener(index -> {
+            binding.txtWeight.setText(values[index]);
             Log.d(TAG, "Weight LB selected: " + values[index]);
         });
 
         try {
-            pickerLb.setTextSize(getResources().getDimension(R.dimen.dp_30));
+            binding.pickerLB.setTextSize(getResources().getDimension(R.dimen.dp_30));
         } catch (Exception ignored) {
         }
     }
@@ -142,15 +124,15 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         }
 
         CharSequence[] values = heightCmList.toArray(new CharSequence[0]);
-        pickerCm.setValues(values);
-        pickerCm.setSideItems(1);
-        pickerCm.setOnItemSelectedListener(index -> {
-            txtHeight.setText(values[index]);
+        binding.pickerCM.setValues(values);
+        binding.pickerCM.setSideItems(1);
+        binding.pickerCM.setOnItemSelectedListener(index -> {
+            binding.txtHeight.setText(values[index]);
             Log.d(TAG, "Height CM selected: " + values[index]);
         });
 
         try {
-            pickerCm.setTextSize(getResources().getDimension(R.dimen.dp_30));
+            binding.pickerCM.setTextSize(getResources().getDimension(R.dimen.dp_30));
         } catch (Exception ignored) {
         }
     }
@@ -165,15 +147,15 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
         heightFeetList.add("8.0");
 
         CharSequence[] values = heightFeetList.toArray(new CharSequence[0]);
-        pickerFeet.setValues(values);
-        pickerFeet.setSideItems(1);
-        pickerFeet.setOnItemSelectedListener(index -> {
-            txtHeight.setText(values[index]);
+        binding.pickerFeet.setValues(values);
+        binding.pickerFeet.setSideItems(1);
+        binding.pickerFeet.setOnItemSelectedListener(index -> {
+            binding.txtHeight.setText(values[index]);
             Log.d(TAG, "Height Feet selected: " + values[index]);
         });
 
         try {
-            pickerFeet.setTextSize(getResources().getDimension(R.dimen.dp_30));
+            binding.pickerFeet.setTextSize(getResources().getDimension(R.dimen.dp_30));
         } catch (Exception ignored) {
         }
     }
@@ -181,14 +163,14 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
     private void initView() {
         populateHeightFeetElements();
 
-        rdoKg.setOnCheckedChangeListener((cb, checked) -> {
-            pickerKg.setVisibility(checked ? View.VISIBLE : View.GONE);
-            pickerLb.setVisibility(checked ? View.GONE : View.VISIBLE);
+        binding.rdoKg.setOnCheckedChangeListener((cb, checked) -> {
+            binding.pickerKG.setVisibility(checked ? View.VISIBLE : View.GONE);
+            binding.pickerLB.setVisibility(checked ? View.GONE : View.VISIBLE);
         });
 
-        rdoFeet.setOnCheckedChangeListener((cb, checked) -> {
-            pickerFeet.setVisibility(checked ? View.VISIBLE : View.GONE);
-            pickerCm.setVisibility(checked ? View.GONE : View.VISIBLE);
+        binding.rdoFeet.setOnCheckedChangeListener((cb, checked) -> {
+            binding.pickerFeet.setVisibility(checked ? View.VISIBLE : View.GONE);
+            binding.pickerCM.setVisibility(checked ? View.GONE : View.VISIBLE);
         });
 
         setupHeightTextWatcher();
@@ -206,7 +188,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
     }
 
     private void setupHeightTextWatcher() {
-        txtHeight.addTextChangedListener(new TextWatcher() {
+        binding.txtHeight.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -219,16 +201,16 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
             public void afterTextChanged(Editable s) {
                 String input = s.toString().trim();
                 if (input.equals(".")) {
-                    txtHeight.setText("2.0");
+                    binding.txtHeight.setText("2.0");
                 }
 
                 if (!stringHelper.check_blank_data(input) && isExecute) {
-                    if (rdoCm.isChecked()) {
+                    if (binding.rdoCm.isChecked()) {
                         int index = heightCmList.indexOf(input);
-                        if (index != -1) pickerCm.setSelectedItem(index);
+                        if (index != -1) binding.pickerCM.setSelectedItem(index);
                     } else {
                         int index = heightFeetList.indexOf(input);
-                        if (index != -1) pickerFeet.setSelectedItem(index);
+                        if (index != -1) binding.pickerFeet.setSelectedItem(index);
                     }
                     saveHeightData();
                 }
@@ -237,7 +219,7 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
     }
 
     private void setupWeightTextWatcher() {
-        txtWeight.addTextChangedListener(new TextWatcher() {
+        binding.txtWeight.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -251,16 +233,16 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
                 try {
                     String input = s.toString().trim();
                     if (input.equals(".")) {
-                        txtWeight.setText("30.0");
+                        binding.txtWeight.setText("30.0");
                     }
                     if (!stringHelper.check_blank_data(input) && isExecuteWeight) {
                         float weight = Float.parseFloat(input);
-                        if (rdoKg.isChecked()) {
+                        if (binding.rdoKg.isChecked()) {
                             int index = weightKgList.indexOf(input);
-                            if (index != -1) pickerKg.setSelectedItem(index);
+                            if (index != -1) binding.pickerKG.setSelectedItem(index);
                         } else {
                             int index = weightLbList.indexOf(String.valueOf((int) weight));
-                            if (index != -1) pickerLb.setSelectedItem(index);
+                            if (index != -1) binding.pickerLB.setSelectedItem(index);
                         }
                     }
                     saveWeightData();
@@ -271,8 +253,8 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
     }
 
     private void setupRadioClickListeners() {
-        rdoCm.setOnClickListener(v -> {
-            String current = txtHeight.getText().toString();
+        binding.rdoCm.setOnClickListener(v -> {
+            String current = binding.txtHeight.getText().toString();
             if (!stringHelper.check_blank_data(current)) {
                 int cmValue = 150;
                 try {
@@ -291,22 +273,22 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
                 }
 
                 int index = heightCmList.indexOf(String.valueOf(cmValue));
-                if (index != -1) pickerCm.setSelectedItem(index);
+                if (index != -1) binding.pickerCM.setSelectedItem(index);
 
-                rdoFeet.setClickable(true);
-                rdoCm.setClickable(false);
-                txtHeight.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 240.0d)});
-                txtHeight.setText(String.valueOf(cmValue));
-                txtHeight.setSelection(txtHeight.getText().length());
+                binding.rdoFeet.setClickable(true);
+                binding.rdoCm.setClickable(false);
+                binding.txtHeight.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 240.0d)});
+                binding.txtHeight.setText(String.valueOf(cmValue));
+                binding.txtHeight.setSelection(binding.txtHeight.getText().length());
                 saveHeightData();
             } else {
-                rdoFeet.setChecked(true);
-                rdoCm.setChecked(false);
+                binding.rdoFeet.setChecked(true);
+                binding.rdoCm.setChecked(false);
             }
         });
 
-        rdoFeet.setOnClickListener(v -> {
-            String current = txtHeight.getText().toString();
+        binding.rdoFeet.setOnClickListener(v -> {
+            String current = binding.txtHeight.getText().toString();
             if (!stringHelper.check_blank_data(current)) {
                 String feetStr = "5.0";
                 try {
@@ -317,48 +299,48 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
                 }
 
                 int index = heightFeetList.indexOf(getData(feetStr));
-                if (index != -1) pickerFeet.setSelectedItem(index);
+                if (index != -1) binding.pickerFeet.setSelectedItem(index);
 
-                rdoFeet.setClickable(false);
-                rdoCm.setClickable(true);
-                txtHeight.setFilters(new InputFilter[]{new InputFilterRange(Utils.DOUBLE_EPSILON, heightFeetElements)});
-                txtHeight.setText(getData(feetStr));
-                txtHeight.setSelection(txtHeight.getText().length());
+                binding.rdoFeet.setClickable(false);
+                binding.rdoCm.setClickable(true);
+                binding.txtHeight.setFilters(new InputFilter[]{new InputFilterRange(Utils.DOUBLE_EPSILON, heightFeetElements)});
+                binding.txtHeight.setText(getData(feetStr));
+                binding.txtHeight.setSelection(binding.txtHeight.getText().length());
                 saveHeightData();
             } else {
-                rdoFeet.setChecked(false);
-                rdoCm.setChecked(true);
+                binding.rdoFeet.setChecked(false);
+                binding.rdoCm.setChecked(true);
             }
         });
 
-        rdoKg.setOnClickListener(v -> {
-            String current = txtWeight.getText().toString();
+        binding.rdoKg.setOnClickListener(v -> {
+            String current = binding.txtWeight.getText().toString();
             if (!stringHelper.check_blank_data(current)) {
                 double lb = Double.parseDouble(current);
                 double kg = lb > 0 ? Math.round(HeightWeightHelper.convertLbToKg(lb)) : 0;
                 int index = weightKgList.indexOf(String.valueOf((float) kg));
-                if (index != -1) pickerKg.setSelectedItem(index);
+                if (index != -1) binding.pickerKG.setSelectedItem(index);
 
-                txtWeight.setFilters(new InputFilter[]{new InputFilterWeightRange(0, 130.0d)});
-                txtWeight.setText(getData(String.valueOf((int) kg)));
-                rdoKg.setClickable(false);
-                rdoLb.setClickable(true);
+                binding.txtWeight.setFilters(new InputFilter[]{new InputFilterWeightRange(0, 130.0d)});
+                binding.txtWeight.setText(getData(String.valueOf((int) kg)));
+                binding.rdoKg.setClickable(false);
+                binding.rdoLb.setClickable(true);
             }
             saveWeightData();
         });
 
-        rdoLb.setOnClickListener(v -> {
-            String current = txtWeight.getText().toString();
+        binding.rdoLb.setOnClickListener(v -> {
+            String current = binding.txtWeight.getText().toString();
             if (!stringHelper.check_blank_data(current)) {
                 double kg = Double.parseDouble(current);
                 double lb = kg > 0 ? Math.round(HeightWeightHelper.convertKgToLb(kg)) : 0;
                 int index = weightLbList.indexOf(String.valueOf((int) lb));
-                if (index != -1) pickerLb.setSelectedItem(index);
+                if (index != -1) binding.pickerLB.setSelectedItem(index);
 
-                txtWeight.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 287.0d)});
-                txtWeight.setText(String.valueOf((int) lb));
-                rdoKg.setClickable(true);
-                rdoLb.setClickable(false);
+                binding.txtWeight.setFilters(new InputFilter[]{new DigitsInputFilter(3, 0, 287.0d)});
+                binding.txtWeight.setText(String.valueOf((int) lb));
+                binding.rdoKg.setClickable(true);
+                binding.rdoLb.setClickable(false);
             }
             saveWeightData();
         });
@@ -366,44 +348,44 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment {
 
     private void initializeUIStates() {
         boolean isCm = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_HEIGHT_UNIT, true);
-        rdoCm.setChecked(isCm);
-        rdoFeet.setChecked(!isCm);
-        rdoCm.setClickable(!isCm);
-        rdoFeet.setClickable(isCm);
+        binding.rdoCm.setChecked(isCm);
+        binding.rdoFeet.setChecked(!isCm);
+        binding.rdoCm.setClickable(!isCm);
+        binding.rdoFeet.setClickable(isCm);
 
         boolean isKg = preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true);
-        rdoKg.setChecked(isKg);
-        rdoLb.setChecked(!isKg);
-        rdoKg.setClickable(!isKg);
-        rdoLb.setClickable(isKg);
+        binding.rdoKg.setChecked(isKg);
+        binding.rdoLb.setChecked(!isKg);
+        binding.rdoKg.setClickable(!isKg);
+        binding.rdoLb.setClickable(isKg);
 
         String height = preferencesHelper.getString(URLFactory.KEY_PERSON_HEIGHT, "");
         if (!stringHelper.check_blank_data(height)) {
-            txtHeight.setFilters(new InputFilter[]{isCm ? new DigitsInputFilter(3, 0, 240.0d) : new InputFilterRange(0, heightFeetElements)});
-            txtHeight.setText(getData(height));
+            binding.txtHeight.setFilters(new InputFilter[]{isCm ? new DigitsInputFilter(3, 0, 240.0d) : new InputFilterRange(0, heightFeetElements)});
+            binding.txtHeight.setText(getData(height));
         } else {
-            txtHeight.setText(isCm ? "150" : "5.0");
+            binding.txtHeight.setText(isCm ? "150" : "5.0");
         }
 
         String weight = preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, "");
         if (!stringHelper.check_blank_data(weight)) {
-            txtWeight.setFilters(new InputFilter[]{isKg ? new InputFilterWeightRange(0, 130.0d) : new DigitsInputFilter(3, 0, 287.0d)});
-            txtWeight.setText(getData(weight));
+            binding.txtWeight.setFilters(new InputFilter[]{isKg ? new InputFilterWeightRange(0, 130.0d) : new DigitsInputFilter(3, 0, 287.0d)});
+            binding.txtWeight.setText(getData(weight));
         } else {
-            txtWeight.setText(isKg ? "80.0" : "176");
+            binding.txtWeight.setText(isKg ? "80.0" : "176");
         }
     }
 
     private void saveHeightData() {
-        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_HEIGHT, txtHeight.getText().toString().trim());
-        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_HEIGHT_UNIT, rdoCm.isChecked());
+        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_HEIGHT, binding.txtHeight.getText().toString().trim());
+        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_HEIGHT_UNIT, binding.rdoCm.isChecked());
         preferencesHelper.savePreferences(URLFactory.KEY_SET_MANUALLY_GOAL, false);
     }
 
     private void saveWeightData() {
-        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT, txtWeight.getText().toString().trim());
-        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT_UNIT, rdoKg.isChecked());
-        preferencesHelper.savePreferences(URLFactory.KEY_WATER_UNIT, rdoKg.isChecked() ? "ML" : "FL OZ");
+        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT, binding.txtWeight.getText().toString().trim());
+        preferencesHelper.savePreferences(URLFactory.KEY_PERSON_WEIGHT_UNIT, binding.rdoKg.isChecked());
+        preferencesHelper.savePreferences(URLFactory.KEY_WATER_UNIT, binding.rdoKg.isChecked() ? "ML" : "FL OZ");
         preferencesHelper.savePreferences(URLFactory.KEY_SET_MANUALLY_GOAL, false);
     }
 

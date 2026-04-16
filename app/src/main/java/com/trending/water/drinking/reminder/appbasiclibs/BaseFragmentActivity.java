@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
+import android.view.LayoutInflater;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
+import androidx.viewbinding.ViewBinding;
 
 import com.trending.water.drinking.reminder.appbasiclibs.utils.AlertHelper;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.BitmapHelper;
@@ -18,7 +21,11 @@ import com.trending.water.drinking.reminder.appbasiclibs.utils.StringHelper;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.UtilityFunction;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.ZipHelper;
 
-public class BaseFragmentActivity extends FragmentActivity {
+public abstract class BaseFragmentActivity<VB extends ViewBinding> extends FragmentActivity {
+    protected VB binding;
+
+    protected abstract VB inflateBinding(LayoutInflater inflater);
+
     protected Activity activity;
     protected Context context;
 
@@ -36,6 +43,11 @@ public class BaseFragmentActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        binding = inflateBinding(getLayoutInflater());
+        if (binding != null) {
+            setContentView(binding.getRoot());
+        }
 
         this.context = this;
         this.activity = this;

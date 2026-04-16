@@ -23,11 +23,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import android.view.LayoutInflater;
+
 import com.trending.water.drinking.reminder.adapter.AlarmAdapter;
 import com.trending.water.drinking.reminder.adapter.IntervalAdapter;
 import com.trending.water.drinking.reminder.adapter.SoundAdapter;
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
+import com.trending.water.drinking.reminder.databinding.ScreenReminderBinding;
 import com.trending.water.drinking.reminder.model.AlarmModel;
 import com.trending.water.drinking.reminder.model.IntervalModel;
 import com.trending.water.drinking.reminder.model.SoundModel;
@@ -43,32 +46,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class Screen_Reminder extends MasterBaseActivity {
+public class Screen_Reminder extends MasterBaseActivity<ScreenReminderBinding> {
+
+    @Override
+    protected ScreenReminderBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenReminderBinding.inflate(inflater);
+    }
 
     private static final String TAG = "Screen_Reminder";
     private final ArrayList<AlarmModel> alarmList = new ArrayList<>();
     private final List<IntervalModel> intervalList = new ArrayList<>();
     private final List<SoundModel> soundList = new ArrayList<>();
-    private RecyclerView alarmRecyclerView;
-    private AppCompatTextView lblNoRecordFound;
-    private AppCompatTextView lblWakeupTime;
-    private AppCompatTextView lblBedTime;
-    private AppCompatTextView lblInterval;
-    private AppCompatTextView lblWakeupTitle;
-    private AppCompatTextView lblBedTitle;
-    private RadioButton rdoAutoMode;
-    private RadioButton rdoManualMode;
-    private RadioButton rdoReminderOn;
-    private RadioButton rdoReminderOff;
-    private RadioButton rdoReminderSilent;
-    private RelativeLayout autoReminderBlock;
-    private RelativeLayout manualReminderBlock;
-    private RelativeLayout btnAddReminder;
-    private RelativeLayout btnSaveAutoReminder;
-    private LinearLayout soundBlock;
-    private SwitchCompat switchVibrate;
-    private LinearLayout leftIconBlock;
-    private LinearLayout rightIconBlock;
     private AlarmAdapter alarmAdapter;
     private BottomSheetDialog soundSheetDialog;
     private IntervalAdapter intervalAdapter;
@@ -94,51 +82,19 @@ public class Screen_Reminder extends MasterBaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_reminder);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setNavigationBarColor(ContextCompat.getColor(mContext, R.color.str_green_card));
         }
 
-        findViewByIds();
         initView();
         setupListeners();
     }
 
-    private void findViewByIds() {
-        rightIconBlock = findViewById(R.id.right_icon_block);
-        leftIconBlock = findViewById(R.id.left_icon_block);
-        alarmRecyclerView = findViewById(R.id.alarmRecyclerView);
-        lblNoRecordFound = findViewById(R.id.lbl_no_record_found);
-
-        rdoReminderOn = findViewById(R.id.rdo_auto);
-        rdoReminderOff = findViewById(R.id.rdo_off);
-        rdoReminderSilent = findViewById(R.id.rdo_silent);
-
-        soundBlock = findViewById(R.id.sound_block);
-        switchVibrate = findViewById(R.id.switch_vibrate);
-
-        lblWakeupTime = findViewById(R.id.lbl_wakeup_time);
-        lblBedTime = findViewById(R.id.lbl_bed_time);
-        lblInterval = findViewById(R.id.lbl_interval);
-
-        manualReminderBlock = findViewById(R.id.manual_reminder_block);
-        autoReminderBlock = findViewById(R.id.auto_reminder_block);
-
-        rdoAutoMode = findViewById(R.id.rdo_auto_alarm);
-        rdoManualMode = findViewById(R.id.rdo_manual_alarm);
-
-        btnAddReminder = findViewById(R.id.add_reminder);
-        btnSaveAutoReminder = findViewById(R.id.save_reminder);
-
-        lblWakeupTitle = findViewById(R.id.lblwt);
-        lblBedTitle = findViewById(R.id.lblbt);
-    }
-
     private void initView() {
         // Toolbar and Titles
-        lblWakeupTitle.setText(setFirstLetterLower(stringHelper.getString(R.string.str_wakeup_time)));
-        lblBedTitle.setText(setFirstLetterLower(stringHelper.getString(R.string.str_bed_time)));
+        binding.lblwt.setText(setFirstLetterLower(stringHelper.getString(R.string.str_wakeup_time)));
+        binding.lblbt.setText(setFirstLetterLower(stringHelper.getString(R.string.str_bed_time)));
 
         loadAutoSettingsFromDb();
         updateRemindersModeView();
@@ -155,25 +111,25 @@ public class Screen_Reminder extends MasterBaseActivity {
     }
 
     private void setupListeners() {
-        leftIconBlock.setOnClickListener(v -> finish());
-        rightIconBlock.setOnClickListener(v -> showDeleteAllMenu(v));
+        binding.include1.leftIconBlock.setOnClickListener(v -> finish());
+        binding.include1.rightIconBlock.setOnClickListener(v -> showDeleteAllMenu(v));
 
-        lblWakeupTime.setOnClickListener(v -> openTimePickerForAuto(lblWakeupTime, true));
-        lblBedTime.setOnClickListener(v -> openTimePickerForAuto(lblBedTime, false));
-        lblInterval.setOnClickListener(v -> openIntervalPicker());
+        binding.lblWakeupTime.setOnClickListener(v -> openTimePickerForAuto(binding.lblWakeupTime, true));
+        binding.lblBedTime.setOnClickListener(v -> openTimePickerForAuto(binding.lblBedTime, false));
+        binding.lblInterval.setOnClickListener(v -> openIntervalPicker());
 
-        rdoAutoMode.setOnClickListener(v -> switchToAutoMode());
-        rdoManualMode.setOnClickListener(v -> switchToManualMode());
+        binding.rdoAutoAlarm.setOnClickListener(v -> switchToAutoMode());
+        binding.rdoManualAlarm.setOnClickListener(v -> switchToManualMode());
 
-        rdoAutoMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        binding.rdoAutoAlarm.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) setAutoAlarmMode();
         });
 
-        rdoManualMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        binding.rdoManualAlarm.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) setManualAlarmMode();
         });
 
-        btnSaveAutoReminder.setOnClickListener(v -> {
+        binding.saveReminder.setOnClickListener(v -> {
             if (isValidTimeRange()) {
                 applyAutoAlarm(true);
             } else {
@@ -181,51 +137,51 @@ public class Screen_Reminder extends MasterBaseActivity {
             }
         });
 
-        btnAddReminder.setOnClickListener(v -> openTimePickerForManual());
+        binding.addReminder.setOnClickListener(v -> openTimePickerForManual());
 
-        rdoReminderOn.setOnClickListener(v -> preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, 0));
-        rdoReminderOff.setOnClickListener(v -> preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, 1));
-        rdoReminderSilent.setOnClickListener(v -> preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, 2));
+        binding.rdoAuto.setOnClickListener(v -> preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, 0));
+        binding.rdoOff.setOnClickListener(v -> preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, 1));
+        binding.rdoSilent.setOnClickListener(v -> preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_OPTION, 2));
 
-        switchVibrate.setOnCheckedChangeListener((buttonView, isChecked) ->
+        binding.switchVibrate.setOnCheckedChangeListener((buttonView, isChecked) ->
                 preferencesHelper.savePreferences(URLFactory.KEY_REMINDER_VIBRATE, !isChecked));
 
-        soundBlock.setOnClickListener(v -> openSoundPicker());
+        binding.soundBlock.setOnClickListener(v -> openSoundPicker());
     }
 
     private void switchToAutoMode() {
-        manualReminderBlock.setVisibility(View.GONE);
-        autoReminderBlock.setVisibility(View.VISIBLE);
+        binding.manualReminderBlock.setVisibility(View.GONE);
+        binding.autoReminderBlock.setVisibility(View.VISIBLE);
         preferencesHelper.savePreferences(URLFactory.KEY_IS_MANUAL_REMINDER, false);
     }
 
     private void switchToManualMode() {
-        manualReminderBlock.setVisibility(View.VISIBLE);
-        autoReminderBlock.setVisibility(View.GONE);
+        binding.manualReminderBlock.setVisibility(View.VISIBLE);
+        binding.autoReminderBlock.setVisibility(View.GONE);
         preferencesHelper.savePreferences(URLFactory.KEY_IS_MANUAL_REMINDER, true);
-        lblNoRecordFound.setVisibility(alarmList.isEmpty() ? View.VISIBLE : View.GONE);
+        binding.lblNoRecordFound.setVisibility(alarmList.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void updateRemindersModeView() {
         boolean isManual = preferencesHelper.getBoolean(URLFactory.KEY_IS_MANUAL_REMINDER, false);
         if (isManual) {
-            rdoManualMode.setChecked(true);
+            binding.rdoManualAlarm.setChecked(true);
             switchToManualMode();
         } else {
-            rdoAutoMode.setChecked(true);
+            binding.rdoAutoAlarm.setChecked(true);
             switchToAutoMode();
         }
     }
 
     private void updateVibrateToggle() {
-        switchVibrate.setChecked(!preferencesHelper.getBoolean(URLFactory.KEY_REMINDER_VIBRATE, false));
+        binding.switchVibrate.setChecked(!preferencesHelper.getBoolean(URLFactory.KEY_REMINDER_VIBRATE, false));
     }
 
     private void updateReminderOptionView() {
         int option = preferencesHelper.getInt(URLFactory.KEY_REMINDER_OPTION, 0);
-        if (option == 1) rdoReminderOff.setChecked(true);
-        else if (option == 2) rdoReminderSilent.setChecked(true);
-        else rdoReminderOn.setChecked(true);
+        if (option == 1) binding.rdoOff.setChecked(true);
+        else if (option == 2) binding.rdoSilent.setChecked(true);
+        else binding.rdoAuto.setChecked(true);
     }
 
     private void setupAlarmList() {
@@ -255,8 +211,8 @@ public class Screen_Reminder extends MasterBaseActivity {
             }
         });
 
-        alarmRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-        alarmRecyclerView.setAdapter(alarmAdapter);
+        binding.alarmRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
+        binding.alarmRecyclerView.setAdapter(alarmAdapter);
         loadManualAlarmsFromDb();
     }
 
@@ -267,8 +223,8 @@ public class Screen_Reminder extends MasterBaseActivity {
             if (timeRange != null && timeRange.contains("-")) {
                 String[] times = timeRange.split("-");
                 if (times.length > 1) {
-                    lblWakeupTime.setText(times[0].trim());
-                    lblBedTime.setText(times[1].trim());
+                    binding.lblWakeupTime.setText(times[0].trim());
+                    binding.lblBedTime.setText(times[1].trim());
 
                     fromHour = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "HH", times[0].trim()));
                     fromMinute = Integer.parseInt(dateHelper.formatDateFromString("hh:mm a", "mm", times[0].trim()));
@@ -283,9 +239,9 @@ public class Screen_Reminder extends MasterBaseActivity {
 
     private void updateIntervalLabel() {
         if (currentInterval == 60) {
-            lblInterval.setText(String.format(Locale.getDefault(), "1 %s", stringHelper.getString(R.string.str_hour)));
+            binding.lblInterval.setText(String.format(Locale.getDefault(), "1 %s", stringHelper.getString(R.string.str_hour)));
         } else {
-            lblInterval.setText(String.format(Locale.getDefault(), "%d %s", currentInterval, stringHelper.getString(R.string.str_min)));
+            binding.lblInterval.setText(String.format(Locale.getDefault(), "%d %s", currentInterval, stringHelper.getString(R.string.str_min)));
         }
     }
 
@@ -376,7 +332,7 @@ public class Screen_Reminder extends MasterBaseActivity {
 
             int masterId = (int) System.currentTimeMillis();
             ContentValues masterValues = new ContentValues();
-            masterValues.put("AlarmTime", lblWakeupTime.getText().toString() + " - " + lblBedTime.getText().toString());
+            masterValues.put("AlarmTime", binding.lblWakeupTime.getText().toString() + " - " + binding.lblBedTime.getText().toString());
             masterValues.put("AlarmId", String.valueOf(masterId));
             masterValues.put("AlarmType", "R");
             masterValues.put("AlarmInterval", String.valueOf(currentInterval));
@@ -433,8 +389,8 @@ public class Screen_Reminder extends MasterBaseActivity {
     private boolean isNextDayEnd() {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.US);
-            return sdf.parse(lblWakeupTime.getText().toString().trim()).getTime() >
-                    sdf.parse(lblBedTime.getText().toString().trim()).getTime();
+            return sdf.parse(binding.lblWakeupTime.getText().toString().trim()).getTime() >
+                    sdf.parse(binding.lblBedTime.getText().toString().trim()).getTime();
         } catch (Exception e) {
             return false;
         }
@@ -620,7 +576,7 @@ public class Screen_Reminder extends MasterBaseActivity {
                     databaseHelper.remove("tbl_alarm_details", "id=" + alarm.getId());
                     alarmList.remove(pos);
                     alarmAdapter.notifyDataSetChanged();
-                    lblNoRecordFound.setVisibility(alarmList.isEmpty() ? View.VISIBLE : View.GONE);
+                    binding.lblNoRecordFound.setVisibility(alarmList.isEmpty() ? View.VISIBLE : View.GONE);
                 })
                 .setNegativeButton(R.string.str_no, null)
                 .show();
@@ -649,7 +605,7 @@ public class Screen_Reminder extends MasterBaseActivity {
         alarmList.clear();
         alarmAdapter.notifyDataSetChanged();
         switchToAutoMode();
-        rdoAutoMode.setChecked(true);
+        binding.rdoAutoAlarm.setChecked(true);
         applyAutoAlarm(false);
     }
 
@@ -680,7 +636,7 @@ public class Screen_Reminder extends MasterBaseActivity {
             model.setAlarmSaturdayId(row.get("SaturdayAlarmId"));
             alarmList.add(model);
         }
-        lblNoRecordFound.setVisibility(alarmList.isEmpty() ? View.VISIBLE : View.GONE);
+        binding.lblNoRecordFound.setVisibility(alarmList.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void openIntervalPicker() {

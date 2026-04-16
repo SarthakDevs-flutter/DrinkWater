@@ -10,8 +10,11 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import android.view.LayoutInflater;
+
 import com.trending.water.drinking.reminder.appbasiclibs.AppClose;
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
+import com.trending.water.drinking.reminder.databinding.ScreenSelectBottleBinding;
 import com.trending.water.drinking.reminder.model.Container;
 import com.trending.water.drinking.reminder.mywidgets.NewAppWidget;
 import com.trending.water.drinking.reminder.utils.HeightWeightHelper;
@@ -22,11 +25,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Headless-style activity to handle quick bottle action from notification/widget.
- * It might redirect to OnBoarding or record a drink and exit.
- */
-public class Screen_Select_Bottle extends MasterBaseActivity {
+public class Screen_Select_Bottle extends MasterBaseActivity<ScreenSelectBottleBinding> {
+
+    @Override
+    protected ScreenSelectBottleBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenSelectBottleBinding.inflate(inflater);
+    }
 
     private final ArrayList<Container> containerList = new ArrayList<>();
     private float currentTotalDrank = 0.0f;
@@ -35,7 +39,6 @@ public class Screen_Select_Bottle extends MasterBaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_select_bottle);
 
         // Make it full screen but likely transparent/headless
         if (getWindow() != null) {

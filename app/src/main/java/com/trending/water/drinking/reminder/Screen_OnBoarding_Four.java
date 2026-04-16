@@ -17,33 +17,32 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
-
-import com.trending.water.drinking.reminder.base.MasterBaseFragment;
 import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
 import com.trending.water.drinking.reminder.utils.HeightWeightHelper;
+import android.view.LayoutInflater;
+
+import com.trending.water.drinking.reminder.base.MasterBaseFragment;
+import com.trending.water.drinking.reminder.databinding.ScreenOnboardingFourBinding;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
 import java.util.Locale;
 
-public class Screen_OnBoarding_Four extends MasterBaseFragment {
+public class Screen_OnBoarding_Four extends MasterBaseFragment<ScreenOnboardingFourBinding> {
+
+    @Override
+    protected ScreenOnboardingFourBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
+        return ScreenOnboardingFourBinding.inflate(inflater, container, false);
+    }
 
     private static final String TAG = "Screen_OnBoarding_Four";
 
-    private AppCompatTextView lblGoal;
-    private AppCompatTextView lblUnit;
-    private AppCompatTextView lblSetGoalManually;
-
-    private View itemView;
     private boolean isExecute = true;
     private boolean isExecuteSeekBar = true;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        itemView = inflater.inflate(R.layout.screen_onboarding_four, container, false);
-        findViewByIds(itemView);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         initView();
-        return itemView;
     }
 
     @Override
@@ -54,15 +53,10 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
         }
     }
 
-    private void findViewByIds(View view) {
-        lblGoal = view.findViewById(R.id.lbl_goal);
-        lblUnit = view.findViewById(R.id.lbl_unit);
-        lblSetGoalManually = view.findViewById(R.id.lbl_set_goal_manually);
-    }
 
     private void initView() {
         updateGoalDisplay();
-        lblSetGoalManually.setOnClickListener(v -> showSetManuallyGoalDialog());
+        binding.lblSetGoalManually.setOnClickListener(v -> showSetManuallyGoalDialog());
     }
 
     private void updateGoalDisplay() {
@@ -71,8 +65,8 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
             URLFactory.dailyWaterValue = manualGoal;
             preferencesHelper.savePreferences(URLFactory.KEY_DAILY_WATER_GOAL, manualGoal);
 
-            lblGoal.setText(String.format(Locale.US, "%d", (int) manualGoal));
-            lblUnit.setText(preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true) ? "ML" : "FL OZ");
+            binding.lblGoal.setText(String.format(Locale.US, "%d", (int) manualGoal));
+            binding.lblUnit.setText(preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true) ? "ML" : "FL OZ");
         } else {
             calculateGoal();
         }
@@ -134,14 +128,14 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
         calculatedGoalMl = Math.max(900.0, Math.min(calculatedGoalMl, 8000.0));
 
         if (preferencesHelper.getBoolean(URLFactory.KEY_PERSON_WEIGHT_UNIT, true)) {
-            lblUnit.setText("ML");
+            binding.lblUnit.setText("ML");
             URLFactory.dailyWaterValue = (float) Math.round(calculatedGoalMl);
         } else {
-            lblUnit.setText("FL OZ");
+            binding.lblUnit.setText("FL OZ");
             URLFactory.dailyWaterValue = (float) Math.round(HeightWeightHelper.convertMlToOz(calculatedGoalMl));
         }
 
-        lblGoal.setText(String.format(Locale.US, "%d", (int) URLFactory.dailyWaterValue));
+        binding.lblGoal.setText(String.format(Locale.US, "%d", (int) URLFactory.dailyWaterValue));
         preferencesHelper.savePreferences(URLFactory.KEY_DAILY_WATER_GOAL, URLFactory.dailyWaterValue);
     }
 
@@ -247,7 +241,7 @@ public class Screen_OnBoarding_Four extends MasterBaseFragment {
             preferencesHelper.savePreferences(URLFactory.KEY_SET_MANUALLY_GOAL, true);
             preferencesHelper.savePreferences(URLFactory.KEY_SET_MANUALLY_GOAL_VALUE, newGoal);
 
-            lblGoal.setText(String.format(Locale.US, "%d", (int) newGoal));
+            binding.lblGoal.setText(String.format(Locale.US, "%d", (int) newGoal));
             dialog.dismiss();
         });
 

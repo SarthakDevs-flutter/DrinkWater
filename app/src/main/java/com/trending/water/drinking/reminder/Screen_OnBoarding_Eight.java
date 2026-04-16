@@ -12,49 +12,32 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
+import com.trending.water.drinking.reminder.databinding.ScreenOnboardingEightBinding;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
-public class Screen_OnBoarding_Eight extends MasterBaseFragment {
+public class Screen_OnBoarding_Eight extends MasterBaseFragment<ScreenOnboardingEightBinding> {
 
-    private RelativeLayout sunnyBlock;
-    private RelativeLayout cloudyBlock;
-    private RelativeLayout rainyBlock;
-    private RelativeLayout snowBlock;
-    private ImageView imgSunny;
-    private ImageView imgCloudy;
-    private ImageView imgRainy;
-    private ImageView imgSnow;
-
-    private View itemView;
-
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        itemView = inflater.inflate(R.layout.screen_onboarding_eight, container, false);
-        findViewByIds(itemView);
-        initView();
-        return itemView;
+    protected ScreenOnboardingEightBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
+        return ScreenOnboardingEightBinding.inflate(inflater, container, false);
     }
 
-    private void findViewByIds(View view) {
-        sunnyBlock = view.findViewById(R.id.sunny_block);
-        cloudyBlock = view.findViewById(R.id.cloudy_block);
-        rainyBlock = view.findViewById(R.id.rainy_block);
-        snowBlock = view.findViewById(R.id.snow_block);
-        imgSunny = view.findViewById(R.id.img_sunny);
-        imgCloudy = view.findViewById(R.id.img_cloudy);
-        imgRainy = view.findViewById(R.id.img_rainy);
-        imgSnow = view.findViewById(R.id.img_snow);
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initView();
     }
+
 
     private void initView() {
         int initialWeather = preferencesHelper.getInt(URLFactory.KEY_WEATHER_CONDITIONS, 0);
         updateWeatherUI(initialWeather);
 
-        sunnyBlock.setOnClickListener(v -> selectWeather(0));
-        cloudyBlock.setOnClickListener(v -> selectWeather(1));
-        rainyBlock.setOnClickListener(v -> selectWeather(2));
-        snowBlock.setOnClickListener(v -> selectWeather(3));
+        binding.sunnyBlock.setOnClickListener(v -> selectWeather(0));
+        binding.cloudyBlock.setOnClickListener(v -> selectWeather(1));
+        binding.rainyBlock.setOnClickListener(v -> selectWeather(2));
+        binding.snowBlock.setOnClickListener(v -> selectWeather(3));
     }
 
     private void selectWeather(int index) {
@@ -64,10 +47,10 @@ public class Screen_OnBoarding_Eight extends MasterBaseFragment {
     }
 
     private void updateWeatherUI(int selectedIndex) {
-        updateWeatherBlock(sunnyBlock, imgSunny, selectedIndex == 0, R.drawable.sunny_selected, R.drawable.sunny);
-        updateWeatherBlock(cloudyBlock, imgCloudy, selectedIndex == 1, R.drawable.cloudy_selected, R.drawable.cloudy);
-        updateWeatherBlock(rainyBlock, imgRainy, selectedIndex == 2, R.drawable.rainy_selected, R.drawable.rainy);
-        updateWeatherBlock(snowBlock, imgSnow, selectedIndex == 3, R.drawable.snow_selected, R.drawable.snow);
+        updateWeatherBlock(binding.sunnyBlock, binding.imgSunny, selectedIndex == 0, R.drawable.sunny_selected, R.drawable.sunny);
+        updateWeatherBlock(binding.cloudyBlock, binding.imgCloudy, selectedIndex == 1, R.drawable.cloudy_selected, R.drawable.cloudy);
+        updateWeatherBlock(binding.rainyBlock, binding.imgRainy, selectedIndex == 2, R.drawable.rainy_selected, R.drawable.rainy);
+        updateWeatherBlock(binding.snowBlock, binding.imgSnow, selectedIndex == 3, R.drawable.snow_selected, R.drawable.snow);
     }
 
     private void updateWeatherBlock(RelativeLayout block, ImageView img, boolean isSelected, int selectedRes, int normalRes) {

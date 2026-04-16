@@ -23,6 +23,7 @@ import android.text.InputFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -51,6 +52,8 @@ import com.trending.water.drinking.reminder.adapter.SoundAdapter;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.Constant;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
+import com.trending.water.drinking.reminder.databinding.ScreenDashboardBinding;
+import com.trending.water.drinking.reminder.databinding.ScreenYearReportBinding;
 import com.trending.water.drinking.reminder.model.Container;
 import com.trending.water.drinking.reminder.model.Menu;
 import com.trending.water.drinking.reminder.model.NextReminderModel;
@@ -69,7 +72,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class Screen_Dashboard extends MasterBaseAppCompatActivity {
+public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboardBinding> {
 
     private static final String TAG = "Screen_Dashboard";
 
@@ -131,10 +134,15 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity {
         return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
     }
 
+
+    @Override
+    protected ScreenDashboardBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenDashboardBinding.inflate(inflater);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_dashboard);
 
         initializeData();
         findViewByIds();

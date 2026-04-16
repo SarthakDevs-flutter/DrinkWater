@@ -3,8 +3,15 @@ package com.trending.water.drinking.reminder.appbasiclibs;
 import android.app.Activity;
 import android.content.Context;
 
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.viewbinding.ViewBinding;
 
 import com.trending.water.drinking.reminder.appbasiclibs.utils.AlertHelper;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.BitmapHelper;
@@ -17,7 +24,11 @@ import com.trending.water.drinking.reminder.appbasiclibs.utils.StringHelper;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.UtilityFunction;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.ZipHelper;
 
-public class BaseFragment extends Fragment {
+public abstract class BaseFragment<VB extends ViewBinding> extends Fragment {
+    protected VB binding;
+
+    protected abstract VB inflateBinding(LayoutInflater inflater, ViewGroup container);
+
     protected Activity mActivity;
     protected Context mContext;
 
@@ -52,5 +63,18 @@ public class BaseFragment extends Fragment {
 
             this.utilityFunction.permissionStrictMode();
         }
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = inflateBinding(inflater, container);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

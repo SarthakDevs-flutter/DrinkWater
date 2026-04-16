@@ -9,15 +9,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
+import com.trending.water.drinking.reminder.databinding.ScreenOnboardingFiveBinding;
 
-public class Screen_OnBoarding_Five extends MasterBaseFragment {
+public class Screen_OnBoarding_Five extends MasterBaseFragment<ScreenOnboardingFiveBinding> {
 
-    private View itemView;
-
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        itemView = inflater.inflate(R.layout.screen_onboarding_five, container, false);
-        return itemView;
+    protected ScreenOnboardingFiveBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
+        return ScreenOnboardingFiveBinding.inflate(inflater, container, false);
     }
 }

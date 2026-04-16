@@ -28,6 +28,7 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
+import com.trending.water.drinking.reminder.databinding.ScreenYearReportBinding;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
 import java.util.ArrayList;
@@ -38,21 +39,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class Screen_Year_Report extends MasterBaseFragment {
+public class Screen_Year_Report extends MasterBaseFragment<ScreenYearReportBinding> {
+
+    @Override
+    protected ScreenYearReportBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
+        return ScreenYearReportBinding.inflate(inflater, container, false);
+    }
 
     private static final String TAG = "Screen_Year_Report";
     private final List<String> monthLabelList = new ArrayList<>();
     private final List<String> monthQueryList = new ArrayList<>();
     private final List<Integer> intakeAvgValueList = new ArrayList<>();
     private final List<Integer> goalAvgValueList = new ArrayList<>();
-    private BarChart barChart;
-    private LineChart lineChart;
-    private AppCompatTextView lblTitle;
-    private AppCompatTextView txtAvgIntake;
-    private AppCompatTextView txtDrinkFrequency;
-    private AppCompatTextView txtDrinkCompletion;
-    private ImageView imgPre;
-    private ImageView imgNext;
     private Calendar currentStartCalendar;
     private Calendar currentEndCalendar;
     private Calendar startCalendarRef;
@@ -60,19 +58,14 @@ public class Screen_Year_Report extends MasterBaseFragment {
     private String[] monthNames;
     private String[] monthNamesShort;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.screen_year_report, container, false);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         initLabels();
-        findViewByIds(view);
         initCalendars();
         setupListeners();
-
         refreshData();
-
-        return view;
     }
 
     private void initLabels() {
@@ -80,16 +73,6 @@ public class Screen_Year_Report extends MasterBaseFragment {
         monthNamesShort = stringHelper.getStringArray(R.array.month_list);
     }
 
-    private void findViewByIds(View view) {
-        lineChart = view.findViewById(R.id.chartNew);
-        barChart = view.findViewById(R.id.chart1);
-        lblTitle = view.findViewById(R.id.lbl_title);
-        imgPre = view.findViewById(R.id.img_pre);
-        imgNext = view.findViewById(R.id.img_next);
-        txtAvgIntake = view.findViewById(R.id.txt_avg_intake);
-        txtDrinkFrequency = view.findViewById(R.id.txt_drink_fre);
-        txtDrinkCompletion = view.findViewById(R.id.txt_drink_com);
-    }
 
     private void initCalendars() {
         currentStartCalendar = Calendar.getInstance();
@@ -121,13 +104,13 @@ public class Screen_Year_Report extends MasterBaseFragment {
     }
 
     private void setupListeners() {
-        imgPre.setOnClickListener(v -> {
+        binding.imgPre.setOnClickListener(v -> {
             startCalendarRef.add(Calendar.YEAR, -1);
             endCalendarRef.add(Calendar.YEAR, -1);
             refreshData();
         });
 
-        imgNext.setOnClickListener(v -> {
+        binding.imgNext.setOnClickListener(v -> {
             if (startCalendarRef.getTimeInMillis() + (365L * 24 * 60 * 60 * 1000L) >= currentEndCalendar.getTimeInMillis()) {
                 return;
             }
@@ -144,7 +127,7 @@ public class Screen_Year_Report extends MasterBaseFragment {
     }
 
     private void calculateIntakeStats() {
-        lblTitle.setText(dateHelper.getDate(startCalendarRef.getTimeInMillis(), "yyyy"));
+        binding.lblTitle.setText(dateHelper.getDate(startCalendarRef.getTimeInMillis(), "yyyy"));
 
         monthLabelList.clear();
         monthQueryList.clear();
@@ -210,34 +193,34 @@ public class Screen_Year_Report extends MasterBaseFragment {
             int avgFreq = Math.round((float) frequency / activeDays);
             String freqUnit = avgFreq > 1 ? stringHelper.getString(R.string.times) : stringHelper.getString(R.string.time);
 
-            txtAvgIntake.setText(String.format(Locale.US, "%d %s/%s", avgIntake, unit, stringHelper.getString(R.string.day)));
-            txtDrinkFrequency.setText(String.format(Locale.US, "%d %s/%s", avgFreq, freqUnit, stringHelper.getString(R.string.day)));
+            binding.txtAvgIntake.setText(String.format(Locale.US, "%d %s/%s", avgIntake, unit, stringHelper.getString(R.string.day)));
+            binding.txtDrinkFre.setText(String.format(Locale.US, "%d %s/%s", avgFreq, freqUnit, stringHelper.getString(R.string.day)));
 
             int completion = (int) Math.round((totalDrink * 100.0) / totalGoal);
-            txtDrinkCompletion.setText(String.format(Locale.US, "%d%%", completion));
+            binding.txtDrinkCom.setText(String.format(Locale.US, "%d%%", completion));
         } else {
-            txtAvgIntake.setText(String.format(Locale.US, "0 %s/%s", unit, stringHelper.getString(R.string.day)));
-            txtDrinkFrequency.setText(String.format(Locale.US, "0 %s/%s", stringHelper.getString(R.string.time), stringHelper.getString(R.string.day)));
-            txtDrinkCompletion.setText("0%");
+            binding.txtAvgIntake.setText(String.format(Locale.US, "0 %s/%s", unit, stringHelper.getString(R.string.day)));
+            binding.txtDrinkFre.setText(String.format(Locale.US, "0 %s/%s", stringHelper.getString(R.string.time), stringHelper.getString(R.string.day)));
+            binding.txtDrinkCom.setText("0%");
         }
     }
 
     private void setupBarChart() {
-        barChart.clear();
-        barChart.getDescription().setEnabled(false);
-        barChart.setDrawGridBackground(false);
-        barChart.setDrawValueAboveBar(false);
-        barChart.setPinchZoom(false);
-        barChart.setScaleEnabled(false);
+        binding.chart1.clear();
+        binding.chart1.getDescription().setEnabled(false);
+        binding.chart1.setDrawGridBackground(false);
+        binding.chart1.setDrawValueAboveBar(false);
+        binding.chart1.setPinchZoom(false);
+        binding.chart1.setScaleEnabled(false);
 
-        YAxis leftAxis = barChart.getAxisLeft();
+        YAxis leftAxis = binding.chart1.getAxisLeft();
         leftAxis.setTextColor(ContextCompat.getColor(mContext, R.color.rdo_gender_select));
         leftAxis.setAxisMinimum(0f);
         leftAxis.setAxisMaximum(getMaxChartValue(intakeAvgValueList, goalAvgValueList));
 
-        barChart.getAxisRight().setEnabled(false);
+        binding.chart1.getAxisRight().setEnabled(false);
 
-        XAxis xAxis = barChart.getXAxis();
+        XAxis xAxis = binding.chart1.getXAxis();
         xAxis.setDrawGridLines(false);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setTextColor(ContextCompat.getColor(mContext, R.color.rdo_gender_select));
@@ -251,7 +234,7 @@ public class Screen_Year_Report extends MasterBaseFragment {
             }
         });
 
-        barChart.getLegend().setEnabled(false);
+        binding.chart1.getLegend().setEnabled(false);
 
         ArrayList<BarEntry> entries = new ArrayList<>();
         for (int i = 0; i < intakeAvgValueList.size(); i++) {
@@ -263,8 +246,8 @@ public class Screen_Year_Report extends MasterBaseFragment {
         dataSet.setDrawValues(false);
 
         BarData data = new BarData(dataSet);
-        barChart.setData(data);
-        barChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+        binding.chart1.setData(data);
+        binding.chart1.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override
             public void onValueSelected(Entry e, Highlight h) {
                 int pos = (int) e.getX();
@@ -278,16 +261,16 @@ public class Screen_Year_Report extends MasterBaseFragment {
             }
         });
 
-        barChart.animateY(1000);
-        barChart.invalidate();
+        binding.chart1.animateY(1000);
+        binding.chart1.invalidate();
     }
 
     private void setupLineChart() {
-        lineChart.clear();
-        lineChart.getDescription().setEnabled(false);
-        lineChart.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.white));
+        binding.chartNew.clear();
+        binding.chartNew.getDescription().setEnabled(false);
+        binding.chartNew.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.white));
 
-        XAxis xAxis = lineChart.getXAxis();
+        XAxis xAxis = binding.chartNew.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setLabelRotationAngle(-90f);
         xAxis.setLabelCount(monthLabelList.size(), true);
@@ -299,11 +282,11 @@ public class Screen_Year_Report extends MasterBaseFragment {
             }
         });
 
-        YAxis leftAxis = lineChart.getAxisLeft();
+        YAxis leftAxis = binding.chartNew.getAxisLeft();
         leftAxis.setAxisMinimum(0f);
         leftAxis.setAxisMaximum(getMaxChartValue(intakeAvgValueList, goalAvgValueList) + 100);
 
-        lineChart.getAxisRight().setEnabled(false);
+        binding.chartNew.getAxisRight().setEnabled(false);
 
         ArrayList<Entry> entries = new ArrayList<>();
         for (int i = 0; i < intakeAvgValueList.size(); i++) {
@@ -322,9 +305,9 @@ public class Screen_Year_Report extends MasterBaseFragment {
 
         LineData data = new LineData(dataSet);
         data.setDrawValues(false);
-        lineChart.setData(data);
-        lineChart.animateY(1000);
-        lineChart.invalidate();
+        binding.chartNew.setData(data);
+        binding.chartNew.animateY(1000);
+        binding.chartNew.invalidate();
     }
 
     private float getMaxChartValue(List<Integer> intakes, List<Integer> goals) {
@@ -371,7 +354,7 @@ public class Screen_Year_Report extends MasterBaseFragment {
         }
 
         view.findViewById(R.id.img_cancel).setOnClickListener(v -> dialog.dismiss());
-        dialog.setOnDismissListener(d -> barChart.highlightValue(null));
+        dialog.setOnDismissListener(d -> binding.chart1.highlightValue(null));
 
         dialog.setContentView(view);
         dialog.show();

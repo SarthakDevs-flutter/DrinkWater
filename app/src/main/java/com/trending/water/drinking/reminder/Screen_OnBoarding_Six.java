@@ -6,41 +6,34 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
+import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
+import com.wdullaer.materialdatetimepicker.time.Timepoint;
+import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
-
-import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
-import com.trending.water.drinking.reminder.base.MasterBaseFragment;
-import com.trending.water.drinking.reminder.utils.URLFactory;
-import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
-import com.wdullaer.materialdatetimepicker.time.Timepoint;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import com.trending.water.drinking.reminder.base.MasterBaseFragment;
+import com.trending.water.drinking.reminder.databinding.ScreenOnboardingSixBinding;
+import com.trending.water.drinking.reminder.utils.URLFactory;
 
-public class Screen_OnBoarding_Six extends MasterBaseFragment {
+public class Screen_OnBoarding_Six extends MasterBaseFragment<ScreenOnboardingSixBinding> {
+
+    @Override
+    protected ScreenOnboardingSixBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
+        return ScreenOnboardingSixBinding.inflate(inflater, container, false);
+    }
 
     private int fromHour = 8;
     private int fromMinute = 0;
     private int toHour = 22;
     private int toMinute = 0;
-
-    private AppCompatTextView txtWakeupTime;
-    private AppCompatTextView txtBedTime;
-    private AppCompatTextView lblMessage;
-
-    private RadioButton rdo15;
-    private RadioButton rdo30;
-    private RadioButton rdo45;
-    private RadioButton rdo60;
-
-    private View itemView;
 
     public static Timepoint[] generateTimepoints(double maxHour, int minutesInterval) {
         int lastValueInMinutes = (int) (60.0d * maxHour);
@@ -57,14 +50,11 @@ public class Screen_OnBoarding_Six extends MasterBaseFragment {
         return timepoints.toArray(new Timepoint[0]);
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        itemView = inflater.inflate(R.layout.screen_onboarding_six, container, false);
-        findViewByIds(itemView);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         initView();
         calculateIntervalConsumption();
-        return itemView;
     }
 
     @Override
@@ -75,33 +65,24 @@ public class Screen_OnBoarding_Six extends MasterBaseFragment {
         }
     }
 
-    private void findViewByIds(View view) {
-        txtWakeupTime = view.findViewById(R.id.txt_wakeup_time);
-        txtBedTime = view.findViewById(R.id.txt_bed_time);
-        rdo15 = view.findViewById(R.id.rdo_15);
-        rdo30 = view.findViewById(R.id.rdo_30);
-        rdo45 = view.findViewById(R.id.rdo_45);
-        rdo60 = view.findViewById(R.id.rdo_60);
-        lblMessage = view.findViewById(R.id.lbl_message);
-    }
 
     private void initView() {
         String minStr = " " + stringHelper.getString(R.string.str_min);
         String hourStr = " " + stringHelper.getString(R.string.str_hour);
 
-        rdo15.setText("15" + minStr);
-        rdo30.setText("30" + minStr);
-        rdo45.setText("45" + minStr);
-        rdo60.setText("1" + hourStr);
+        binding.rdo15.setText("15" + minStr);
+        binding.rdo30.setText("30" + minStr);
+        binding.rdo45.setText("45" + minStr);
+        binding.rdo60.setText("1" + hourStr);
 
-        txtWakeupTime.setOnClickListener(v -> openTimePicker(txtWakeupTime, true));
-        txtBedTime.setOnClickListener(v -> openTimePicker(txtBedTime, false));
+        binding.txtWakeupTime.setOnClickListener(v -> openTimePicker(binding.txtWakeupTime, true));
+        binding.txtBedTime.setOnClickListener(v -> openTimePicker(binding.txtBedTime, false));
 
         View.OnClickListener intervalListener = v -> calculateIntervalConsumption();
-        rdo15.setOnClickListener(intervalListener);
-        rdo30.setOnClickListener(intervalListener);
-        rdo45.setOnClickListener(intervalListener);
-        rdo60.setOnClickListener(intervalListener);
+        binding.rdo15.setOnClickListener(intervalListener);
+        binding.rdo30.setOnClickListener(intervalListener);
+        binding.rdo45.setOnClickListener(intervalListener);
+        binding.rdo60.setOnClickListener(intervalListener);
     }
 
     private void openTimePicker(final AppCompatTextView textView, final boolean isFrom) {
@@ -137,8 +118,8 @@ public class Screen_OnBoarding_Six extends MasterBaseFragment {
     private boolean isNextDayEnd() {
         SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.US);
         try {
-            long wakeup = sdf.parse(txtWakeupTime.getText().toString().trim()).getTime();
-            long bed = sdf.parse(txtBedTime.getText().toString().trim()).getTime();
+            long wakeup = sdf.parse(binding.txtWakeupTime.getText().toString().trim()).getTime();
+            long bed = sdf.parse(binding.txtBedTime.getText().toString().trim()).getTime();
             return wakeup > bed;
         } catch (Exception e) {
             return false;
@@ -165,7 +146,7 @@ public class Screen_OnBoarding_Six extends MasterBaseFragment {
         long diffMills = endTime.getTimeInMillis() - startTime.getTimeInMillis();
         float totalMinutes = diffMills / 60000f;
 
-        int interval = rdo15.isChecked() ? 15 : rdo30.isChecked() ? 30 : rdo45.isChecked() ? 45 : 60;
+        int interval = binding.rdo15.isChecked() ? 15 : binding.rdo30.isChecked() ? 30 : binding.rdo45.isChecked() ? 45 : 60;
         int consumptionPerInterval = 0;
 
         if (totalMinutes > 0) {
@@ -177,13 +158,13 @@ public class Screen_OnBoarding_Six extends MasterBaseFragment {
         goalMsg = goalMsg.replace("$1", consumptionPerInterval + " " + unit)
                 .replace("$2", (int) URLFactory.dailyWaterValue + " " + unit);
 
-        lblMessage.setText(goalMsg);
+        binding.lblMessage.setText(goalMsg);
 
         // Save preferences
-        preferencesHelper.savePreferences(URLFactory.KEY_WAKE_UP_TIME, txtWakeupTime.getText().toString().trim());
+        preferencesHelper.savePreferences(URLFactory.KEY_WAKE_UP_TIME, binding.txtWakeupTime.getText().toString().trim());
         preferencesHelper.savePreferences(URLFactory.KEY_WAKE_UP_HOUR, fromHour);
         preferencesHelper.savePreferences(URLFactory.KEY_WAKE_UP_MINUTE, fromMinute);
-        preferencesHelper.savePreferences(URLFactory.KEY_BED_TIME, txtBedTime.getText().toString().trim());
+        preferencesHelper.savePreferences(URLFactory.KEY_BED_TIME, binding.txtBedTime.getText().toString().trim());
         preferencesHelper.savePreferences(URLFactory.KEY_BED_TIME_HOUR, toHour);
         preferencesHelper.savePreferences(URLFactory.KEY_BED_TIME_MINUTE, toMinute);
         preferencesHelper.savePreferences(URLFactory.KEY_INTERVAL, interval);

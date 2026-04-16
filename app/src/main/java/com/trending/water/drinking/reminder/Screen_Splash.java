@@ -11,28 +11,27 @@ import android.widget.ImageView;
 import androidx.annotation.Nullable;
 
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
+import com.trending.water.drinking.reminder.databinding.ScreenSplashBinding;
 import com.trending.water.drinking.reminder.mywidgets.NewAppWidget;
 import com.trending.water.drinking.reminder.utils.URLFactory;
+import android.view.LayoutInflater;
 
-public class Screen_Splash extends MasterBaseAppCompatActivity {
+public class Screen_Splash extends MasterBaseAppCompatActivity<ScreenSplashBinding> {
+
+    @Override
+    protected ScreenSplashBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenSplashBinding.inflate(inflater);
+    }
 
     private static final int SPLASH_DELAY = 1000;
 
-    private ImageView imgSplashLogo;
     private Handler splashHandler;
     private Runnable splashRunnable;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_splash);
-
-        findViewByIds();
         updateWidgets();
-    }
-
-    private void findViewByIds() {
-        imgSplashLogo = findViewById(R.id.img_splash_logo);
     }
 
     private void updateWidgets() {
