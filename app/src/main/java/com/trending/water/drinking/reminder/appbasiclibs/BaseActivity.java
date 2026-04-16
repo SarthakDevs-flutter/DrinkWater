@@ -5,9 +5,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.viewbinding.ViewBinding;
 
+import com.trending.water.drinking.reminder.R;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.AlertHelper;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.BitmapHelper;
 import com.trending.water.drinking.reminder.appbasiclibs.utils.DatabaseHelper;
@@ -39,10 +44,11 @@ public abstract class BaseActivity<VB extends ViewBinding> extends AppCompatActi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        EdgeToEdge.enable(this);
         binding = inflateBinding(getLayoutInflater());
         if (binding != null) {
             setContentView(binding.getRoot());
+            addInsetPaddingSupport();
         }
 
         this.mContext = this;
@@ -60,5 +66,13 @@ public abstract class BaseActivity<VB extends ViewBinding> extends AppCompatActi
         this.zipHelper = new ZipHelper();
 
         this.utilityFunction.enableStrictMode();
+    }
+
+    private void addInsetPaddingSupport() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
     }
 }
