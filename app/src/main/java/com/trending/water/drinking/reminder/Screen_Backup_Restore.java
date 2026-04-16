@@ -10,12 +10,9 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.gson.Gson;
 import com.trending.water.drinking.reminder.adapter.FileAdapter;
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
+import com.trending.water.drinking.reminder.databinding.ScreenBackupRestoreBinding;
 import com.trending.water.drinking.reminder.model.BackUpFileModel;
 import com.trending.water.drinking.reminder.model.backuprestore.AlarmDetails;
 import com.trending.water.drinking.reminder.model.backuprestore.AlarmSubDetails;
@@ -43,19 +41,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-
-import android.view.LayoutInflater;
-
-import com.trending.water.drinking.reminder.databinding.ScreenBackupRestoreBinding;
-import com.google.gson.Gson;
 /* ... rest of imports ... */
 
 public class Screen_Backup_Restore extends MasterBaseActivity<ScreenBackupRestoreBinding> {
-
-    @Override
-    protected ScreenBackupRestoreBinding inflateBinding(LayoutInflater inflater) {
-        return ScreenBackupRestoreBinding.inflate(inflater);
-    }
 
     private static final String TAG = "Screen_Backup_Restore";
     private static final int REQ_PERMISSIONS = 3;
@@ -64,6 +52,11 @@ public class Screen_Backup_Restore extends MasterBaseActivity<ScreenBackupRestor
     private final List<BackUpFileModel> backupFileList = new ArrayList<>();
     private boolean isPendingBackup = true;
     private FileAdapter fileAdapter;
+
+    @Override
+    protected ScreenBackupRestoreBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenBackupRestoreBinding.inflate(inflater);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

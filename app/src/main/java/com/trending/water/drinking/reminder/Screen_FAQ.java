@@ -7,9 +7,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatTextView;
-
-import android.view.LayoutInflater;
 
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
 import com.trending.water.drinking.reminder.custom.AnimationUtils;
@@ -22,14 +19,14 @@ import java.util.List;
 
 public class Screen_FAQ extends MasterBaseActivity<ScreenFaqBinding> {
 
+    private final List<FAQModel> faqList = new ArrayList<>();
+    private final List<LinearLayout> answerViewList = new ArrayList<>();
+    private final List<ImageView> expandIconList = new ArrayList<>();
+
     @Override
     protected ScreenFaqBinding inflateBinding(LayoutInflater inflater) {
         return ScreenFaqBinding.inflate(inflater);
     }
-
-    private final List<FAQModel> faqList = new ArrayList<>();
-    private final List<LinearLayout> answerViewList = new ArrayList<>();
-    private final List<ImageView> expandIconList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

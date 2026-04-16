@@ -1,30 +1,24 @@
 package com.trending.water.drinking.reminder;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.material.tabs.TabLayout;
 import com.trending.water.drinking.reminder.adapter.ReportPagerAdapter;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
-import com.trending.water.drinking.reminder.custom.NonSwipeableViewPager;
 import com.trending.water.drinking.reminder.databinding.ScreenReportBinding;
-import android.view.LayoutInflater;
 
 public class Screen_Report extends MasterBaseAppCompatActivity<ScreenReportBinding> {
+
+    private ReportPagerAdapter reportPagerAdapter;
 
     @Override
     protected ScreenReportBinding inflateBinding(LayoutInflater inflater) {
         return ScreenReportBinding.inflate(inflater);
     }
-
-
-    private ReportPagerAdapter reportPagerAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

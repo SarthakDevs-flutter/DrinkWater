@@ -7,10 +7,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 
 import androidx.annotation.Nullable;
-
-import android.view.LayoutInflater;
 
 import com.trending.water.drinking.reminder.appbasiclibs.AppClose;
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
@@ -27,14 +26,14 @@ import java.util.Locale;
 
 public class Screen_Select_Bottle extends MasterBaseActivity<ScreenSelectBottleBinding> {
 
+    private final ArrayList<Container> containerList = new ArrayList<>();
+    private float currentTotalDrank = 0.0f;
+    private int selectedPosition = 0;
+
     @Override
     protected ScreenSelectBottleBinding inflateBinding(LayoutInflater inflater) {
         return ScreenSelectBottleBinding.inflate(inflater);
     }
-
-    private final ArrayList<Container> containerList = new ArrayList<>();
-    private float currentTotalDrank = 0.0f;
-    private int selectedPosition = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

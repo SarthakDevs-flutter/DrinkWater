@@ -6,17 +6,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
 
-import android.view.LayoutInflater;
-
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
@@ -41,11 +36,6 @@ import java.util.Locale;
 
 public class Screen_Month_Report extends MasterBaseFragment<ScreenMonthReportBinding> {
 
-    @Override
-    protected ScreenMonthReportBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
-        return ScreenMonthReportBinding.inflate(inflater, container, false);
-    }
-
     private static final String TAG = "Screen_Month_Report";
     private final List<String> dateList = new ArrayList<>();
     private final List<Integer> intakeValueList = new ArrayList<>();
@@ -54,6 +44,11 @@ public class Screen_Month_Report extends MasterBaseFragment<ScreenMonthReportBin
     private Calendar currentEndCalendar;
     private Calendar startCalendarRef;
     private Calendar endCalendarRef;
+
+    @Override
+    protected ScreenMonthReportBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
+        return ScreenMonthReportBinding.inflate(inflater, container, false);
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

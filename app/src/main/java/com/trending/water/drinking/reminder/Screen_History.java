@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
@@ -25,11 +24,6 @@ import java.util.List;
 
 public class Screen_History extends MasterBaseActivity<ScreenHistoryBinding> {
 
-    @Override
-    protected ScreenHistoryBinding inflateBinding(LayoutInflater inflater) {
-        return ScreenHistoryBinding.inflate(inflater);
-    }
-
     private final ArrayList<History> histories = new ArrayList<>();
     private final int perPage = 20;
     private HistoryAdapter adapter;
@@ -37,6 +31,11 @@ public class Screen_History extends MasterBaseActivity<ScreenHistoryBinding> {
     private int page = 0;
     private int beforeLoad = 0;
     private int afterLoad = 0;
+
+    @Override
+    protected ScreenHistoryBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenHistoryBinding.inflate(inflater);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

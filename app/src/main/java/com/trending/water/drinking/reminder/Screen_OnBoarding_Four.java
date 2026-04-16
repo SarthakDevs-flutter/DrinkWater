@@ -17,27 +17,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
-import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
-import com.trending.water.drinking.reminder.utils.HeightWeightHelper;
-import android.view.LayoutInflater;
 
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
+import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
 import com.trending.water.drinking.reminder.databinding.ScreenOnboardingFourBinding;
+import com.trending.water.drinking.reminder.utils.HeightWeightHelper;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
 import java.util.Locale;
 
 public class Screen_OnBoarding_Four extends MasterBaseFragment<ScreenOnboardingFourBinding> {
 
+    private static final String TAG = "Screen_OnBoarding_Four";
+    private boolean isExecute = true;
+    private boolean isExecuteSeekBar = true;
+
     @Override
     protected ScreenOnboardingFourBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
         return ScreenOnboardingFourBinding.inflate(inflater, container, false);
     }
-
-    private static final String TAG = "Screen_OnBoarding_Four";
-
-    private boolean isExecute = true;
-    private boolean isExecuteSeekBar = true;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

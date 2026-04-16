@@ -17,11 +17,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -30,7 +27,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
@@ -55,19 +51,12 @@ import java.util.Locale;
 
 public class Screen_Profile extends MasterBaseAppCompatActivity<ScreenProfileBinding> {
 
-    @Override
-    protected ScreenProfileBinding inflateBinding(LayoutInflater inflater) {
-        return ScreenProfileBinding.inflate(inflater);
-    }
-
-
     private static final String TAG = "Screen_Profile";
     private static final int REQUEST_PICK_IMAGE = 1;
     private static final int REQUEST_CAMERA_IMAGE = 2;
     private static final int REQUEST_STORAGE_PERMISSION = 3;
     private final List<Double> heightFeetElements = new ArrayList<>();
     private BottomSheetDialog bottomSheetDialog;
-
     private PopupWindow popupMenu;
     private Uri imageUri;
     private String selectedImagePath;
@@ -76,6 +65,11 @@ public class Screen_Profile extends MasterBaseAppCompatActivity<ScreenProfileBin
     private RadioButton rdoFeet;
     private RadioButton rdoKg;
     private RadioButton rdoLb;
+
+    @Override
+    protected ScreenProfileBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenProfileBinding.inflate(inflater);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -213,7 +207,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity<ScreenProfileBin
                 stringHelper.getString(R.string.rainy),
                 stringHelper.getString(R.string.snow)
         };
-       binding. txtWeather.setText(weatherArr[idx]);
+        binding.txtWeather.setText(weatherArr[idx]);
     }
 
     private void calculateActiveFactors() {
@@ -222,11 +216,11 @@ public class Screen_Profile extends MasterBaseAppCompatActivity<ScreenProfileBin
 
         // Pregnant
         int pVal = isKg ? (int) URLFactory.PREGNANT_WATER_ADDITIONAL : (int) Math.round(HeightWeightHelper.convertMlToOz(URLFactory.PREGNANT_WATER_ADDITIONAL));
-        binding. lblPregnant.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.pregnant).toUpperCase(), pVal, unit));
+        binding.lblPregnant.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.pregnant).toUpperCase(), pVal, unit));
 
         // Breastfeeding
         int bVal = isKg ? (int) URLFactory.BREASTFEEDING_WATER_ADDITIONAL : (int) Math.round(HeightWeightHelper.convertMlToOz(URLFactory.BREASTFEEDING_WATER_ADDITIONAL));
-        binding.  lblBreastfeeding.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.breastfeeding).toUpperCase(), bVal, unit));
+        binding.lblBreastfeeding.setText(String.format(Locale.getDefault(), "%s (+%d %s)", stringHelper.getString(R.string.breastfeeding).toUpperCase(), bVal, unit));
 
         // Active
         double weight = Double.parseDouble(preferencesHelper.getString(URLFactory.KEY_PERSON_WEIGHT, "70"));
@@ -316,11 +310,11 @@ public class Screen_Profile extends MasterBaseAppCompatActivity<ScreenProfileBin
     }
 
     private void updateGenderView(boolean isFemale) {
-       binding.txtGender.setText(stringHelper.getString(isFemale ? R.string.str_female : R.string.str_male));
-        binding.  otherFactors.setVisibility(isFemale ? View.VISIBLE : View.GONE);
+        binding.txtGender.setText(stringHelper.getString(isFemale ? R.string.str_female : R.string.str_male));
+        binding.otherFactors.setVisibility(isFemale ? View.VISIBLE : View.GONE);
         if (!isFemale) {
-            binding.  switchPregnant.setChecked(false);
-            binding.  switchBreastfeeding.setChecked(false);
+            binding.switchPregnant.setChecked(false);
+            binding.switchBreastfeeding.setChecked(false);
             preferencesHelper.savePreferences(URLFactory.KEY_IS_PREGNANT, false);
             preferencesHelper.savePreferences(URLFactory.KEY_IS_BREASTFEEDING, false);
         }

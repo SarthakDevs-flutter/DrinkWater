@@ -6,11 +6,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatTextView;
-
-import android.view.LayoutInflater;
 
 import com.trending.water.drinking.reminder.base.MasterBaseActivity;
 import com.trending.water.drinking.reminder.databinding.ScreenSelectSnoozeBinding;

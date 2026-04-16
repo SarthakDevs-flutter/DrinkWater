@@ -10,21 +10,15 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import android.view.LayoutInflater;
-
 import com.trending.water.drinking.reminder.adapter.AlarmAdapter;
 import com.trending.water.drinking.reminder.adapter.IntervalAdapter;
 import com.trending.water.drinking.reminder.adapter.SoundAdapter;
@@ -48,11 +42,6 @@ import java.util.Locale;
 
 public class Screen_Reminder extends MasterBaseActivity<ScreenReminderBinding> {
 
-    @Override
-    protected ScreenReminderBinding inflateBinding(LayoutInflater inflater) {
-        return ScreenReminderBinding.inflate(inflater);
-    }
-
     private static final String TAG = "Screen_Reminder";
     private final ArrayList<AlarmModel> alarmList = new ArrayList<>();
     private final List<IntervalModel> intervalList = new ArrayList<>();
@@ -61,7 +50,6 @@ public class Screen_Reminder extends MasterBaseActivity<ScreenReminderBinding> {
     private BottomSheetDialog soundSheetDialog;
     private IntervalAdapter intervalAdapter;
     private SoundAdapter soundAdapter;
-
     private int fromHour = 8;
     private int fromMinute = 0;
     private int toHour = 22;
@@ -77,6 +65,11 @@ public class Screen_Reminder extends MasterBaseActivity<ScreenReminderBinding> {
             if (h < 24) points.add(new Timepoint(h, mm));
         }
         return points.toArray(new Timepoint[0]);
+    }
+
+    @Override
+    protected ScreenReminderBinding inflateBinding(LayoutInflater inflater) {
+        return ScreenReminderBinding.inflate(inflater);
     }
 
     @Override

@@ -5,30 +5,26 @@ import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
-import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
-import com.wdullaer.materialdatetimepicker.time.Timepoint;
-import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
+
+import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
+import com.trending.water.drinking.reminder.base.MasterBaseFragment;
+import com.trending.water.drinking.reminder.databinding.ScreenOnboardingSixBinding;
+import com.trending.water.drinking.reminder.utils.URLFactory;
+import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
+import com.wdullaer.materialdatetimepicker.time.Timepoint;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import com.trending.water.drinking.reminder.base.MasterBaseFragment;
-import com.trending.water.drinking.reminder.databinding.ScreenOnboardingSixBinding;
-import com.trending.water.drinking.reminder.utils.URLFactory;
 
 public class Screen_OnBoarding_Six extends MasterBaseFragment<ScreenOnboardingSixBinding> {
-
-    @Override
-    protected ScreenOnboardingSixBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
-        return ScreenOnboardingSixBinding.inflate(inflater, container, false);
-    }
 
     private int fromHour = 8;
     private int fromMinute = 0;
@@ -48,6 +44,11 @@ public class Screen_OnBoarding_Six extends MasterBaseFragment<ScreenOnboardingSi
             currentMinute += minutesInterval;
         }
         return timepoints.toArray(new Timepoint[0]);
+    }
+
+    @Override
+    protected ScreenOnboardingSixBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
+        return ScreenOnboardingSixBinding.inflate(inflater, container, false);
     }
 
     @Override

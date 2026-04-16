@@ -23,10 +23,8 @@ import android.text.InputFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.Nullable;
@@ -34,13 +32,11 @@ import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
-import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -53,7 +49,6 @@ import com.trending.water.drinking.reminder.appbasiclibs.utils.Constant;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
 import com.trending.water.drinking.reminder.databinding.ScreenDashboardBinding;
-import com.trending.water.drinking.reminder.databinding.ScreenYearReportBinding;
 import com.trending.water.drinking.reminder.model.Container;
 import com.trending.water.drinking.reminder.model.Menu;
 import com.trending.water.drinking.reminder.model.NextReminderModel;
@@ -187,22 +182,22 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
             setDashboardDate(dateHelper.getDate(filterCal.getTimeInMillis(), URLFactory.DATE_FORMAT));
         });
 
-        binding. btnRateUs.setOnClickListener(v -> rateApp());
-        binding. btnContactUs.setOnClickListener(v -> contactUs());
-        binding. openProfile.setOnClickListener(v -> {
+        binding.btnRateUs.setOnClickListener(v -> rateApp());
+        binding.btnContactUs.setOnClickListener(v -> contactUs());
+        binding.openProfile.setOnClickListener(v -> {
             closeDrawer();
             startActivity(new Intent(mActivity, Screen_Profile.class));
         });
-        binding.include1. btnAlarm.setOnClickListener(v -> showReminderSettingsDialog());
-        binding. include1.btnMenu.setOnClickListener(v -> toggleDrawer());
+        binding.include1.btnAlarm.setOnClickListener(v -> showReminderSettingsDialog());
+        binding.include1.btnMenu.setOnClickListener(v -> toggleDrawer());
 
-        binding. include1. imgPre.setOnClickListener(v -> changeDateBy(-1));
+        binding.include1.imgPre.setOnClickListener(v -> changeDateBy(-1));
         binding.include1.imgNext.setOnClickListener(v -> changeDateBy(1));
 
-        binding. selectedContainerBlock.setOnClickListener(v -> openChangeContainerPicker());
-        binding.    openHistory.setOnClickListener(v -> startActivity(new Intent(mActivity, Screen_History.class)));
+        binding.selectedContainerBlock.setOnClickListener(v -> openChangeContainerPicker());
+        binding.openHistory.setOnClickListener(v -> startActivity(new Intent(mActivity, Screen_History.class)));
 
-        binding.  addWater.setOnClickListener(v -> {
+        binding.addWater.setOnClickListener(v -> {
             if (!containerList.isEmpty() && isTodaySelected() && isClickable) {
                 isClickable = false;
                 executeAddWater();
@@ -244,8 +239,8 @@ public class Screen_Dashboard extends MasterBaseAppCompatActivity<ScreenDashboar
                     break;
             }
         });
-       binding. leftDrawer.setLayoutManager(new LinearLayoutManager(mContext));
-        binding. leftDrawer.setAdapter(menuAdapter);
+        binding.leftDrawer.setLayoutManager(new LinearLayoutManager(mContext));
+        binding.leftDrawer.setAdapter(menuAdapter);
     }
 
     private void initializeRingtone() {

@@ -2,7 +2,6 @@ package com.trending.water.drinking.reminder.appbasiclibs;
 
 import android.app.Activity;
 import android.content.Context;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,12 +25,8 @@ import com.trending.water.drinking.reminder.appbasiclibs.utils.ZipHelper;
 
 public abstract class BaseFragment<VB extends ViewBinding> extends Fragment {
     protected VB binding;
-
-    protected abstract VB inflateBinding(LayoutInflater inflater, ViewGroup container);
-
     protected Activity mActivity;
     protected Context mContext;
-
     protected AlertHelper alertHelper;
     protected BitmapHelper bitmapHelper;
     protected DatabaseHelper databaseHelper;
@@ -42,6 +37,8 @@ public abstract class BaseFragment<VB extends ViewBinding> extends Fragment {
     protected StringHelper stringHelper;
     protected UtilityFunction utilityFunction;
     protected ZipHelper zipHelper;
+
+    protected abstract VB inflateBinding(LayoutInflater inflater, ViewGroup container);
 
     @Override
     public void onAttach(@NonNull Context context) {

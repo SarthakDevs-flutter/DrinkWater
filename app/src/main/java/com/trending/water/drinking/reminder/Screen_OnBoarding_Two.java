@@ -6,15 +6,11 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.view.LayoutInflater;
-import androidx.appcompat.widget.AppCompatEditText;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
+
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
 import com.trending.water.drinking.reminder.databinding.ScreenOnboardingTwoBinding;
 import com.trending.water.drinking.reminder.utils.URLFactory;

@@ -8,33 +8,23 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatEditText;
-
-import android.view.LayoutInflater;
 
 import com.github.mikephil.charting.utils.Utils;
-/* ... rest of imports ... */
 import com.trending.water.drinking.reminder.base.MasterBaseFragment;
+import com.trending.water.drinking.reminder.custom.DigitsInputFilter;
+import com.trending.water.drinking.reminder.custom.InputFilterRange;
+import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
 import com.trending.water.drinking.reminder.databinding.ScreenOnboardingThreeBinding;
+import com.trending.water.drinking.reminder.utils.HeightWeightHelper;
 import com.trending.water.drinking.reminder.utils.URLFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.trending.water.drinking.reminder.custom.DigitsInputFilter;
-import com.trending.water.drinking.reminder.custom.InputFilterRange;
-import com.trending.water.drinking.reminder.custom.InputFilterWeightRange;
-import com.trending.water.drinking.reminder.lib.horizontalpicker.HorizontalPicker;
-import com.trending.water.drinking.reminder.utils.HeightWeightHelper;
-public class Screen_OnBoarding_Three extends MasterBaseFragment<ScreenOnboardingThreeBinding> {
 
-    @Override
-    protected ScreenOnboardingThreeBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
-        return ScreenOnboardingThreeBinding.inflate(inflater, container, false);
-    }
+public class Screen_OnBoarding_Three extends MasterBaseFragment<ScreenOnboardingThreeBinding> {
 
     private static final String TAG = "Screen_OnBoarding_Three";
     private final List<String> weightKgList = new ArrayList<>();
@@ -45,6 +35,11 @@ public class Screen_OnBoarding_Three extends MasterBaseFragment<ScreenOnboarding
     private boolean isExecute = true;
     private boolean isExecuteWeight = true;
     private View itemView;
+
+    @Override
+    protected ScreenOnboardingThreeBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
+        return ScreenOnboardingThreeBinding.inflate(inflater, container, false);
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

@@ -3,7 +3,6 @@ package com.trending.water.drinking.reminder.appbasiclibs;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-
 import android.view.LayoutInflater;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,11 +21,8 @@ import com.trending.water.drinking.reminder.appbasiclibs.utils.ZipHelper;
 
 public abstract class BaseActivity<VB extends ViewBinding> extends AppCompatActivity {
     protected VB binding;
-    protected abstract VB inflateBinding(LayoutInflater inflater);
-
     protected Activity mActivity;
     protected Context mContext;
-
     protected AlertHelper alertHelper;
     protected BitmapHelper bitmapHelper;
     protected DatabaseHelper databaseHelper;
@@ -37,6 +33,8 @@ public abstract class BaseActivity<VB extends ViewBinding> extends AppCompatActi
     protected StringHelper stringHelper;
     protected UtilityFunction utilityFunction;
     protected ZipHelper zipHelper;
+
+    protected abstract VB inflateBinding(LayoutInflater inflater);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

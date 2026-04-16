@@ -4,12 +4,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.trending.water.drinking.reminder.R;
 import android.view.LayoutInflater;
+import android.widget.Toast;
 
 import com.trending.water.drinking.reminder.appbasiclibs.utils.ExceptionHandler;
 import com.trending.water.drinking.reminder.databinding.ScreenErrorReportBinding;

@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.ImageView;
+import android.view.LayoutInflater;
 
 import androidx.annotation.Nullable;
 
@@ -14,19 +14,17 @@ import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
 import com.trending.water.drinking.reminder.databinding.ScreenSplashBinding;
 import com.trending.water.drinking.reminder.mywidgets.NewAppWidget;
 import com.trending.water.drinking.reminder.utils.URLFactory;
-import android.view.LayoutInflater;
 
 public class Screen_Splash extends MasterBaseAppCompatActivity<ScreenSplashBinding> {
+
+    private static final int SPLASH_DELAY = 1000;
+    private Handler splashHandler;
+    private Runnable splashRunnable;
 
     @Override
     protected ScreenSplashBinding inflateBinding(LayoutInflater inflater) {
         return ScreenSplashBinding.inflate(inflater);
     }
-
-    private static final int SPLASH_DELAY = 1000;
-
-    private Handler splashHandler;
-    private Runnable splashRunnable;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

@@ -17,12 +17,12 @@ import com.trending.water.drinking.reminder.utils.URLFactory;
 
 public class Screen_OnBoarding_Seven extends MasterBaseFragment<ScreenOnboardingSevenBinding> {
 
+    private View itemView;
+
     @Override
     protected ScreenOnboardingSevenBinding inflateBinding(LayoutInflater inflater, ViewGroup container) {
         return ScreenOnboardingSevenBinding.inflate(inflater, container, false);
     }
-
-    private View itemView;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

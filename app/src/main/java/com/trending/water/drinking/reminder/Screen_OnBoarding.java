@@ -6,19 +6,16 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
-import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 import com.trending.water.drinking.reminder.adapter.OnBoardingPagerAdapter;
 import com.trending.water.drinking.reminder.base.MasterBaseAppCompatActivity;
-import com.trending.water.drinking.reminder.custom.NonSwipeableViewPager;
 import com.trending.water.drinking.reminder.databinding.ScreenOnboardingBinding;
 import com.trending.water.drinking.reminder.receiver.MyAlarmManager;
 import com.trending.water.drinking.reminder.utils.URLFactory;
@@ -28,21 +25,19 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import android.view.LayoutInflater;
 
 public class Screen_OnBoarding extends MasterBaseAppCompatActivity<ScreenOnboardingBinding> {
+
+    private static final String TAG = "Screen_OnBoarding";
+    private static final int STORAGE_PERMISSION_CODE = 3;
+    private static final int MAX_PAGE = 7;
+    private OnBoardingPagerAdapter pagerAdapter;
+    private int currentPageIndex = 0;
 
     @Override
     protected ScreenOnboardingBinding inflateBinding(LayoutInflater inflater) {
         return ScreenOnboardingBinding.inflate(inflater);
     }
-
-    private static final String TAG = "Screen_OnBoarding";
-    private static final int STORAGE_PERMISSION_CODE = 3;
-    private static final int MAX_PAGE = 7;
-
-    private OnBoardingPagerAdapter pagerAdapter;
-    private int currentPageIndex = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

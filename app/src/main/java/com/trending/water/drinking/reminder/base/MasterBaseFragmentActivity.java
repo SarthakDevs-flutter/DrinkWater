@@ -3,7 +3,6 @@ package com.trending.water.drinking.reminder.base;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-
 import androidx.viewbinding.ViewBinding;
 
 import com.trending.water.drinking.reminder.appbasiclibs.BaseFragmentActivity;
