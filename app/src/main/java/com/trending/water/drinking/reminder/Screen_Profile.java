@@ -22,6 +22,8 @@ import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -52,14 +54,10 @@ import java.util.Locale;
 public class Screen_Profile extends MasterBaseAppCompatActivity<ScreenProfileBinding> {
 
     private static final String TAG = "Screen_Profile";
-    private static final int REQUEST_PICK_IMAGE = 1;
-    private static final int REQUEST_CAMERA_IMAGE = 2;
     private static final int REQUEST_STORAGE_PERMISSION = 3;
     private final List<Double> heightFeetElements = new ArrayList<>();
     private BottomSheetDialog bottomSheetDialog;
     private PopupWindow popupMenu;
-    private Uri imageUri;
-    private String selectedImagePath;
     private boolean isGoalUpdateExecuting = true;
     private RadioButton rdoCm;
     private RadioButton rdoFeet;
@@ -605,15 +603,17 @@ public class Screen_Profile extends MasterBaseAppCompatActivity<ScreenProfileBin
         }
 
         view.findViewById(R.id.btnGallery).setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(intent, REQUEST_PICK_IMAGE);
+            pickMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
         });
 
         view.findViewById(R.id.btnCamera).setOnClickListener(v -> {
-            setupCameraUri();
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-            startActivityForResult(intent, REQUEST_CAMERA_IMAGE);
+//            setupCameraUri();
+            takePictureLauncher.launch(setupCameraUri());
+//            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+//            startActivityForResult(intent, REQUEST_CAMERA_IMAGE);
         });
 
         view.findViewById(R.id.btnRemove).setOnClickListener(v -> {
@@ -634,20 +634,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity<ScreenProfileBin
         bottomSheetDialog.show();
     }
 
-    private void setupCameraUri() {
-        try {
-            File root = new File(Environment.getExternalStorageDirectory() + "/" + URLFactory.APP_DIRECTORY_NAME + "/" + URLFactory.PROFILE_DIR_NAME + "/");
-            if (!root.exists()) {
-                root.mkdirs();
-            }
-            if (!root.exists()) root.mkdirs();
-            File file = new File(root, "profile_image.png");
-            imageUri = FileProvider.getUriForFile(mActivity, getPackageName() + ".provider", file);
-            selectedImagePath = file.getAbsolutePath();
-        } catch (Exception e) {
-            Log.e(TAG, "Error setting up camera URI", e);
-        }
-    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void checkStoragePermissions() {
@@ -673,12 +660,7 @@ public class Screen_Profile extends MasterBaseAppCompatActivity<ScreenProfileBin
         if (bottomSheetDialog != null) bottomSheetDialog.dismiss();
 
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_PICK_IMAGE && data != null) {
-                Uri selected = data.getData();
-                if (selected != null) CropImage.activity(selected).start(this);
-            } else if (requestCode == REQUEST_CAMERA_IMAGE) {
-                CropImage.activity(imageUri).start(this);
-            } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+           if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 CropImage.ActivityResult result = CropImage.getActivityResult(data);
                 if (result != null) {
                     Uri resultUri = result.getUri();
@@ -688,6 +670,18 @@ public class Screen_Profile extends MasterBaseAppCompatActivity<ScreenProfileBin
                 }
             }
         }
+    }
+
+    @Override
+    protected void onActivityResultImagePicker(Uri uri) {
+        super.onActivityResultImagePicker(uri);
+        if (uri != null) CropImage.activity(uri).start(this);
+    }
+
+    @Override
+    protected void onActivityResultCameraPicker(Uri uri) {
+        super.onActivityResultCameraPicker(uri);
+        CropImage.activity(uri).start(this);
     }
 
     private void refreshWidget() {
