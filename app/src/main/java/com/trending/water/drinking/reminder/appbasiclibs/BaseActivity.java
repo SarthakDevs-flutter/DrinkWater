@@ -16,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.viewbinding.ViewBinding;
 
@@ -84,11 +86,12 @@ public abstract class BaseActivity<VB extends ViewBinding> extends AppCompatActi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+        WindowCompat.enableEdgeToEdge(getWindow());
         binding = inflateBinding(getLayoutInflater());
+        addInsetPaddingSupport();
         if (binding != null) {
             setContentView(binding.getRoot());
-            addInsetPaddingSupport();
+
         }
 
         this.mContext = this;
@@ -109,10 +112,16 @@ public abstract class BaseActivity<VB extends ViewBinding> extends AppCompatActi
     }
 
     private void addInsetPaddingSupport() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+        ViewGroupCompat.installCompatInsetsDispatch(binding.getRoot());
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (view, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+
+            // Apply only TOP padding globally
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+//            view.setPadding(0, systemBars.top, 0, 0);
+
+//            return insets
+            return WindowInsetsCompat.CONSUMED;
         });
     }
 
